@@ -3,6 +3,13 @@ import { computed } from 'vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import AgendaPreview from '@/components/sections/AgendaPreview.vue';
 import AwardsSpotlight from '@/components/sections/AwardsSpotlight.vue';
+import ExpoSponsor from '@/components/sections/ExpoSponsor.vue';
+import FinalCta from '@/components/sections/FinalCta.vue';
+import ForumSection from '@/components/sections/ForumSection.vue';
+import MediaGallery from '@/components/sections/MediaGallery.vue';
+import NewsList from '@/components/sections/NewsList.vue';
+import PartnersWall from '@/components/sections/PartnersWall.vue';
+import StoriesSection from '@/components/sections/StoriesSection.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
 import HighlightsSection from '@/components/sections/HighlightsSection.vue';
 import JourneySection from '@/components/sections/JourneySection.vue';
@@ -33,4 +40,11 @@ const description = computed(
     <SpeakersSection :speakers="content.speakers" :heading="content.headings.speakers" />
     <AgendaPreview :agenda="content.agenda" :heading="content.headings.agenda" />
     <AwardsSpotlight :awards="content.awards" />
+    <ExpoSponsor :exhibition="content.exhibition" :sponsorship="content.sponsorship" :headings="{ exhibition: content.headings.exhibition, sponsorship: content.headings.sponsorship }" />
+    <ForumSection :forum="content.forum" :heading="content.headings.forum" />
+    <StoriesSection :stories="content.stories" :heading="content.headings.stories" />
+    <PartnersWall :partners="content.partners" :heading="content.headings.partners" />
+    <NewsList :news="content.news" :heading="content.headings.news" />
+    <MediaGallery :media="content.media" :heading="content.headings.media" />
+    <FinalCta :final-cta="content.finalCta" />
 </template>

@@ -10,9 +10,11 @@
     --delta: #0a3b2c;
     --green: #006a4e;
     --red: #f42a41;
+    --red-ink: #b3132a; /* error text on paper (5.9:1) */
     --gold: #e9b949;
     --mint: #7fe0c8;
     --paper: #f2ecdf;
+    --paper-2: #e8e0cf; /* second light band (news) */
     --muted: #8fa096;
     --ink-2: #3f4b44;
     --bacco: #3167ae;
@@ -35,9 +37,11 @@
     --color-delta: var(--delta);
     --color-green: var(--green);
     --color-red: var(--red);
+    --color-red-ink: var(--red-ink);
     --color-gold: var(--gold);
     --color-mint: var(--mint);
     --color-paper: var(--paper);
+    --color-paper-2: var(--paper-2);
     --color-muted: var(--muted);
     --color-ink-2: var(--ink-2);
     --color-bacco: var(--bacco);

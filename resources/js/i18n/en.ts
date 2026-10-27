@@ -89,6 +89,7 @@ const en = {
         eligibility: 'Eligibility',
         status: 'Application status',
         floorPlan: 'Floor plan',
+        stage: 'Stage',
         booth: { available: 'Available', reserved: 'Reserved', confirmed: 'Confirmed' },
         whyExhibit: 'Why exhibit',
         whoExhibit: 'Who should exhibit',
