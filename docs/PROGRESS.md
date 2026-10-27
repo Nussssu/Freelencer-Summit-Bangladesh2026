@@ -7,7 +7,7 @@
 | 2 Design decisions | done | docs/design-decisions.md |
 | 3 Foundation | done | Laravel 13 + Inertia v2 + Vue 3 + TS + Tailwind v4, SSR entry, content classes, 28 routes, enquiry endpoint, tests green (34) |
 | 4 Header/Hero/Journey | done | Delta Flow scene (40k particles), pinned journey, SVG fallback, video/poster + OG image recorded via Playwright. QA: 0 console errors, 0 overflow @1440/390, hero 120fps (5s sample, 120Hz headless) |
-| 5 Sections | todo | |
+| 5 Sections | done | All 17 sections SSR-rendered; Dialog Teleport client-only (hydration fix). QA: 0 console errors/hydration warnings, 0 overflow @1440/390 |
 | 6 Audit | todo | |
 
 ## Media regeneration

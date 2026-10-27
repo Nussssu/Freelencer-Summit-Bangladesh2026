@@ -48,15 +48,15 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                 </div>
             </article>
 
-            <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ul class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 <li v-for="s in rest" :key="s.slug" class="flex flex-col border border-line-dark" data-reveal="fade">
                     <div class="silhouette aspect-[4/5]" aria-hidden="true"><img v-if="s.photo" :src="s.photo" alt="" class="h-full w-full object-cover" /></div>
-                    <div class="flex flex-1 flex-col gap-1 p-4">
-                        <div class="flex items-center justify-between gap-2">
+                    <div class="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="t-label bg-gold px-2 py-1 text-night">{{ s.role }}</span>
                             <span class="t-label text-muted">{{ s.country ?? t('common.tba') }}</span>
                         </div>
-                        <h3 class="mt-3 font-display text-2xl font-black uppercase">{{ nameOf(s) }}</h3>
+                        <h3 class="mt-3 font-display text-xl font-black uppercase sm:text-2xl">{{ nameOf(s) }}</h3>
                         <p class="text-sm text-paper/80">{{ s.designation ?? t('sections.announcement') }}</p>
                         <p v-if="s.organisation" class="text-sm font-bold">{{ s.organisation }}</p>
                         <button type="button" class="link-u t-label mt-auto inline-flex min-h-11 items-center self-start pt-3 text-gold" :aria-label="`${t('common.details')}: ${s.role}, ${nameOf(s)}`" @click="selected = s">{{ t('common.details') }} →</button>
