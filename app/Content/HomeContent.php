@@ -213,6 +213,8 @@ class HomeContent
     {
         return [
             'headline' => 'Your work deserves a stage.',
+            'emphasis' => 'stage.',
+            'badge' => "Freelancer Awards {$this->summit['edition']} · Nominations opening soon · ",
             'categories' => ['Rising Freelancer', 'Woman Freelancer', 'AI & Automation', 'Creative & Design', 'Freelancer to Entrepreneur', 'Campus Freelancer'],
             'categoriesProvisional' => true,
             'eligibility' => 'Open to freelancers working from Bangladesh. Final categories, criteria and documents are published with the award guidelines.',
@@ -333,10 +335,31 @@ class HomeContent
         return ['line' => 'See you in Dhaka.', 'marquee' => 'Register now'];
     }
 
+    /** Section headlines (title + the one emphasised phrase per headline). */
+    public function headings(): array
+    {
+        $h = fn (string $title, string $emphasis) => compact('title', 'emphasis');
+
+        return [
+            'why' => $h('Nine reasons to be in the room.', 'in the room.'),
+            'highlights' => $h('Nine reasons Dhaka will be loud.', 'loud.'),
+            'speakers' => $h('The people on stage.', 'on stage.'),
+            'agenda' => $h('A day built for doing.', 'doing.'),
+            'exhibition' => $h('Put your booth where the talent is.', 'talent'),
+            'sponsorship' => $h('Back the national campaign.', 'national'),
+            'forum' => $h('A community that outlasts the summit.', 'outlasts'),
+            'stories' => $h('From first gig to first company.', 'first company.'),
+            'partners' => $h('Built with partners.', 'partners.'),
+            'news' => $h('Campaign news.', 'news.'),
+            'media' => $h('From every corner of the delta.', 'delta.'),
+        ];
+    }
+
     /** Everything the homepage needs, one key per section (sections 2–16; header/hero/footer share layout data). */
     public function all(): array
     {
         return [
+            'headings' => $this->headings(),
             'hero' => $this->hero(),
             'trust' => $this->trust(),
             'about' => $this->about(),

@@ -153,6 +153,8 @@ export interface Agenda {
 }
 export interface Awards {
     headline: string;
+    emphasis: string;
+    badge: string;
     categories: string[];
     categoriesProvisional: boolean;
     eligibility: string;
@@ -203,7 +205,14 @@ export interface Media {
     videos: { title: string; youtubeId: string | null }[];
 }
 
+export interface Heading {
+    title: string;
+    emphasis: string;
+}
+export type HeadingKey = 'why' | 'highlights' | 'speakers' | 'agenda' | 'exhibition' | 'sponsorship' | 'forum' | 'stories' | 'partners' | 'news' | 'media';
+
 export interface HomeContent {
+    headings: Record<HeadingKey, Heading>;
     hero: Hero;
     trust: Trust;
     about: About;

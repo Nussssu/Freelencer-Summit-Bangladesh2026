@@ -1,6 +1,7 @@
 <?php
 
 use App\Content\PageContent;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ExhibitEnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -25,6 +26,8 @@ Route::post('/locale', function (Request $request) {
 
     return back();
 })->name('locale');
+
+Route::get('/agenda/sessions/{index}.ics', [CalendarController::class, 'session'])->whereNumber('index')->name('agenda.ics');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
 Route::get('/robots.txt', [SeoController::class, 'robots']);

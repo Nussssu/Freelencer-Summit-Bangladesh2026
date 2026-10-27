@@ -49,6 +49,7 @@ class SiteTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $page) => $page
             ->component('Home')
             ->has('content', fn (Assert $c) => $c
+                ->has('headings', 11)
                 ->has('hero.messages', 4)
                 ->has('trust.ticker')
                 ->has('trust.groups', 3)
@@ -104,6 +105,16 @@ class SiteTest extends TestCase
         ])->assertRedirect('/')->assertSessionHas('success');
 
         $this->assertSame('newsletter', ExhibitEnquiry::first()->utm['utm_source']);
+    }
+
+    public function test_agenda_session_calendar_file(): void
+    {
+        $res = $this->get('/agenda/sessions/0.ics')->assertOk()->assertHeader('Content-Type', 'text/calendar; charset=utf-8');
+        $body = $res->getContent();
+        $this->assertStringContainsString('BEGIN:VEVENT', $body);
+        $this->assertStringContainsString('DTSTART:20261128T040000Z', $body); // 10:00 Dhaka = 04:00 UTC
+        $this->assertStringContainsString('Venue to be confirmed', $body);
+        $this->get('/agenda/sessions/99.ics')->assertNotFound();
     }
 
     public function test_locale_switch_persists_in_session(): void
