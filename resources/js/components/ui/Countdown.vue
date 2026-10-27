@@ -2,26 +2,40 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { pad, useCountdown } from '@/composables/useCountdown';
-import { gsap, reducedMotion } from '@/composables/motion';
+import { ScrollTrigger, gsap, reducedMotion } from '@/composables/motion';
 
-// Hero countdown under the CTAs (BPO B4 placement, GITEX G7 scale). Digits roll on change; placeholders render on the server.
+// Hero countdown under the CTAs (BPO B4 placement, GITEX G7 scale). Spins up from 0 when it scrolls into view, then digits roll on change; placeholders render on the server.
 const props = withDefaults(defineProps<{ target: string; compact?: boolean }>(), { compact: false });
 const { t } = useI18n();
 const { parts } = useCountdown(props.target);
 
+// Count-up progress 0→1 while the intro spin runs; null once it settles on the live values.
+const spin = ref<number | null>(null);
 const units = computed(() => {
     const p = parts.value;
-    return (['days', 'hours', 'minutes', 'seconds'] as const).map((k) => ({ k, v: p ? pad(p[k]) : '--' }));
+    const f = spin.value;
+    return (['days', 'hours', 'minutes', 'seconds'] as const).map((k) => ({ k, v: p ? pad(f === null ? p[k] : Math.round(p[k] * f)) : '--' }));
 });
 
 const root = ref<HTMLElement>();
 let stop = () => {};
+let intro: gsap.core.Tween | undefined;
+let trigger: ScrollTrigger | undefined;
+let plays = 0;
+const play = () => {
+    const s = { f: 0 };
+    intro?.kill();
+    spin.value = 0;
+    // First run waits for the hero fade-in; replays on scroll-back start at once.
+    intro = gsap.to(s, { f: 1, duration: 1.8, ease: 'expo.out', delay: plays++ ? 0 : 0.6, onUpdate: () => (spin.value = s.f), onComplete: () => (spin.value = null) });
+};
 onMounted(() => {
     if (props.compact || reducedMotion()) return;
+    trigger = ScrollTrigger.create({ trigger: root.value, start: 'top 90%', end: 'bottom top', onEnter: play, onEnterBack: play });
     stop = watch(
         () => units.value.map((u) => u.v).join(),
         (now, before) => {
-            if (!before || before.includes('-')) return;
+            if (spin.value !== null || !before || before.includes('-')) return;
             const prev = before.split(',');
             now.split(',').forEach((v, i) => {
                 if (v !== prev[i]) gsap.fromTo(root.value!.querySelectorAll('[data-unit]')[i], { yPercent: -40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.45, ease: 'expo.out' });
@@ -30,7 +44,11 @@ onMounted(() => {
         { flush: 'post' },
     );
 });
-onBeforeUnmount(() => stop());
+onBeforeUnmount(() => {
+    stop();
+    trigger?.kill();
+    intro?.kill();
+});
 </script>
 
 <template>
