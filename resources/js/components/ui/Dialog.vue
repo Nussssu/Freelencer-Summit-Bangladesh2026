@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from './Icon.vue';
 import { useFocusTrap } from '@/composables/useFocusTrap';
@@ -11,6 +11,9 @@ const open = defineModel<boolean>('open', { required: true });
 const { t } = useI18n();
 const panel = ref<HTMLElement>();
 const close = () => (open.value = false);
+// Teleport only after mount: hydrating a Teleport to <body> would claim #app as its content.
+const mounted = ref(false);
+onMounted(() => (mounted.value = true));
 useFocusTrap(panel, open, close);
 watch(open, (v) => {
     document.documentElement.style.overflow = v ? 'hidden' : '';
@@ -20,7 +23,7 @@ watch(open, (v) => {
 </script>
 
 <template>
-    <Teleport to="body">
+    <Teleport v-if="mounted" to="body">
         <Transition enter-active-class="transition-opacity duration-300" leave-active-class="transition-opacity duration-300" enter-from-class="opacity-0" leave-to-class="opacity-0">
             <div v-if="open" class="fixed inset-0 z-[75] bg-night/70" aria-hidden="true" @click="close" />
         </Transition>
