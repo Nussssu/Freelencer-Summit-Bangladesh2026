@@ -41,7 +41,7 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(p, sin(p.x * 6. + uTime * .5) * .012, 1.);
   gl_Position = projectionMatrix * mv;
   gl_PointSize = uSize * uPixelRatio * (.6 + aSeed.y) / -mv.z;
-  vAlpha = smoothstep(0., .08, t) * (1. - smoothstep(.92, 1., t)) * mix(.12, 1., uFlow);
+  vAlpha = smoothstep(0., .08, t) * (1. - smoothstep(.78, 1., t) * .85) * mix(.12, 1., uFlow);
   vT = t; vMix = aSeed.w;
 }`;
 const FLOW_FRAG = /* glsl */ `
@@ -111,7 +111,8 @@ export class DeltaScene {
     private plane = new THREE.Plane();
     private hit = new THREE.Vector3();
     private tilt = { x: 0, y: 0 };
-    private clock = new THREE.Clock();
+    private last = 0;
+    private elapsed = 0;
     private raf = 0;
     private frames = 0;
     private slowFor = 0;
@@ -170,7 +171,7 @@ export class DeltaScene {
                 uniforms: {
                     uTime: { value: 0 }, uSize: { value: 9 }, uPixelRatio: { value: this.renderer.getPixelRatio() }, uFlow: { value: 1 }, uSpeed: { value: 0.045 },
                     uDhaka: { value: new THREE.Vector2(...dhaka) }, uMouse: { value: new THREE.Vector2(9, 9) }, uMouseOn: { value: 0 },
-                    uMint: { value: C.mint }, uGreen: { value: C.green }, uGold: { value: C.gold }, uOpacity: { value: 0.5 },
+                    uMint: { value: C.mint }, uGreen: { value: C.green }, uGold: { value: C.gold }, uOpacity: { value: 0.42 },
                 },
             }),
         );
@@ -261,11 +262,14 @@ export class DeltaScene {
 
     start() {
         if (this.raf) return;
-        this.clock.getDelta();
-        const loop = () => {
+        this.last = performance.now();
+        const loop = (now: number) => {
             this.raf = requestAnimationFrame(loop);
+            const dt = Math.min((now - this.last) / 1000, 0.05);
+            this.last = now;
             if (!stage.visible.size || document.hidden) return; // paused off-screen
-            this.frame(Math.min(this.clock.getDelta(), 0.05));
+            this.elapsed += dt;
+            this.frame(dt);
         };
         this.raf = requestAnimationFrame(loop);
     }
@@ -276,16 +280,16 @@ export class DeltaScene {
     }
 
     private frame(dt: number) {
-        const t = this.clock.elapsedTime;
+        const t = this.elapsed;
         const s = stage.step;
         const flow = 1 - smooth(0, 0.5, s);
         const viewW = 2 * Math.tan(THREE.MathUtils.degToRad(17.5)) * this.camera.position.z * this.camera.aspect;
 
         // Pose: hero = large, right of the headline; journey = tilted map right of the copy.
-        const heroX = viewW * 0.22, mapX = viewW * 0.2;
+        const heroX = viewW * 0.22, mapX = viewW * 0.19;
         this.map.position.x = THREE.MathUtils.lerp(mapX, heroX, flow);
         this.map.position.y = THREE.MathUtils.lerp(-0.02, -0.08, flow);
-        this.map.scale.setScalar(THREE.MathUtils.lerp(0.95, 1.3, flow));
+        this.map.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.3, flow));
 
         // Damped pointer parallax, max 3 degrees.
         const max = THREE.MathUtils.degToRad(3);

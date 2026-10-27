@@ -64,7 +64,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
             </div>
         </div>
 
-        <div id="dir-panel" role="tabpanel" :aria-labelledby="`dir-tab-${tab}`" class="mt-8 overflow-x-auto">
+        <div id="dir-panel" role="tabpanel" :aria-labelledby="`dir-tab-${tab}`" class="relative mt-8 overflow-x-auto">
             <table class="w-full min-w-[640px] text-left text-sm">
                 <thead class="t-label text-muted">
                     <tr class="border-b border-line-dark">

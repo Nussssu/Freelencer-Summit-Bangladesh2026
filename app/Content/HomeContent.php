@@ -38,7 +38,11 @@ class HomeContent
                 'One national platform for every freelancer.',
             ],
             'marquee' => ['Freelancing', 'AI services', 'BPO', 'ITES', 'Startups', 'Marketplaces', 'Skills'],
-            'video' => ['src' => '/media/delta-flow.webm', 'poster' => '/media/delta-flow-poster.jpg'],
+            // Pre-rendered from the Delta Flow scene (see docs/PROGRESS.md): fallback for mobile, reduced motion and no WebGL.
+            'video' => [
+                'src' => '/media/delta-flow.webm', 'poster' => '/media/delta-flow-poster.jpg',
+                'srcMobile' => '/media/delta-flow-m.webm', 'posterMobile' => '/media/delta-flow-poster-m.jpg',
+            ],
         ];
     }
 

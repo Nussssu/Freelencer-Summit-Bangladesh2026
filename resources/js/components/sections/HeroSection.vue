@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Countdown from '@/components/ui/Countdown.vue';
 import CtaLink from '@/components/ui/CtaLink.vue';
 import EditionStamp from '@/components/ui/EditionStamp.vue';
 import Marquee from '@/components/ui/Marquee.vue';
 import MessageSlider from '@/components/ui/MessageSlider.vue';
-import { EASE, STAGGER, gsap, useGsap } from '@/composables/motion';
+import { EASE, STAGGER, gsap, reducedMotion, useGsap } from '@/composables/motion';
 import { useMagnetic } from '@/composables/useMagnetic';
 import { useShared } from '@/composables/useShared';
 import { useStageVisibility } from '@/composables/useStageVisibility';
@@ -14,12 +14,17 @@ import { stageMode } from '@/stage/state';
 import type { Hero } from '@/types/content';
 
 // Section 1. Canvas (DeltaStage) shows through on desktop; video + poster fallback otherwise (GITEX video hero, G4).
-defineProps<{ hero: Hero }>();
+const props = defineProps<{ hero: Hero }>();
 const { summit, site } = useShared();
 const { t, tm, rt } = useI18n();
 const root = ref<HTMLElement>();
 const primary = ref<HTMLElement>();
 const lines = computed(() => (tm('brand.titleLines') as unknown[]).map((l) => rt(l as never)));
+
+// Client-only choice of clip; reduced motion keeps the still poster.
+const mobile = ref(false);
+const videoSrc = computed(() => (stageMode.value === 'off' && !reducedMotion() ? (mobile.value ? props.hero.video.srcMobile : props.hero.video.src) : null));
+onMounted(() => (mobile.value = innerWidth < 768));
 
 useStageVisibility(root, 'hero');
 useMagnetic(primary);
@@ -31,13 +36,11 @@ useGsap(root, (reduced) => {
 </script>
 
 <template>
-    <section id="hero" ref="root" data-section="1" aria-labelledby="hero-title" class="grain relative flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-[136px]">
+    <section id="hero" ref="root" data-section="1" aria-labelledby="hero-title" class="grain relative flex min-h-[100svh] flex-col overflow-hidden pt-24 md:pt-[136px] xl:pt-[164px]">
         <!-- Fallback media: poster always (no layout shift), video only when the WebGL stage is off -->
         <div class="hero-fallback absolute inset-0 -z-20 transition-opacity duration-700" :class="stageMode === 'on' && 'opacity-0'" aria-hidden="true">
-            <div class="absolute inset-0 bg-cover bg-center" :style="{ backgroundImage: `url(${hero.video.poster})` }" />
-            <video v-if="stageMode === 'off'" class="absolute inset-0 h-full w-full object-cover" :poster="hero.video.poster" autoplay muted loop playsinline preload="auto">
-                <source :src="hero.video.src" type="video/webm" />
-            </video>
+            <div class="absolute inset-0 bg-cover bg-center bg-[image:var(--poster-m)] md:bg-[image:var(--poster)]" :style="{ '--poster': `url(${hero.video.poster})`, '--poster-m': `url(${hero.video.posterMobile})` }" />
+            <video v-if="videoSrc" class="absolute inset-0 h-full w-full object-cover" :poster="mobile ? hero.video.posterMobile : hero.video.poster" :src="videoSrc" autoplay muted loop playsinline />
         </div>
         <div class="absolute inset-0 -z-10 bg-gradient-to-r from-night via-night/80 to-transparent md:via-night/55" aria-hidden="true" />
 
@@ -46,15 +49,15 @@ useGsap(root, (reduced) => {
 
             <div class="mt-4 flex items-start justify-between gap-6">
                 <h1 id="hero-title" class="t-h1 hero-h1" :aria-label="`${lines.join(' ')} ${summit.edition}`">
-                    <span v-for="(line, i) in lines" :key="i" class="line-mask block" aria-hidden="true">
-                        <span data-hero-line class="line-inner" :class="i === 1 && 't-outline'">{{ line }}</span>
+                    <span v-for="(line, i) in lines" :key="i" class="block overflow-hidden pb-[0.04em]" aria-hidden="true">
+                        <span data-hero-line class="block" :class="i === 1 && 't-outline'">{{ line }}</span>
                     </span>
                 </h1>
                 <EditionStamp :edition="summit.edition" class="hidden shrink-0 md:block" data-hero-fade />
             </div>
 
-            <div class="mt-6 grid gap-8 pb-8 lg:grid-cols-12 lg:items-end">
-                <div class="lg:col-span-7">
+            <div class="mt-6 grid grid-cols-1 gap-8 pb-8 lg:grid-cols-12 lg:items-end">
+                <div class="min-w-0 lg:col-span-7">
                     <p class="font-display text-2xl font-black text-gold uppercase md:text-3xl" data-hero-fade>
                         {{ summit.tagline }}
                         <span v-if="!summit.taglineFinal" class="t-label ml-2 align-middle text-muted normal-case">({{ t('common.provisional') }})</span>
@@ -65,7 +68,7 @@ useGsap(root, (reduced) => {
                     </div>
                     <Countdown :target="summit.startsAt" class="mt-6 max-w-xl" data-hero-fade />
                 </div>
-                <div class="lg:col-span-5" data-hero-fade>
+                <div class="min-w-0 lg:col-span-5" data-hero-fade>
                     <MessageSlider :messages="hero.messages" />
                 </div>
             </div>
@@ -79,7 +82,7 @@ useGsap(root, (reduced) => {
 
 <style scoped>
 .hero-h1 {
-    font-size: clamp(3.75rem, 9vw, 9.5rem);
+    font-size: clamp(3.75rem, 8vw, 9rem);
     --outline: var(--paper);
 }
 :global(html[lang='bn']) .hero-h1 {

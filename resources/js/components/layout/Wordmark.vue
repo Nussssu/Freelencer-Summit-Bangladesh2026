@@ -14,7 +14,7 @@ const { t } = useI18n();
             <path d="M2 6c8 0 10 6 15 11M32 6c-8 0-10 6-15 11M17 17v15" fill="none" stroke="var(--mint)" stroke-width="2" />
             <circle cx="17" cy="17" r="4" fill="var(--red)" />
         </svg>
-        <span class="font-display text-[1.05rem] font-black tracking-wide uppercase">
+        <span class="font-display text-[1.05rem] font-black tracking-wide whitespace-nowrap uppercase">
             <span class="block">Freelancer Summit</span>
             <span class="block text-gold">Bangladesh {{ summit.edition }}</span>
         </span>

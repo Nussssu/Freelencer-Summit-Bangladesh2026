@@ -63,8 +63,8 @@ useGsap(root, () => {
 <template>
     <section id="journey" ref="root" data-section="4" aria-labelledby="journey-title" class="relative">
         <div ref="pin" class="journey-pin grid-lines relative" :class="pinned && 'is-pinned'">
-            <div class="container-site grid gap-10 py-20 md:min-h-[100svh] md:grid-cols-12 md:items-center md:py-0 md:pt-[112px]">
-                <div class="md:col-span-6 lg:col-span-5">
+            <div class="container-site grid grid-cols-1 gap-10 py-20 md:min-h-[100svh] md:grid-cols-12 md:items-center md:py-0 md:pt-[112px] xl:pt-[148px]">
+                <div class="min-w-0 md:col-span-6 lg:col-span-5">
                     <p class="t-label text-mint">{{ t('sections.journey') }}</p>
                     <SplitHeading id="journey-title" :text="journey.headline" :emphasis="journey.headlineEmphasis" emphasis-class="text-gold" class="t-h2 mt-3 journey-title" />
                     <p class="mt-4 max-w-md text-muted">{{ t('sections.journeyLead') }}</p>
@@ -79,8 +79,8 @@ useGsap(root, () => {
                     <ol class="journey-steps mt-10 space-y-12 md:mt-8">
                         <li v-for="(s, i) in journey.steps" :key="s.tag" class="journey-step" :class="{ 'is-active': active === i }" :aria-current="pinned && active === i ? 'step' : undefined">
                             <div class="flex items-end gap-4">
-                                <span class="font-display text-[clamp(5rem,11vw,9rem)] leading-[0.8] font-black t-outline" style="--outline: var(--gold)">{{ s.count }}</span>
-                                <span class="font-bangla text-[clamp(2.5rem,5vw,4rem)] leading-none font-bold text-gold" lang="bn">{{ toBanglaDigits(s.count) }}</span>
+                                <span class="font-display text-[clamp(4rem,8vw,7rem)] leading-[0.8] font-black t-outline" style="--outline: var(--gold)">{{ s.count }}</span>
+                                <span class="font-bangla text-[clamp(2rem,4vw,3.5rem)] leading-none font-bold text-gold" lang="bn">{{ toBanglaDigits(s.count) }}</span>
                             </div>
                             <p class="t-label mt-4 inline-block border border-mint/40 px-2 py-1 text-mint">{{ s.tag }}</p>
                             <h3 class="mt-3 font-display text-3xl font-black uppercase">{{ s.title }}</h3>
@@ -114,7 +114,7 @@ useGsap(root, () => {
 
 <style scoped>
 .journey-title {
-    font-size: clamp(2.5rem, 4.6vw, 4.5rem);
+    font-size: clamp(2.25rem, 3.4vw, 3.5rem);
 }
 /* Pinned desktop mode: one step at a time, stacked in place. */
 .is-pinned .journey-steps {

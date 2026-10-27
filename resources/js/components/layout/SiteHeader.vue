@@ -69,15 +69,8 @@ onBeforeUnmount(() => {
                 </span>
             </div>
 
-            <nav :aria-label="t('header.navPrimary')" class="ml-auto hidden xl:block">
-                <ul class="flex items-center gap-5">
-                    <li v-for="link in site.headerLinks" :key="link.href">
-                        <Link :href="link.href" class="link-u text-[0.8125rem] font-medium tracking-wide whitespace-nowrap uppercase transition-colors duration-300 hover:text-gold">{{ link.label }}</Link>
-                    </li>
-                </ul>
-            </nav>
 
-            <div class="ml-auto flex items-center gap-2 xl:ml-0">
+            <div class="ml-auto flex items-center gap-2">
                 <Countdown :target="summit.startsAt" compact class="mr-2 hidden text-mint 2xl:block" />
                 <CtaLink :href="register.href" class="hidden !px-4 md:inline-flex">{{ t('cta.register') }}</CtaLink>
                 <CtaLink :href="nominate.href" tone="outline" class="hidden !px-4 lg:inline-flex">{{ nominate.label }}</CtaLink>
@@ -102,6 +95,14 @@ onBeforeUnmount(() => {
                 </button>
             </div>
         </div>
+        <!-- Nav row: BPO's two-tier header (B3); the five inline links -->
+        <nav :aria-label="t('header.navPrimary')" class="hidden h-10 border-t border-line-dark xl:block">
+            <ul class="container-site flex h-full items-center gap-8 xl:max-w-none xl:px-8">
+                <li v-for="link in site.headerLinks" :key="link.href">
+                    <Link :href="link.href" class="link-u text-[0.8125rem] font-medium tracking-wide whitespace-nowrap uppercase transition-colors duration-300 hover:text-gold">{{ link.label }}</Link>
+                </li>
+            </ul>
+        </nav>
     </header>
 
     <MenuOverlay v-model:open="menuOpen" />

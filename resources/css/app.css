@@ -25,7 +25,7 @@
     --dur-hover: 0.3s;
     --dur-reveal: 0.9s;
 
-    --header-h: 112px;
+    --header-h: 112px; /* 148px ≥1280 with the nav row */
     --section-y: clamp(4rem, 7vw, 7.5rem);
     --notch: 10px;
 }
@@ -55,6 +55,11 @@
 }
 
 @layer base {
+    @media (min-width: 1280px) {
+        :root {
+            --header-h: 148px;
+        }
+    }
     html {
         -webkit-text-size-adjust: 100%;
         scroll-padding-top: calc(var(--header-h) + 16px);

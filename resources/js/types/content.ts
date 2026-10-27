@@ -60,7 +60,7 @@ export interface Hero {
     eyebrow: string;
     messages: string[];
     marquee: string[];
-    video: { src: string; poster: string };
+    video: { src: string; poster: string; srcMobile: string; posterMobile: string };
 }
 export interface PartnerGroup {
     label: string;
