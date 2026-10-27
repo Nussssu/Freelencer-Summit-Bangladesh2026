@@ -30,8 +30,8 @@ onBeforeUnmount(() => (io?.disconnect(), stage.visible.delete('stub')));
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <section ref="root" class="grain grid-lines relative flex min-h-[88svh] items-end pt-40 pb-16">
-        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-night via-night/90 to-night/30" aria-hidden="true" />
+    <section ref="root" class="light-tokens grain relative flex min-h-[88svh] items-end pt-40 pb-16">
+        <div class="absolute inset-0 -z-10 bg-gradient-to-r from-paper via-paper/90 to-paper/30" aria-hidden="true" />
         <div class="container-site">
             <p class="t-label text-mint" data-reveal="fade">{{ t('page.comingNext') }}</p>
             <SplitHeading :text="page.title" as="h1" class="t-h2-xl mt-4 max-w-4xl" />

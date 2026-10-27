@@ -41,7 +41,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <header class="fixed inset-x-0 top-0 z-50 transition-colors duration-300" :class="solid ? 'border-b border-line-dark bg-night' : 'bg-gradient-to-b from-night/85 to-transparent'">
+    <header class="fixed inset-x-0 top-0 z-50 transition-colors duration-300" :class="solid ? 'on-light light-tokens border-b border-line-light' : 'bg-gradient-to-b from-night/85 to-transparent text-paper'">
         <!-- Utility bar -->
         <div class="hidden h-9 border-b border-line-dark md:block">
             <div class="container-site flex h-full items-center gap-4 xl:max-w-none xl:px-8">
@@ -80,9 +80,9 @@ onBeforeUnmount(() => {
                         {{ t('header.getInvolved') }}
                         <Icon name="chevron" :size="14" class="transition-transform duration-300" :class="dropOpen && 'rotate-180'" />
                     </button>
-                    <ul v-show="dropOpen" id="get-involved" class="absolute top-full right-0 mt-2 w-72 border border-line-dark bg-night p-2">
+                    <ul v-show="dropOpen" id="get-involved" class="absolute top-full right-0 mt-2 w-72 on-light light-tokens border border-line-light p-2">
                         <li v-for="c in involved" :key="c.id">
-                            <Link :href="withUtm(c.href, utm)" class="flex min-h-11 items-center justify-between px-3 py-2 text-sm transition-colors duration-300 hover:bg-delta hover:text-gold" @click="dropOpen = false">
+                            <Link :href="withUtm(c.href, utm)" class="flex min-h-11 items-center justify-between px-3 py-2 text-sm transition-colors duration-300 hover:bg-paper-2 hover:text-gold" @click="dropOpen = false">
                                 {{ c.label }} <Icon name="arrow" :size="14" />
                             </Link>
                         </li>
@@ -107,3 +107,4 @@ onBeforeUnmount(() => {
 
     <MenuOverlay v-model:open="menuOpen" />
 </template>
+

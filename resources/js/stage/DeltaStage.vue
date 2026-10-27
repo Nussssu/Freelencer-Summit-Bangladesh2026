@@ -51,13 +51,13 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
-        <canvas ref="canvas" class="block h-full w-full" />
+        <canvas ref="canvas" class="stage-ink block h-full w-full" />
         <span
             v-for="(d, i) in [...geo.divisions.map((x) => x.name), beaconLabel]"
             :key="d"
             :ref="(el) => (labelEls[i] = el as HTMLElement)"
             class="t-label absolute top-0 left-0 -translate-x-1/2 whitespace-nowrap opacity-0"
-            :class="i === geo.divisions.length ? 'bg-red px-2 py-1 text-night' : 'text-paper/80'"
+            :class="i === geo.divisions.length ? 'bg-red px-2 py-1 text-night' : 'text-night/80'"
             >{{ d }}</span
         >
     </div>

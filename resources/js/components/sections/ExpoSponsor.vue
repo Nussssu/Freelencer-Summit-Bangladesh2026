@@ -63,15 +63,15 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
         </div>
 
         <!-- Sponsorship -->
-        <div class="grain section sponsor-side bg-delta">
+        <div class="on-light section sponsor-side bg-mist">
             <div class="mx-auto max-w-[660px] px-4 md:px-8 lg:pl-16">
-                <p class="t-label text-gold">{{ t('sections.sponsorship') }}</p>
-                <SplitHeading :text="headings.sponsorship.title" :emphasis="headings.sponsorship.emphasis" emphasis-class="text-gold" class="t-h2 mt-3" />
-                <h3 class="t-label mt-8 text-mint">{{ t('sections.tiers') }}<span v-if="sponsorship.provisional"> · {{ t('common.provisional') }}</span></h3>
-                <ol class="mt-3 border-t border-line-dark">
-                    <li v-for="(tier, i) in sponsorship.tiers" :key="tier" class="flex items-baseline gap-4 border-b border-line-dark py-3" data-reveal="fade">
-                        <span class="t-label w-6 text-muted">{{ String(i + 1).padStart(2, '0') }}</span>
-                        <span class="font-display font-black uppercase" :class="i === 0 ? 'text-4xl text-gold' : i < 4 ? 'text-3xl' : 'text-2xl text-paper/80'">{{ tier }}</span>
+                <p class="t-label text-gold-ink">{{ t('sections.sponsorship') }}</p>
+                <SplitHeading :text="headings.sponsorship.title" :emphasis="headings.sponsorship.emphasis" emphasis-class="text-gold-ink" class="t-h2 mt-3" />
+                <h3 class="t-label mt-8 text-ink-2">{{ t('sections.tiers') }}<span v-if="sponsorship.provisional"> · {{ t('common.provisional') }}</span></h3>
+                <ol class="mt-3 border-t border-line-light">
+                    <li v-for="(tier, i) in sponsorship.tiers" :key="tier" class="flex items-baseline gap-4 border-b border-line-light py-3" data-reveal="fade">
+                        <span class="t-label w-6 text-ink-2">{{ String(i + 1).padStart(2, '0') }}</span>
+                        <span class="font-display font-black uppercase" :class="i === 0 ? 'text-4xl text-gold-ink' : i < 4 ? 'text-3xl' : 'text-2xl text-ink-2'">{{ tier }}</span>
                     </li>
                 </ol>
                 <div class="mt-8 flex flex-wrap gap-2">

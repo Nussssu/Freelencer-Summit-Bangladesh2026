@@ -30,12 +30,12 @@ const step = (d: number) => current.value !== null && (current.value = (current.
 </script>
 
 <template>
-    <section ref="root" data-section="15" aria-labelledby="md-title" class="grain section relative z-[1] overflow-hidden bg-night">
+    <section ref="root" data-section="15" aria-labelledby="md-title" class="on-light section relative z-[1] overflow-hidden">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p class="t-label text-mint">{{ t('sections.media') }}</p>
-                    <SplitHeading id="md-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-gold" class="t-h2 mt-3" />
+                    <p class="t-label text-green">{{ t('sections.media') }}</p>
+                    <SplitHeading id="md-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
                 </div>
                 <Link href="/media" class="link-u t-label inline-flex min-h-11 items-center gap-2">{{ t('sections.allMedia') }} <Icon name="arrow" :size="16" /></Link>
             </div>
@@ -53,20 +53,20 @@ const step = (d: number) => current.value !== null && (current.value = (current.
                             @click="current = tile.id"
                         >
                             <img v-if="tile.src" :src="tile.src" alt="" loading="lazy" class="h-full w-full object-cover" />
-                            <span class="t-label absolute bottom-2 left-2 bg-night/80 px-2 py-1">{{ tile.programme }}</span>
+                            <span class="t-label absolute bottom-2 left-2 bg-night/80 px-2 py-1 text-paper">{{ tile.programme }}</span>
                             <span v-if="tile.kind === 'video'" class="absolute top-2 right-2 grid size-9 place-items-center bg-gold text-night" aria-hidden="true"><Icon name="play" :size="16" /></span>
                         </button>
                     </li>
                 </ul>
             </div>
 
-            <h3 class="t-label mt-16 text-mint">{{ t('sections.videos') }}</h3>
+            <h3 class="t-label mt-16 text-green">{{ t('sections.videos') }}</h3>
             <ul class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                <li v-for="v in media.videos" :key="v.title" class="flex items-center gap-4 border border-line-dark p-4">
-                    <span class="grid size-14 shrink-0 place-items-center border border-gold text-gold" aria-hidden="true"><Icon name="play" :size="20" /></span>
+                <li v-for="v in media.videos" :key="v.title" class="flex items-center gap-4 border border-line-light bg-paper-2 p-4">
+                    <span class="grid size-14 shrink-0 place-items-center border border-green text-green" aria-hidden="true"><Icon name="play" :size="20" /></span>
                     <div>
                         <p class="font-display text-xl font-black uppercase">{{ v.title }}</p>
-                        <p class="t-label text-muted">{{ v.youtubeId ? '' : t('sections.videoSoon') }}</p>
+                        <p class="t-label text-ink-2">{{ v.youtubeId ? '' : t('sections.videoSoon') }}</p>
                     </div>
                 </li>
             </ul>

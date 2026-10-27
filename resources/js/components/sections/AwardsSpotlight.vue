@@ -18,7 +18,7 @@ useReveal(root);
 </script>
 
 <template>
-    <section ref="root" data-section="9" aria-labelledby="aw-title" class="grain section relative z-[1] overflow-hidden bg-green text-paper">
+    <section ref="root" data-section="9" aria-labelledby="aw-title" class="on-light light-tokens soft-green section relative z-[1] overflow-hidden">
         <div class="container-site grid grid-cols-1 gap-12 lg:grid-cols-12">
             <div class="min-w-0 lg:col-span-7">
                 <p class="t-label text-gold">{{ t('sections.awards') }} {{ summit.edition }}</p>
@@ -28,11 +28,11 @@ useReveal(root);
 
                 <!-- Application status as a stitched line (brief §9 statuses) -->
                 <div class="mt-10">
-                    <h3 class="t-label text-paper/80">{{ t('sections.status') }}</h3>
+                    <h3 class="t-label text-ink-2">{{ t('sections.status') }}</h3>
                     <ol class="relative mt-4 grid grid-cols-4">
                         <span class="stitch absolute inset-x-[12.5%] top-[7px]" data-reveal="stitch" aria-hidden="true" />
                         <li v-for="(st, i) in awards.statuses" :key="st" class="relative flex flex-col items-center gap-3 text-center">
-                            <span class="size-4 border-2 border-gold" :class="i === awards.statuses.length - 1 ? 'bg-gold' : 'bg-green'" aria-hidden="true" />
+                            <span class="size-4 border-2 border-gold" :class="i === awards.statuses.length - 1 ? 'bg-gold' : 'bg-snow'" aria-hidden="true" />
                             <span class="t-label text-[0.6875rem]">{{ st }}</span>
                         </li>
                     </ol>
@@ -47,14 +47,14 @@ useReveal(root);
             <div class="relative flex min-h-96 flex-col items-center justify-center lg:col-span-5">
                 <svg viewBox="0 0 200 200" class="spin-slow absolute size-72 opacity-80 md:size-96" aria-hidden="true">
                     <defs><path id="aw-ring" d="M100 100m-82 0a82 82 0 1 1 164 0a82 82 0 1 1-164 0" /></defs>
-                    <text font-size="12" letter-spacing="4" fill="var(--gold)" class="font-mono"><textPath href="#aw-ring">{{ awards.badge.toUpperCase() }}</textPath></text>
+                    <text font-size="12" letter-spacing="4" fill="var(--gold-ink)" class="font-mono"><textPath href="#aw-ring">{{ awards.badge.toUpperCase() }}</textPath></text>
                 </svg>
                 <ul class="fan relative z-10 w-64" :aria-label="t('sections.categories')">
                     <li v-for="(c, i) in awards.categories" :key="c" :style="{ '--i': i - (awards.categories.length - 1) / 2 }">
                         <Link href="/awards/categories" class="block border border-night/30 bg-paper px-4 py-3 font-display text-xl font-black text-night uppercase">{{ c }}</Link>
                     </li>
                 </ul>
-                <p v-if="awards.categoriesProvisional" class="t-label relative z-10 mt-6 text-paper/80">{{ t('common.provisional') }}</p>
+                <p v-if="awards.categoriesProvisional" class="t-label relative z-10 mt-6 text-ink-2">{{ t('common.provisional') }}</p>
             </div>
         </div>
     </section>

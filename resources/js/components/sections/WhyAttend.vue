@@ -19,33 +19,33 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
 </script>
 
 <template>
-    <section ref="root" data-section="5" aria-labelledby="why-title" class="grain grid-lines section relative z-[1] bg-delta">
+    <section ref="root" data-section="5" aria-labelledby="why-title" class="on-light section relative z-[1]">
         <div class="container-site">
-            <p class="t-label text-mint">{{ t('sections.why') }}</p>
-            <SplitHeading id="why-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-gold" class="t-h2 mt-3 max-w-3xl" />
+            <p class="t-label text-green">{{ t('sections.why') }}</p>
+            <SplitHeading id="why-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3 max-w-3xl" />
 
             <div class="mt-12 grid grid-cols-1 gap-10 md:grid-cols-12">
-                <ol class="min-w-0 border-t border-line-dark md:col-span-7">
-                    <li v-for="(a, i) in audiences" :key="a.title" class="border-b border-line-dark">
+                <ol class="min-w-0 border-t border-line-light md:col-span-7">
+                    <li v-for="(a, i) in audiences" :key="a.title" class="border-b border-line-light">
                         <!-- Desktop row -->
                         <button
                             type="button"
                             class="group hidden w-full items-baseline gap-6 py-4 text-left transition-colors duration-300 md:flex"
-                            :class="active === i ? 'text-gold' : 'hover:text-gold'"
+                            :class="active === i ? 'text-green' : 'hover:text-green'"
                             :aria-pressed="active === i"
                             aria-controls="why-panel"
                             @mouseenter="active = i"
                             @focus="active = i"
                             @click="active = i"
                         >
-                            <span class="t-label w-8 text-muted">{{ num(i) }}</span>
+                            <span class="t-label w-8 text-ink-2">{{ num(i) }}</span>
                             <span class="font-display text-[clamp(2rem,3.4vw,3.25rem)] leading-none font-black uppercase transition-transform duration-300 group-hover:translate-x-2">{{ a.title }}</span>
                             <Icon name="arrow" class="ml-auto self-center opacity-0 transition-opacity duration-300" :class="active === i && 'opacity-100'" />
                         </button>
                         <!-- Mobile accordion -->
                         <h3 class="md:hidden">
                             <button type="button" class="flex min-h-14 w-full items-center gap-4 py-3 text-left" :aria-expanded="openRow === i" :aria-controls="`why-m-${i}`" @click="openRow = openRow === i ? null : i">
-                                <span class="t-label w-6 text-muted">{{ num(i) }}</span>
+                                <span class="t-label w-6 text-ink-2">{{ num(i) }}</span>
                                 <span class="font-display text-3xl font-black uppercase">{{ a.title }}</span>
                                 <Icon name="plus" class="ml-auto transition-transform duration-300" :class="openRow === i && 'rotate-45'" />
                             </button>
@@ -60,11 +60,11 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
                 </ol>
 
                 <div id="why-panel" aria-live="polite" class="hidden md:col-span-5 md:block">
-                    <div class="sticky top-[calc(var(--header-h)+24px)] border border-line-dark bg-night/60 p-8">
-                        <p class="font-display text-[8rem] leading-[0.8] font-black t-outline" style="--outline: var(--gold)" aria-hidden="true">{{ num(active) }}</p>
+                    <div class="sticky top-[calc(var(--header-h)+24px)] border border-line-light bg-mist p-8">
+                        <p class="font-display text-[8rem] leading-[0.8] font-black t-outline" style="--outline: var(--green)" aria-hidden="true">{{ num(active) }}</p>
                         <h3 class="mt-6 font-display text-4xl font-black uppercase">{{ audiences[active].title }}</h3>
                         <ul class="mt-6 space-y-4">
-                            <li v-for="b in audiences[active].benefits" :key="b" class="flex gap-3 border-t border-line-dark pt-4"><span class="mt-3 h-px w-4 shrink-0 bg-gold" aria-hidden="true" />{{ b }}</li>
+                            <li v-for="b in audiences[active].benefits" :key="b" class="flex gap-3 border-t border-line-light pt-4"><span class="mt-3 h-px w-4 shrink-0 bg-gold" aria-hidden="true" />{{ b }}</li>
                         </ul>
                         <CtaLink :href="audiences[active].href" class="mt-8">{{ audiences[active].cta }}</CtaLink>
                     </div>

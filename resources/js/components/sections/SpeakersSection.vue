@@ -25,57 +25,57 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
 </script>
 
 <template>
-    <section ref="root" data-section="7" aria-labelledby="sp-title" class="grain grid-lines section relative z-[1] bg-night">
+    <section ref="root" data-section="7" aria-labelledby="sp-title" class="on-light section relative z-[1] bg-mist">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div>
-                    <p class="t-label text-mint">{{ t('sections.speakers') }}</p>
-                    <SplitHeading id="sp-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-gold" class="t-h2 mt-3" />
+                    <p class="t-label text-green">{{ t('sections.speakers') }}</p>
+                    <SplitHeading id="sp-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
                 </div>
                 <CtaLink :href="cta.href" tone="ghost">{{ cta.label }}</CtaLink>
             </div>
 
             <!-- Featured showcase -->
-            <article class="mt-12 grid grid-cols-1 border border-line-dark md:grid-cols-12" data-reveal="fade">
+            <article class="mt-12 grid grid-cols-1 border border-line-light bg-paper md:grid-cols-12" data-reveal="fade">
                 <div class="silhouette relative aspect-[4/3] md:col-span-5 md:aspect-auto md:min-h-80" aria-hidden="true">
                     <img v-if="featured.photo" :src="featured.photo" alt="" class="h-full w-full object-cover" />
                 </div>
                 <div class="flex flex-col justify-center gap-4 p-6 md:col-span-7 md:p-10">
-                    <p class="t-label text-gold">{{ t('sections.featured') }} · {{ featured.role }}</p>
+                    <p class="t-label text-gold-ink">{{ t('sections.featured') }} · {{ featured.role }}</p>
                     <h3 class="font-display text-5xl font-black uppercase md:text-6xl">{{ nameOf(featured) }}</h3>
-                    <p class="text-lg text-paper/80">{{ featured.credential ?? t('sections.announcement') }}</p>
+                    <p class="text-lg text-ink-2">{{ featured.credential ?? t('sections.announcement') }}</p>
                     <button type="button" class="btn btn-ghost self-start" @click="selected = featured">{{ t('common.details') }}</button>
                 </div>
             </article>
 
             <ul class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                <li v-for="s in rest" :key="s.slug" class="flex flex-col border border-line-dark" data-reveal="fade">
+                <li v-for="s in rest" :key="s.slug" class="flex flex-col border border-line-light bg-paper" data-reveal="fade">
                     <div class="silhouette aspect-[4/5]" aria-hidden="true"><img v-if="s.photo" :src="s.photo" alt="" class="h-full w-full object-cover" /></div>
                     <div class="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <span class="t-label bg-gold px-2 py-1 text-night">{{ s.role }}</span>
-                            <span class="t-label text-muted">{{ s.country ?? t('common.tba') }}</span>
+                            <span class="t-label text-ink-2">{{ s.country ?? t('common.tba') }}</span>
                         </div>
                         <h3 class="mt-3 font-display text-xl font-black uppercase sm:text-2xl">{{ nameOf(s) }}</h3>
-                        <p class="text-sm text-paper/80">{{ s.designation ?? t('sections.announcement') }}</p>
+                        <p class="text-sm text-ink-2">{{ s.designation ?? t('sections.announcement') }}</p>
                         <p v-if="s.organisation" class="text-sm font-bold">{{ s.organisation }}</p>
-                        <button type="button" class="link-u t-label mt-auto inline-flex min-h-11 items-center self-start pt-3 text-gold" :aria-label="`${t('common.details')}: ${s.role}, ${nameOf(s)}`" @click="selected = s">{{ t('common.details') }} →</button>
+                        <button type="button" class="link-u t-label mt-auto inline-flex min-h-11 items-center self-start pt-3 text-green" :aria-label="`${t('common.details')}: ${s.role}, ${nameOf(s)}`" @click="selected = s">{{ t('common.details') }} →</button>
                     </div>
                 </li>
             </ul>
         </div>
 
-        <Dialog v-model:open="drawerOpen" :label="selected ? `${selected.role}: ${nameOf(selected)}` : ''">
+        <Dialog v-model:open="drawerOpen" :label="selected ? `${selected.role}: ${nameOf(selected)}` : ''" tone="light">
             <template v-if="selected">
                 <div class="silhouette aspect-square w-40" aria-hidden="true" />
-                <p class="t-label mt-6 text-gold">{{ selected.role }} · {{ selected.country ?? t('common.tba') }}</p>
+                <p class="t-label mt-6 text-gold-ink">{{ selected.role }} · {{ selected.country ?? t('common.tba') }}</p>
                 <h2 class="mt-2 font-display text-4xl font-black uppercase">{{ nameOf(selected) }}</h2>
-                <p class="mt-1 text-paper/80">{{ [selected.designation, selected.organisation].filter(Boolean).join(', ') || t('sections.announcement') }}</p>
+                <p class="mt-1 text-ink-2">{{ [selected.designation, selected.organisation].filter(Boolean).join(', ') || t('sections.announcement') }}</p>
                 <p class="mt-6 leading-relaxed">{{ selected.bio ?? t('sections.bioSoon') }}</p>
-                <h3 class="t-label mt-8 text-mint">{{ t('sections.expertise') }}</h3>
-                <p class="mt-2 text-muted">{{ selected.expertise.length ? selected.expertise.join(' · ') : t('common.tba') }}</p>
-                <h3 class="t-label mt-6 text-mint">{{ t('sections.links') }}</h3>
-                <ul class="mt-2"><li v-for="l in selected.links" :key="l.href"><a :href="l.href" class="link-u" target="_blank" rel="noopener">{{ l.label }}</a></li><li v-if="!selected.links.length" class="text-muted">{{ t('common.tba') }}</li></ul>
+                <h3 class="t-label mt-8 text-green">{{ t('sections.expertise') }}</h3>
+                <p class="mt-2 text-ink-2">{{ selected.expertise.length ? selected.expertise.join(' · ') : t('common.tba') }}</p>
+                <h3 class="t-label mt-6 text-green">{{ t('sections.links') }}</h3>
+                <ul class="mt-2"><li v-for="l in selected.links" :key="l.href"><a :href="l.href" class="link-u" target="_blank" rel="noopener">{{ l.label }}</a></li><li v-if="!selected.links.length" class="text-ink-2">{{ t('common.tba') }}</li></ul>
                 <Link :href="`/speaker/${selected.slug}`" class="btn mt-8">{{ t('sections.profile') }}</Link>
             </template>
         </Dialog>
@@ -85,9 +85,9 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
 <style scoped>
 .silhouette {
     background:
-        radial-gradient(circle at 50% 38%, rgb(242 236 223 / 0.22) 0 14%, transparent 15%),
-        radial-gradient(ellipse 34% 30% at 50% 95%, rgb(242 236 223 / 0.18) 0 98%, transparent 100%),
-        linear-gradient(160deg, var(--delta), var(--night));
+        radial-gradient(circle at 50% 38%, rgb(8 112 122 / 0.18) 0 14%, transparent 15%),
+        radial-gradient(ellipse 34% 30% at 50% 95%, rgb(8 112 122 / 0.14) 0 98%, transparent 100%),
+        linear-gradient(160deg, var(--mist), var(--paper-2));
     filter: blur(1.5px);
 }
 </style>

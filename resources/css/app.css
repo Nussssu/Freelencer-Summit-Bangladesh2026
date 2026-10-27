@@ -7,14 +7,17 @@
 /* Design tokens: values and sources in docs/design-decisions.md */
 :root {
     --night: #050e0a;
-    --delta: #0a3b2c;
-    --green: #006a4e;
+    --delta: #083a40; /* deep teal surface */
+    --green: #08707a; /* blue-green (teal), 4.9:1 on paper */
     --red: #f42a41;
     --red-ink: #b3132a; /* error text on paper (5.9:1) */
     --gold: #e9b949;
     --mint: #7fe0c8;
     --paper: #f2ecdf;
     --paper-2: #e8e0cf; /* second light band (news) */
+    --snow: #fbfaf6; /* brightest surface: hero daylight */
+    --mist: #e0eded; /* teal-tinted light band (light theme) */
+    --gold-ink: #8a6100; /* jute gold for text on paper (4.7:1) */
     --muted: #8fa096;
     --ink-2: #3f4b44;
     --bacco: #3167ae;
@@ -42,6 +45,9 @@
     --color-mint: var(--mint);
     --color-paper: var(--paper);
     --color-paper-2: var(--paper-2);
+    --color-snow: var(--snow);
+    --color-mist: var(--mist);
+    --color-gold-ink: var(--gold-ink);
     --color-muted: var(--muted);
     --color-ink-2: var(--ink-2);
     --color-bacco: var(--bacco);
@@ -69,8 +75,8 @@
         scroll-padding-top: calc(var(--header-h) + 16px);
     }
     body {
-        background: var(--night);
-        color: var(--paper);
+        background: var(--paper);
+        color: var(--night);
         font-family: var(--font-sans);
         font-size: 1rem;
         line-height: 1.55;
@@ -123,6 +129,13 @@
     .on-light {
         background: var(--paper);
         color: var(--night);
+    }
+    /* Soft teal-to-sky light gradient: the light-theme stand-in for solid green bands */
+    .soft-green {
+        background:
+            radial-gradient(60% 80% at 100% 0%, rgb(205 225 248 / 0.9), transparent 70%),
+            radial-gradient(55% 70% at 0% 100%, rgb(190 228 226 / 0.9), transparent 70%),
+            linear-gradient(135deg, #e6f4f3, #d6ecec 55%, #e3ecf8);
     }
 
     /* Type roles */
@@ -339,6 +352,22 @@
 }
 .line-inner {
     display: inline-block;
+}
+
+/* Light chrome (solid header, footer): shared components written for dark keep working on paper */
+.light-tokens {
+    --mint: var(--green);
+    --muted: var(--ink-2);
+    --line-dark: var(--line-light);
+    --bacco-light: var(--bacco);
+}
+.light-tokens :is(.text-gold, .hover\:text-gold:hover) {
+    color: var(--gold-ink);
+}
+
+/* The WebGL stage glows additively for a dark ground; on paper it is shown as ink (same hues, inverted lightness) */
+.stage-ink {
+    filter: invert(1) hue-rotate(180deg);
 }
 
 @keyframes marquee {

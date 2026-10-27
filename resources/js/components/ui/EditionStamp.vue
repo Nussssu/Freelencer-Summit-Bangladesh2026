@@ -12,7 +12,7 @@ const id = `stamp-${props.edition}`;
         <svg viewBox="0 0 200 200" class="spin-slow absolute inset-0" aria-hidden="true">
             <defs><path :id="id" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0" /></defs>
             <circle cx="100" cy="100" r="96" fill="none" stroke="var(--gold)" stroke-dasharray="6 5" stroke-width="1.5" />
-            <text class="font-mono" font-size="13" letter-spacing="3" fill="var(--paper)">
+            <text class="font-mono" font-size="13" letter-spacing="3" fill="currentColor">
                 <textPath :href="`#${id}`">{{ (text ?? `${t('brand.title')} · Edition ${edition} · `).toUpperCase() }}</textPath>
             </text>
         </svg>

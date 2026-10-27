@@ -27,8 +27,8 @@ useReveal(root);
             <ul class="mt-10 border-t border-night">
                 <li v-for="n in news" :key="n.title" data-reveal="fade">
                     <Link :href="n.slug ? `/news/${n.slug}` : '/news'" class="group grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-1 border-b border-line-light py-6 transition-colors duration-300 hover:bg-night hover:text-paper md:grid-cols-[8rem_12rem_1fr_auto] md:px-2">
-                        <span class="t-label text-ink-2 group-hover:text-muted">{{ n.date ?? t('common.tba') }}</span>
-                        <span class="t-label col-start-1 row-start-2 text-green group-hover:text-mint md:col-start-auto md:row-start-auto">{{ n.category }}</span>
+                        <span class="t-label text-ink-2 group-hover:text-paper/70">{{ n.date ?? t('common.tba') }}</span>
+                        <span class="t-label col-start-1 row-start-2 text-green group-hover:text-gold md:col-start-auto md:row-start-auto">{{ n.category }}</span>
                         <span class="col-start-1 row-start-3 font-display text-2xl leading-tight font-black uppercase md:col-start-auto md:row-start-auto md:text-3xl">{{ n.title }}</span>
                         <Icon name="arrow" class="col-start-2 row-span-3 row-start-1 transition-transform duration-300 group-hover:translate-x-1 md:col-start-auto md:row-span-1 md:row-start-auto" />
                     </Link>

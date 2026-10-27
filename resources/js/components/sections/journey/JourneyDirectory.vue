@@ -37,7 +37,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
                 <p v-if="directory.sample" class="t-label mt-3 inline-block bg-gold px-2 py-1 text-night">{{ t('common.sample') }}</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center lg:col-span-7 lg:justify-end">
-                <div role="tablist" :aria-label="t('sections.directory')" class="flex border border-line-dark">
+                <div role="tablist" :aria-label="t('sections.directory')" class="flex border border-line-light">
                     <button
                         v-for="(type, i) in types"
                         :key="type"
@@ -49,7 +49,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
                         aria-controls="dir-panel"
                         :tabindex="tab === type ? 0 : -1"
                         class="t-label min-h-11 flex-1 px-4 transition-colors duration-300"
-                        :class="tab === type ? 'bg-paper text-night' : 'hover:text-gold'"
+                        :class="tab === type ? 'bg-night text-paper' : 'hover:text-green'"
                         @click="tab = type"
                         @keydown="onTabKey($event, i)"
                     >
@@ -58,16 +58,16 @@ function onTabKey(e: KeyboardEvent, i: number) {
                 </div>
                 <label class="relative flex items-center">
                     <span class="sr-only">{{ t('sections.search') }}</span>
-                    <Icon name="search" class="pointer-events-none absolute left-3 text-muted" />
-                    <input v-model="query" type="search" :placeholder="t('sections.search')" class="min-h-11 w-full rounded-[2px] border border-line-dark bg-transparent py-2 pr-3 pl-10 text-sm placeholder:text-muted focus:border-mint sm:w-64" />
+                    <Icon name="search" class="pointer-events-none absolute left-3 text-ink-2" />
+                    <input v-model="query" type="search" :placeholder="t('sections.search')" class="min-h-11 w-full rounded-[2px] border border-line-light bg-paper py-2 pr-3 pl-10 text-sm placeholder:text-ink-2 focus:border-green sm:w-64" />
                 </label>
             </div>
         </div>
 
         <div id="dir-panel" role="tabpanel" :aria-labelledby="`dir-tab-${tab}`" class="relative mt-8 overflow-x-auto">
             <table class="w-full min-w-[640px] text-left text-sm">
-                <thead class="t-label text-muted">
-                    <tr class="border-b border-line-dark">
+                <thead class="t-label text-ink-2">
+                    <tr class="border-b border-line-light">
                         <th scope="col" class="py-3 pr-4 font-medium">{{ t(`sections.tabs.${tab}`) }}</th>
                         <th scope="col" class="py-3 pr-4 font-medium">{{ t('sections.cols.date') }}</th>
                         <th scope="col" class="py-3 pr-4 font-medium">{{ t('sections.cols.location') }}</th>
@@ -76,17 +76,17 @@ function onTabKey(e: KeyboardEvent, i: number) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="r in rows" :key="r.name" class="border-b border-line-dark transition-colors duration-300 hover:bg-delta/60">
+                    <tr v-for="r in rows" :key="r.name" class="border-b border-line-light transition-colors duration-300 hover:bg-paper">
                         <th scope="row" class="py-4 pr-4 font-display text-xl font-black uppercase">{{ r.name }}</th>
-                        <td class="py-4 pr-4 text-muted">{{ r.date ?? t('common.tba') }}</td>
+                        <td class="py-4 pr-4 text-ink-2">{{ r.date ?? t('common.tba') }}</td>
                         <td class="py-4 pr-4">{{ r.location ?? t('common.tba') }}</td>
-                        <td class="py-4 pr-4 text-muted">{{ r.partner ?? t('common.tba') }}</td>
+                        <td class="py-4 pr-4 text-ink-2">{{ r.partner ?? t('common.tba') }}</td>
                         <td class="py-4 text-right">
-                            <Link :href="withUtm('/register', utm)" class="link-u t-label inline-flex min-h-11 items-center gap-2 text-gold">{{ t('sections.cols.register') }} <Icon name="arrow" :size="14" /></Link>
+                            <Link :href="withUtm('/register', utm)" class="link-u t-label inline-flex min-h-11 items-center gap-2 text-green">{{ t('sections.cols.register') }} <Icon name="arrow" :size="14" /></Link>
                         </td>
                     </tr>
                     <tr v-if="!rows.length">
-                        <td colspan="5" class="py-6 text-muted">—</td>
+                        <td colspan="5" class="py-6 text-ink-2">—</td>
                     </tr>
                 </tbody>
             </table>

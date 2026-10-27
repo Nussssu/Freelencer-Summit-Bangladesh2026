@@ -21,8 +21,8 @@ One line per token: value, then source (`measured:<site> <finding-id>` from refe
 
 ## Colour (never #000 / #fff)
 - night #050E0A (dark surfaces, text on light), default
-- delta #0A3B2C (deep green surface), default
-- flag-green #006A4E, default (Bangladesh flag; matches the widely cited spec value, official spec gives Pantone/ratios only)
+- delta #083A40 (deep teal surface; was #0A3B2C), client request: teal replaces dark green
+- green #08707A (blue-green teal, 4.9:1 on paper; replaces flag-green #006A4E), client request
 - flag-red #F42A41, default (same note)
 - jute-gold #E9B949 (primary CTA, the "accent"), default; role mirrors GITEX yellow CTA pill, measured:gitex G2/G10
 - river-mint #7FE0C8 (particles, focus ring on dark), default
