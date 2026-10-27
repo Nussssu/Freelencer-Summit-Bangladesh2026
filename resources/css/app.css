@@ -1,0 +1,361 @@
+@import '@fontsource-variable/big-shoulders';
+@import '@fontsource-variable/host-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/anek-bangla';
+@import 'tailwindcss';
+
+/* Design tokens: values and sources in docs/design-decisions.md */
+:root {
+    --night: #050e0a;
+    --delta: #0a3b2c;
+    --green: #006a4e;
+    --red: #f42a41;
+    --gold: #e9b949;
+    --mint: #7fe0c8;
+    --paper: #f2ecdf;
+    --muted: #8fa096;
+    --ink-2: #3f4b44;
+    --bacco: #3167ae;
+    --bacco-light: #8db0e6; /* BACCO blue lifted for text on dark (8.9:1) */
+    --line-dark: rgb(242 236 223 / 0.14);
+    --line-light: rgb(5 14 10 / 0.14);
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-hover: ease-in-out;
+    --dur-hover: 0.3s;
+    --dur-reveal: 0.9s;
+
+    --header-h: 112px;
+    --section-y: clamp(4rem, 7vw, 7.5rem);
+    --notch: 10px;
+}
+
+@theme inline {
+    --color-night: var(--night);
+    --color-delta: var(--delta);
+    --color-green: var(--green);
+    --color-red: var(--red);
+    --color-gold: var(--gold);
+    --color-mint: var(--mint);
+    --color-paper: var(--paper);
+    --color-muted: var(--muted);
+    --color-ink-2: var(--ink-2);
+    --color-bacco: var(--bacco);
+    --color-bacco-light: var(--bacco-light);
+    --color-line-dark: var(--line-dark);
+    --color-line-light: var(--line-light);
+
+    --font-display: 'Big Shoulders Variable', 'Anek Bangla Variable', 'Arial Narrow', sans-serif;
+    --font-sans: 'Host Grotesk Variable', 'Anek Bangla Variable', 'Hind Siliguri', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+    --font-bangla: 'Anek Bangla Variable', 'Hind Siliguri', sans-serif;
+
+    --ease-out-expo: var(--ease-out);
+    --container-site: 1320px;
+}
+
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        scroll-padding-top: calc(var(--header-h) + 16px);
+    }
+    body {
+        background: var(--night);
+        color: var(--paper);
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+    :lang(bn) body,
+    html[lang='bn'] body {
+        font-family: var(--font-bangla);
+    }
+    ::selection {
+        background: var(--gold);
+        color: var(--night);
+    }
+    :focus-visible {
+        outline: 2px solid var(--mint);
+        outline-offset: 3px;
+    }
+    .on-light :focus-visible {
+        outline-color: var(--green);
+    }
+    img,
+    video {
+        max-width: 100%;
+        height: auto;
+    }
+    [hidden] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .container-site {
+        width: 100%;
+        max-width: var(--container-site);
+        margin-inline: auto;
+        padding-inline: 16px;
+    }
+    @media (min-width: 768px) {
+        .container-site {
+            padding-inline: 32px;
+        }
+    }
+
+    .section {
+        position: relative;
+        padding-block: var(--section-y);
+        isolation: isolate;
+    }
+    .on-light {
+        background: var(--paper);
+        color: var(--night);
+    }
+
+    /* Type roles */
+    .t-h1 {
+        font-family: var(--font-display);
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 0.86;
+        font-size: clamp(4.25rem, 12.5vw, 12rem);
+    }
+    .t-h2 {
+        font-family: var(--font-display);
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 0.92;
+        font-size: clamp(2.75rem, 6vw, 5.4rem);
+        text-wrap: balance;
+    }
+    .t-h2-xl {
+        font-family: var(--font-display);
+        font-weight: 900;
+        text-transform: uppercase;
+        line-height: 0.9;
+        font-size: clamp(3rem, 8.6vw, 7.75rem);
+    }
+    html[lang='bn'] :is(.t-h1, .t-h2, .t-h2-xl) {
+        font-family: var(--font-bangla);
+        line-height: 1.12;
+        font-weight: 700;
+    }
+    .t-label {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .t-stat {
+        font-family: var(--font-sans);
+        font-weight: 800;
+        font-size: clamp(2.5rem, 3.5vw, 3.1rem);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+    .t-outline {
+        color: transparent;
+        -webkit-text-stroke: 2px currentColor;
+        -webkit-text-stroke-color: var(--outline, var(--paper));
+    }
+
+    /* Buttons: sharp rectangle, one notched corner, colour-swap hover (GITEX G10) */
+    .btn {
+        --btn-bg: var(--gold);
+        --btn-fg: var(--night);
+        --btn-hover: var(--red);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 12px 20px;
+        font-family: var(--font-sans);
+        font-weight: 700;
+        font-size: 0.875rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        line-height: 1.1;
+        background: var(--btn-bg);
+        color: var(--btn-fg);
+        clip-path: polygon(0 0, calc(100% - var(--notch)) 0, 100% var(--notch), 100% 100%, 0 100%);
+        transition:
+            background-color var(--dur-hover) var(--ease-hover),
+            color var(--dur-hover) var(--ease-hover),
+            box-shadow var(--dur-hover) var(--ease-hover);
+        white-space: nowrap;
+    }
+    .btn:hover {
+        background: var(--btn-hover);
+    }
+    .btn:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 3px var(--mint);
+    }
+    .btn[aria-disabled='true'],
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .btn-red {
+        --btn-bg: var(--red);
+        --btn-hover: var(--gold);
+    }
+    .btn-green {
+        --btn-bg: var(--green);
+        --btn-fg: var(--paper);
+        --btn-hover: var(--delta);
+    }
+    .btn-blue {
+        --btn-bg: var(--bacco);
+        --btn-fg: var(--paper);
+        --btn-hover: var(--delta);
+    }
+    .btn-outline,
+    .btn-ghost {
+        --btn-bg: transparent;
+        --btn-fg: currentColor;
+        --btn-hover: rgb(242 236 223 / 0.12);
+        box-shadow: inset 0 0 0 1px currentColor;
+    }
+    .btn-ghost {
+        box-shadow: inset 0 0 0 1px var(--line-dark);
+    }
+    .on-light .btn-outline,
+    .on-light .btn-ghost {
+        --btn-hover: rgb(5 14 10 / 0.08);
+    }
+    .on-light .btn-ghost {
+        box-shadow: inset 0 0 0 1px var(--line-light);
+    }
+
+    .link-u {
+        background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+        transition:
+            background-size var(--dur-hover) var(--ease-hover),
+            color var(--dur-hover) var(--ease-hover);
+    }
+    .link-u:hover {
+        background-size: 100% 1px;
+    }
+
+    /* Kantha running stitch: hand-sewn dashes, used for dividers and underlines */
+    .stitch {
+        height: 6px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='6'%3E%3Cpath d='M1 3.2 7.5 2.6M12 3.4l6.8-.5' stroke='%23E9B949' stroke-width='1.6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") repeat-x;
+    }
+
+    /* Dashed placeholder slot ("Your logo here") */
+    .slot {
+        display: grid;
+        place-items: center;
+        min-height: 88px;
+        border: 1px dashed currentColor;
+        opacity: 0.55;
+        text-align: center;
+        padding: 16px;
+    }
+
+    /* Hairline 12-column guides on dark sections */
+    .grid-lines::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            to right,
+            transparent 0,
+            transparent calc((min(100vw, var(--container-site)) - 64px) / 12 - 1px),
+            rgb(242 236 223 / 0.05) calc((min(100vw, var(--container-site)) - 64px) / 12 - 1px),
+            rgb(242 236 223 / 0.05) calc((min(100vw, var(--container-site)) - 64px) / 12)
+        );
+        background-position: center;
+        mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+    }
+
+    /* 3% film grain, dark sections only */
+    .grain::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.03;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Duotone placeholder image (no stock photos) */
+    .duotone {
+        background:
+            radial-gradient(120% 90% at 20% 10%, rgb(127 224 200 / 0.35), transparent 60%),
+            repeating-linear-gradient(135deg, rgb(242 236 223 / 0.06) 0 2px, transparent 2px 14px),
+            linear-gradient(160deg, var(--green), var(--delta) 70%);
+    }
+
+    .marquee {
+        display: flex;
+        width: max-content;
+        animation: marquee var(--marquee-dur, 40s) linear infinite;
+    }
+    .marquee[data-reverse] {
+        animation-direction: reverse;
+    }
+    .marquee:hover {
+        animation-play-state: paused;
+    }
+
+    .sr-only-focusable:not(:focus) {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+}
+
+/* Reveal masks (motion lives in composables/useReveal.ts; nothing is hidden before JS runs) */
+.line-mask {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: 0.06em;
+    margin-bottom: -0.06em;
+}
+.line-inner {
+    display: inline-block;
+}
+
+@keyframes marquee {
+    to {
+        transform: translateX(-50%);
+    }
+}
+@keyframes spin-slow {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.spin-slow {
+    animation: spin-slow 24s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .marquee {
+        animation: none;
+    }
+}

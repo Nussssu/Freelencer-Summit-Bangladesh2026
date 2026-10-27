@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Content\SiteContent;
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+
+class HandleInertiaRequests extends Middleware
+{
+    protected $rootView = 'app';
+
+    public function share(Request $request): array
+    {
+        $site = app(SiteContent::class);
+        $summit = config('summit');
+
+        return [
+            ...parent::share($request),
+            'locale' => app()->getLocale(),
+            'summit' => [
+                'name' => $summit['name'],
+                'edition' => $summit['edition'],
+                'startsAt' => $summit['starts_at'],
+                'dateConfirmed' => $summit['date_confirmed'],
+                'city' => $summit['city'],
+                'venue' => $summit['venue'],
+                'divisions' => $summit['divisions'],
+                'districts' => $summit['districts'],
+                'campuses' => $summit['campuses'],
+                'tagline' => $summit['tagline'],
+                'taglineFinal' => $summit['tagline_final'],
+                'hashtag' => $summit['hashtag'],
+                'social' => $summit['social'],
+            ],
+            'site' => [
+                'navigation' => $site->navigation(),
+                'navGroups' => $site->navGroups(),
+                'headerLinks' => $site->headerLinks(),
+                'ctas' => $site->ctas(),
+                'organisers' => $site->organisers(),
+                'contacts' => $site->contacts(),
+                'legal' => $site->legal(),
+                'importantLinks' => $site->importantLinks(),
+                'url' => rtrim(config('app.url'), '/'),
+            ],
+            'flash' => ['success' => fn () => $request->session()->get('success')],
+        ];
+    }
+}
