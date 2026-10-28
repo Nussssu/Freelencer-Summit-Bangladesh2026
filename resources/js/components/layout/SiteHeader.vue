@@ -21,27 +21,55 @@ const nominate = computed(() => site.value.ctas.primary.find((c) => c.id === 'no
 const involved = computed(() => site.value.ctas.primary.filter((c) => ['sponsor', 'exhibit', 'forum'].includes(c.id)));
 
 const solid = ref(false);
+const tone = ref<{ bg: string; dark: boolean; vivid: boolean }>();
 const menuOpen = ref(false);
 const dropOpen = ref(false);
 const drop = ref<HTMLElement>();
+const header = ref<HTMLElement>();
 
-const onScroll = () => (solid.value = scrollY > innerHeight * 0.75);
+// Past the hero, take the background of the section under the header; if the section itself is transparent,
+// the first painted element under the header's left edge (section band, not its cards).
+const luminance = (rgb: number[]) => rgb.slice(0, 3).reduce((sum, v, i) => ((v /= 255), sum + [0.2126, 0.7152, 0.0722][i] * (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)), 0);
+const paint = (el: Element) => {
+    const bg = getComputedStyle(el).backgroundColor;
+    const rgb = bg.match(/[\d.]+/g)?.map(Number) ?? [];
+    return (rgb[3] ?? 1) === 0 ? null : { bg, rgb };
+};
+let frame = 0;
+const sample = () => {
+    frame = 0;
+    solid.value = scrollY > innerHeight * 0.75;
+    if (!solid.value || !header.value) return;
+    const under = document.elementsFromPoint(1, header.value.offsetHeight + 1).find((el) => !header.value!.contains(el));
+    const section = under?.closest('[data-section]');
+    let found = section && paint(section);
+    for (let el = under ?? null; !found && el; el = el.parentElement) found = paint(el);
+    // 0.17 is where paper text and night text give equal contrast; below it paper text reads better.
+    if (found) tone.value = { bg: found.bg, dark: luminance(found.rgb) < 0.17, vivid: Math.max(...found.rgb.slice(0, 3)) - Math.min(...found.rgb.slice(0, 3)) > 120 };
+};
+const onScroll = () => (frame ||= requestAnimationFrame(sample));
 const onDocClick = (e: MouseEvent) => drop.value && !drop.value.contains(e.target as Node) && (dropOpen.value = false);
 const onDropKey = (e: KeyboardEvent) => e.key === 'Escape' && dropOpen.value && ((dropOpen.value = false), drop.value?.querySelector('button')?.focus());
 
 onMounted(() => {
-    onScroll();
+    sample();
     addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocClick);
 });
 onBeforeUnmount(() => {
     removeEventListener('scroll', onScroll);
+    cancelAnimationFrame(frame);
     document.removeEventListener('click', onDocClick);
 });
 </script>
 
 <template>
-    <header class="fixed inset-x-0 top-0 z-50 transition-colors duration-300" :class="solid ? 'on-light light-tokens border-b border-line-light' : 'bg-gradient-to-b from-night/85 to-transparent text-paper'">
+    <header
+        ref="header"
+        class="fixed inset-x-0 top-0 z-50 transition-colors duration-300"
+        :class="!solid ? 'bg-gradient-to-b from-night/85 to-transparent text-paper' : tone?.dark ? 'border-b border-line-dark text-paper' : ['on-light light-tokens border-b border-line-light', tone?.vivid && 'header-mono']"
+        :style="solid && tone ? { backgroundColor: tone.bg } : undefined"
+    >
         <!-- Utility bar -->
         <div class="hidden h-9 border-b border-line-dark md:block">
             <div class="container-site flex h-full items-center gap-4 xl:max-w-none xl:px-8">

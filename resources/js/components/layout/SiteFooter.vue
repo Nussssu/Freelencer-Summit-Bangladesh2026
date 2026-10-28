@@ -66,8 +66,8 @@ useGsap(root, (reduced) => {
             </div>
         </div>
 
-        <div class="relative mt-16 select-none" aria-hidden="true">
-            <p data-wordmark class="font-display leading-[0.78] font-black whitespace-nowrap text-night/[0.06] uppercase" style="font-size: 19vw; margin-left: -1vw">Freelancer Summit</p>
+        <div class="relative mt-16 flex justify-center select-none" aria-hidden="true">
+            <p data-wordmark class="text-center font-display leading-[0.78] font-black whitespace-nowrap text-night/[0.06] uppercase" style="font-size: 19vw">Freelancer</p>
         </div>
 
         <div class="container-site mt-4 flex flex-col gap-4 border-t border-line-light pt-6 text-sm text-ink-2 md:flex-row md:items-center">

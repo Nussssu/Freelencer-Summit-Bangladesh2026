@@ -135,7 +135,7 @@
         background:
             radial-gradient(60% 80% at 100% 0%, rgb(205 225 248 / 0.9), transparent 70%),
             radial-gradient(55% 70% at 0% 100%, rgb(190 228 226 / 0.9), transparent 70%),
-            linear-gradient(135deg, #e6f4f3, #d6ecec 55%, #e3ecf8);
+            linear-gradient(135deg, #e6f4f3, #d6ecec 55%, #e3ecf8) #dfeeee; /* base colour is what the header samples */
     }
 
     /* Type roles */
@@ -363,6 +363,14 @@
 }
 .light-tokens :is(.text-gold, .hover\:text-gold:hover) {
     color: var(--gold-ink);
+}
+/* Header over a saturated band (flag red): accent text drops to ink so it stays readable */
+.header-mono {
+    --gold-ink: var(--night);
+    --green: var(--night);
+    --mint: var(--night);
+    --bacco: var(--night);
+    --muted: var(--night);
 }
 
 /* The WebGL stage glows additively for a dark ground; on paper it is shown as ink (same hues, inverted lightness) */
