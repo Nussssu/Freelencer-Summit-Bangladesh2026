@@ -18,7 +18,7 @@ const band = computed(() => [...site.value.organisers.map((o) => o.short), ...pr
 <template>
     <section ref="root" data-section="2" :aria-label="t('sections.trust')" class="on-light relative z-[1]">
         <div class="flex items-center border-b border-line-light bg-paper-2 text-night">
-            <p class="t-label shrink-0 bg-red px-4 py-3 text-night">{{ t('sections.tickerLabel') }}</p>
+            <p class="t-label shrink-0 bg-green px-4 py-3 text-snow">{{ t('sections.tickerLabel') }}</p>
             <Marquee :items="trust.ticker" :duration="48" separator="|" class="py-3 text-sm font-medium" />
         </div>
 
@@ -26,7 +26,7 @@ const band = computed(() => [...site.value.organisers.map((o) => o.short), ...pr
             <div class="min-w-0 lg:col-span-4">
                 <h2 class="t-label text-ink-2">{{ t('sections.jointly') }}</h2>
                 <ul class="mt-4 grid grid-cols-2 gap-px border border-line-light bg-line-light">
-                    <li v-for="o in site.organisers" :key="o.short" class="flex min-h-36 flex-col justify-between bg-paper p-4" data-reveal="fade">
+                    <li v-for="o in site.organisers" :key="o.short" class="flex min-h-36 flex-col justify-between bg-snow p-4" data-reveal="fade">
                         <img v-if="o.logo" :src="o.logo" :alt="o.name" class="h-12 w-auto" />
                         <span v-else class="font-display text-5xl font-black uppercase" :class="o.short === 'BACCO' && 'text-bacco'">{{ o.short }}</span>
                         <span class="text-xs leading-snug text-ink-2">{{ o.name }}</span>
@@ -37,7 +37,7 @@ const band = computed(() => [...site.value.organisers.map((o) => o.short), ...pr
                 <div v-for="g in trust.groups" :key="g.label">
                     <h3 class="t-label text-ink-2">{{ g.label }}</h3>
                     <ul class="mt-4 grid gap-2">
-                        <li v-for="p in g.partners" :key="p.name" class="grid min-h-[88px] place-items-center border border-line-light p-4">
+                        <li v-for="p in g.partners" :key="p.name" class="card card-hover grid min-h-[88px] place-items-center p-4">
                             <img v-if="p.logo" :src="p.logo" :alt="p.name" class="max-h-12 w-auto" />
                             <span v-else class="font-bold">{{ p.name }}</span>
                         </li>

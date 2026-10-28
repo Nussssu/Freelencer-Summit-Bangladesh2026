@@ -66,7 +66,7 @@ const step = (d: number) => current.value !== null && (current.value = (current.
 
             <h3 class="t-label mt-16 text-green">{{ t('sections.videos') }}</h3>
             <ul class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-                <li v-for="v in media.videos" :key="v.title" class="flex items-center gap-4 border border-line-light bg-paper-2 p-4">
+                <li v-for="v in media.videos" :key="v.title" class="card card-hover flex items-center gap-4 p-4">
                     <span class="grid size-14 shrink-0 place-items-center border border-green text-green" aria-hidden="true"><Icon name="play" :size="20" /></span>
                     <div>
                         <p class="font-display text-xl font-black uppercase">{{ v.title }}</p>

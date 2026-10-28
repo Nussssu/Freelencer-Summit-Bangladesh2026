@@ -6,24 +6,26 @@
 
 /* Design tokens: values and sources in docs/design-decisions.md */
 :root {
-    --night: #050e0a;
+    --night: #071411; /* deep navy: headings and body ink */
     --delta: #083a40; /* deep teal surface */
-    --green: #08707a; /* blue-green (teal), 4.9:1 on paper */
+    --green: #087f8c; /* teal highlight, 4.6:1 on ivory */
     --red: #f42a41;
     --red-ink: #b3132a; /* error text on paper (5.9:1) */
-    --gold: #e9b949;
+    --gold: #eab94b; /* summit gold: primary CTAs */
     --mint: #7fe0c8;
-    --paper: #f2ecdf;
-    --paper-2: #e8e0cf; /* second light band (news) */
-    --snow: #fbfaf6; /* brightest surface: hero daylight */
-    --mist: #e0eded; /* teal-tinted light band (light theme) */
-    --gold-ink: #8a6100; /* jute gold for text on paper (4.7:1) */
+    --paper: #f5f2e9; /* warm ivory band */
+    --paper-2: #ffffff; /* pure white band */
+    --snow: #ffffff; /* pure white surface */
+    --mist: #e7f2f5; /* soft ice blue band */
+    --gold-ink: #087f8c; /* accent text on light surfaces: teal highlight */
     --muted: #8fa096;
     --ink-2: #3f4b44;
     --bacco: #3167ae;
     --bacco-light: #8db0e6; /* BACCO blue lifted for text on dark (8.9:1) */
     --line-dark: rgb(242 236 223 / 0.14);
-    --line-light: rgb(5 14 10 / 0.14);
+    --line-light: rgb(7 20 17 / 0.1);
+    --shadow-soft: 0 1px 2px rgb(7 20 17 / 0.04), 0 10px 30px -14px rgb(7 20 17 / 0.14);
+    --shadow-lift: 0 2px 4px rgb(7 20 17 / 0.05), 0 22px 44px -18px rgb(7 20 17 / 0.22);
 
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-hover: ease-in-out;
@@ -133,9 +135,24 @@
     /* Soft teal-to-sky light gradient: the light-theme stand-in for solid green bands */
     .soft-green {
         background:
-            radial-gradient(60% 80% at 100% 0%, rgb(205 225 248 / 0.9), transparent 70%),
-            radial-gradient(55% 70% at 0% 100%, rgb(190 228 226 / 0.9), transparent 70%),
-            linear-gradient(135deg, #e6f4f3, #d6ecec 55%, #e3ecf8) #dfeeee; /* base colour is what the header samples */
+            radial-gradient(60% 80% at 100% 0%, rgb(8 127 140 / 0.08), transparent 70%),
+            radial-gradient(55% 70% at 0% 100%, rgb(234 185 75 / 0.08), transparent 70%),
+            linear-gradient(135deg, var(--mist), #eef6f8 55%, var(--paper)) var(--mist); /* base colour is what the header samples */
+    }
+    /* Card surface: white, hairline border, soft shadow; lifts on hover where interactive */
+    .card {
+        background: var(--snow);
+        border: 1px solid var(--line-light);
+        box-shadow: var(--shadow-soft);
+        transition:
+            box-shadow var(--dur-hover) var(--ease-hover),
+            transform var(--dur-hover) var(--ease-hover),
+            border-color var(--dur-hover) var(--ease-hover);
+    }
+    .card-hover:hover {
+        box-shadow: var(--shadow-lift);
+        transform: translateY(-3px);
+        border-color: rgb(8 127 140 / 0.35);
     }
 
     /* Type roles */
@@ -278,10 +295,18 @@
         display: grid;
         place-items: center;
         min-height: 88px;
-        border: 1px dashed currentColor;
-        opacity: 0.55;
+        border: 1px dashed rgb(7 20 17 / 0.22);
+        background: rgb(255 255 255 / 0.55);
+        color: var(--ink-2);
         text-align: center;
         padding: 16px;
+        transition:
+            border-color var(--dur-hover) var(--ease-hover),
+            color var(--dur-hover) var(--ease-hover);
+    }
+    .slot:hover {
+        border-color: var(--green);
+        color: var(--green);
     }
 
     /* Hairline 12-column guides on dark sections */

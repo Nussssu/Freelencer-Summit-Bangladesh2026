@@ -20,7 +20,7 @@ const cta = computed(() => site.value.ctas.secondary.find((c) => c.id === 'agend
 </script>
 
 <template>
-    <section ref="root" data-section="8" aria-labelledby="ag-title" class="on-light section relative z-[1]">
+    <section ref="root" data-section="8" aria-labelledby="ag-title" class="on-light section relative z-[1] bg-snow">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div>

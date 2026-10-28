@@ -25,7 +25,7 @@ useGsap(root, (reduced) => {
 </script>
 
 <template>
-    <section ref="root" data-section="3" aria-labelledby="whatis-title" class="on-light section overflow-hidden">
+    <section ref="root" data-section="3" aria-labelledby="whatis-title" class="on-light section overflow-hidden bg-snow">
         <div class="container-site">
             <h2 id="whatis-title" class="t-label text-green">{{ t('sections.whatIs', { name: summit.name, edition: summit.edition }) }}</h2>
             <p class="mt-6 max-w-6xl font-display text-[clamp(2.5rem,6vw,5.6rem)] leading-[0.95] font-black uppercase" data-reveal="fade">

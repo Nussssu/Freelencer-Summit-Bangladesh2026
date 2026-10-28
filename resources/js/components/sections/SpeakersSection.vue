@@ -25,7 +25,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
 </script>
 
 <template>
-    <section ref="root" data-section="7" aria-labelledby="sp-title" class="on-light section relative z-[1] bg-mist">
+    <section ref="root" data-section="7" aria-labelledby="sp-title" class="on-light section relative z-[1]">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div>
@@ -36,7 +36,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
             </div>
 
             <!-- Featured showcase -->
-            <article class="mt-12 grid grid-cols-1 border border-line-light bg-paper md:grid-cols-12" data-reveal="fade">
+            <article class="mt-12 card grid grid-cols-1 overflow-hidden md:grid-cols-12" data-reveal="fade">
                 <div class="silhouette relative aspect-[4/3] md:col-span-5 md:aspect-auto md:min-h-80" aria-hidden="true">
                     <img v-if="featured.photo" :src="featured.photo" alt="" class="h-full w-full object-cover" />
                 </div>
@@ -49,7 +49,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
             </article>
 
             <ul class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                <li v-for="s in rest" :key="s.slug" class="flex flex-col border border-line-light bg-paper" data-reveal="fade">
+                <li v-for="s in rest" :key="s.slug" class="card card-hover flex flex-col overflow-hidden" data-reveal="fade">
                     <div class="silhouette aspect-[4/5]" aria-hidden="true"><img v-if="s.photo" :src="s.photo" alt="" class="h-full w-full object-cover" /></div>
                     <div class="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">

@@ -30,7 +30,7 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
                 <p class="t-label text-green">{{ t('sections.exhibition') }}</p>
                 <SplitHeading :text="headings.exhibition.title" :emphasis="headings.exhibition.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
 
-                <figure class="mt-8 border border-line-light p-4" data-reveal="clip">
+                <figure class="card mt-8 p-4" data-reveal="clip">
                     <figcaption class="t-label flex flex-wrap items-center justify-between gap-2 text-ink-2">
                         <span>{{ t('sections.floorPlan') }}<span v-if="exhibition.boothsIllustrative"> · {{ t('common.illustrative') }}</span></span>
                         <span class="flex gap-3">
