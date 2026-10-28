@@ -58,17 +58,23 @@ function submit() {
         <div v-if="step === 'done'" data-success tabindex="-1" class="py-6" role="status">
             <p class="t-label text-green">{{ t('form.success') }}</p>
             <p class="mt-3 text-lg">{{ page.props.flash.success }}</p>
-            <button type="button" class="btn btn-ghost mt-6" @click="step = 1">{{ t('form.another') }}</button>
+            <button type="button" class="btn btn-ghost mt-6 [clip-path:none]" @click="step = 1">{{ t('form.another') }}</button>
         </div>
         <form v-else novalidate @submit.prevent="step === 1 ? next() : submit()">
-            <ol class="mb-6 grid grid-cols-2 gap-2" aria-hidden="true">
-                <li v-for="n in [1, 2]" :key="n" class="t-label border-t-2 pt-2" :class="step >= n ? 'border-green text-night' : 'border-line-light text-ink-2'">{{ n }} · {{ t(n === 1 ? 'form.company' : 'form.personal') }}</li>
+            <ol class="mb-8 flex items-center gap-3" aria-hidden="true">
+                <template v-for="n in [1, 2]" :key="n">
+                    <li v-if="n > 1" class="h-px w-10 bg-night/15" />
+                    <li class="flex items-center gap-2.5 text-sm font-medium" :class="step >= n ? 'text-night' : 'text-ink-2'">
+                        <span class="grid size-7 place-items-center rounded-full border text-xs font-semibold" :class="step >= n ? 'border-green bg-green text-paper' : 'border-night/20 bg-snow'">{{ n }}</span>
+                        {{ t(n === 1 ? 'form.company' : 'form.personal') }}
+                    </li>
+                </template>
             </ol>
             <p class="sr-only" aria-live="polite">{{ t('form.step', { n: step }) }}</p>
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-x-4 gap-y-5 sm:grid-cols-2">
                 <div v-for="f in fields" :key="f.key" :class="f.key === 'industry' || f.key === 'head_office' ? 'sm:col-span-2' : ''">
-                    <label :for="`enq-${f.key}`" class="t-label text-ink-2">
-                        {{ t(`form.${f.key}`) }} <span v-if="!f.required" class="normal-case">({{ t('form.optional') }})</span><span v-else aria-hidden="true" class="text-red">*</span>
+                    <label :for="`enq-${f.key}`" class="text-sm font-medium text-night">
+                        {{ t(`form.${f.key}`) }} <span v-if="!f.required" class="font-normal text-ink-2">({{ t('form.optional') }})</span><span v-else aria-hidden="true" class="text-red">*</span>
                     </label>
                     <input
                         :id="`enq-${f.key}`"
@@ -79,15 +85,15 @@ function submit() {
                         :required="f.required"
                         :aria-invalid="!!form.errors[f.key as Key]"
                         :aria-describedby="form.errors[f.key as Key] ? `enq-${f.key}-err` : undefined"
-                        class="mt-1 block min-h-11 w-full rounded-[2px] border bg-paper px-3 py-2 text-night"
-                        :class="form.errors[f.key as Key] ? 'border-red' : 'border-night/30 focus:border-green'"
+                        class="mt-1.5 block min-h-11 w-full rounded-md border bg-snow px-3.5 py-2.5 text-night shadow-[0_1px_2px_rgb(7_20_17/0.04)] transition-[border-color,box-shadow] duration-200 outline-none focus:ring-3"
+                        :class="form.errors[f.key as Key] ? 'border-red focus:ring-red/15' : 'border-night/15 hover:border-night/30 focus:border-green focus:ring-green/15'"
                     />
                     <p v-if="form.errors[f.key as Key]" :id="`enq-${f.key}-err`" class="mt-1 text-sm font-medium text-red-ink">{{ form.errors[f.key as Key] }}</p>
                 </div>
             </div>
-            <div class="mt-6 flex gap-2">
-                <button v-if="step === 2" type="button" class="btn btn-ghost" @click="step = 1">{{ t('form.back') }}</button>
-                <button type="submit" class="btn btn-green" :disabled="form.processing">{{ step === 1 ? t('form.next') : form.processing ? t('form.sending') : t('form.submit') }}</button>
+            <div class="mt-8 flex justify-end gap-3 border-t border-line-light pt-6">
+                <button v-if="step === 2" type="button" class="btn btn-ghost mr-auto [clip-path:none]" @click="step = 1">{{ t('form.back') }}</button>
+                <button type="submit" class="btn btn-green [clip-path:none]" :disabled="form.processing">{{ step === 1 ? t('form.next') : form.processing ? t('form.sending') : t('form.submit') }}</button>
             </div>
         </form>
     </div>

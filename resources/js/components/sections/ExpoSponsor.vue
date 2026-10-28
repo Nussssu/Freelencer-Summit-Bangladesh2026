@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
@@ -7,6 +8,7 @@ import Icon from '@/components/ui/Icon.vue';
 import SplitHeading from '@/components/ui/SplitHeading.vue';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
+import { utm, withUtm } from '@/composables/useUtm';
 import type { Exhibition, Heading, Sponsorship } from '@/types/content';
 import EnquiryForm from './expo/EnquiryForm.vue';
 
@@ -38,8 +40,20 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
                         </span>
                     </figcaption>
                     <ul class="mt-4 grid grid-cols-8 gap-1" :aria-label="t('sections.floorPlan')">
-                        <li v-for="b in exhibition.booths" :key="b.id" class="t-label grid aspect-square place-items-center text-[0.625rem] text-night" :class="stateClass[b.state]" :title="`${b.id}: ${t(`sections.booth.${b.state}`)}`">
-                            <span class="sr-only">{{ b.id }}: </span>{{ b.state === 'available' ? b.id : '' }}<span class="sr-only">{{ t(`sections.booth.${b.state}`) }}</span>
+                        <li v-for="b in exhibition.booths" :key="b.id" class="t-label grid aspect-square text-[0.625rem] text-night" :title="`${b.id}: ${t(`sections.booth.${b.state}`)}`">
+                            <button
+                                v-if="b.state === 'available'"
+                                type="button"
+                                class="grid cursor-pointer place-items-center transition-all duration-300 hover:scale-105 hover:brightness-105 focus-visible:scale-105"
+                                :class="stateClass[b.state]"
+                                aria-haspopup="dialog"
+                                @click="enquiring = true"
+                            >
+                                <span class="sr-only">{{ t('sections.enquire') }} · </span>{{ b.id }}<span class="sr-only">: {{ t(`sections.booth.${b.state}`) }}</span>
+                            </button>
+                            <span v-else class="grid cursor-not-allowed place-items-center" :class="stateClass[b.state]">
+                                <span class="sr-only">{{ b.id }}: {{ t(`sections.booth.${b.state}`) }}</span>
+                            </span>
                         </li>
                     </ul>
                     <p class="t-label mt-2 text-center text-ink-2">{{ t('sections.stage') }} ↑</p>
@@ -69,9 +83,12 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
                 <SplitHeading :text="headings.sponsorship.title" :emphasis="headings.sponsorship.emphasis" emphasis-class="text-gold-ink" class="t-h2 mt-3" />
                 <h3 class="t-label mt-8 text-ink-2">{{ t('sections.tiers') }}<span v-if="sponsorship.provisional"> · {{ t('common.provisional') }}</span></h3>
                 <ol class="mt-3 border-t border-line-light">
-                    <li v-for="(tier, i) in sponsorship.tiers" :key="tier" class="flex items-baseline gap-4 border-b border-line-light py-3" data-reveal="fade">
-                        <span class="t-label w-6 text-ink-2">{{ String(i + 1).padStart(2, '0') }}</span>
-                        <span class="font-display font-black uppercase" :class="i === 0 ? 'text-4xl text-gold-ink' : i < 4 ? 'text-3xl' : 'text-2xl text-ink-2'">{{ tier }}</span>
+                    <li v-for="(tier, i) in sponsorship.tiers" :key="tier" class="border-b border-line-light" data-reveal="fade">
+                        <Link :href="withUtm(cta('sponsor').href, utm)" class="group flex items-baseline gap-4 py-3 transition-colors duration-300 hover:bg-snow/60 focus-visible:bg-snow/60">
+                            <span class="t-label w-6 text-ink-2">{{ String(i + 1).padStart(2, '0') }}</span>
+                            <span class="font-display font-black uppercase transition-colors duration-300 group-hover:text-gold-ink group-focus-visible:text-gold-ink" :class="i === 0 ? 'text-4xl text-gold-ink' : i < 4 ? 'text-3xl' : 'text-2xl text-ink-2'">{{ tier }}</span>
+                            <Icon name="arrow" class="mr-2 ml-auto -translate-x-2 self-center text-gold-ink opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100" />
+                        </Link>
                     </li>
                 </ol>
                 <div class="mt-8 flex flex-wrap gap-2">
