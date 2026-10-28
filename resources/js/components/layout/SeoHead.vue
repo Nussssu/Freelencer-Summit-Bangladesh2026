@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useShared } from '@/composables/useShared';
 
-const props = defineProps<{ title: string; description: string; path: string; image?: string }>();
+const props = defineProps<{ title: string; description: string; path: string; image?: string; robots?: string }>(); // robots: e.g. 'noindex' on thank-you pages
 const { site } = useShared();
 const url = computed(() => site.value.url + props.path);
 const image = computed(() => site.value.url + (props.image ?? '/og-image.png'));
@@ -13,6 +13,7 @@ const image = computed(() => site.value.url + (props.image ?? '/og-image.png'));
     <Head :title="title">
         <meta head-key="description" name="description" :content="description" />
         <link head-key="canonical" rel="canonical" :href="url" />
+        <meta v-if="robots" head-key="robots" name="robots" :content="robots" />
         <meta head-key="og:type" property="og:type" content="website" />
         <meta head-key="og:site_name" property="og:site_name" content="Freelancer Summit Bangladesh" />
         <meta head-key="og:title" property="og:title" :content="title" />

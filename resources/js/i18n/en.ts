@@ -1,3 +1,5 @@
+import inner from './inner.en';
+
 // UI chrome strings. Section content comes from Laravel (app/Content), not from here.
 const en = {
     brand: {
@@ -130,6 +132,7 @@ const en = {
     },
     footer: { explore: 'Explore', connect: 'Connect', important: 'Important links', organisers: 'Organised by {names}.' },
     page: { comingNext: 'Coming next', willHold: 'This page will hold', meanwhile: 'Meanwhile' },
+    inner,
 };
 
 export default en;

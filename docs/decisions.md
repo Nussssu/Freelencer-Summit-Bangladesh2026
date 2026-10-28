@@ -22,3 +22,8 @@ Logged per instruction: where the client PDF and the build checklist differ, the
 | 16 | Magnetic hover | Measured hovers have no transform | useMagnetic only on the hero Register button (max 6px) |
 | 17 | SSR + Vue 3.5.44 | Inertia v2.3 SSR rendered "[object Promise]" | resources/js/ssr.ts wraps renderToString with a placeholder swap (comment explains); remove when Inertia fixes it |
 | 18 | Video format | No ffmpeg on the build machine | Fallback clips are VP9 WebM only (0.94MB / 0.82MB); browsers without WebM keep the poster |
+| 19 | Session/attendee types | Brief asks to "seed" 11 session types and attendee types | PHP enums (app/Enums), labels verbatim; no lookup tables to keep in sync |
+| 20 | Agenda table name | `sessions` | `agenda_sessions` (`sessions` is Laravel's session store) |
+| 21 | Exhibition tables | `exhibition_enquiries` | Landing popup keeps `exhibit_enquiries` (now with reference/consent columns); `/exhibition/apply` uses `exhibition_applications` |
+| 22 | Sensitive fields | "encrypted casts only where sensitive" | Phone numbers on all new submissions are encrypted; emails stay plain for duplicate checks |
+| 23 | Consent wording | Not supplied | Draft version `2026-10-draft` in config/consent.php, marked for organiser approval |

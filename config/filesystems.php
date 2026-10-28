@@ -38,6 +38,16 @@ return [
             'report' => false,
         ],
 
+        // Form uploads (award documents). Never web-served; random file names.
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/uploads'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

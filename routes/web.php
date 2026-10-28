@@ -2,6 +2,7 @@
 
 use App\Content\PageContent;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\Dev\KitController;
 use App\Http\Controllers\ExhibitEnquiryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
@@ -31,3 +32,9 @@ Route::get('/agenda/sessions/{index}.ics', [CalendarController::class, 'session'
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
 Route::get('/robots.txt', [SeoController::class, 'robots']);
+
+// Inner-page kit preview, local only (docs/inner-design-kit.md).
+if (app()->isLocal()) {
+    Route::get('/_kit', [KitController::class, 'show']);
+    Route::post('/_kit/form', [KitController::class, 'submit'])->middleware(['honeypot', 'throttle:forms']);
+}

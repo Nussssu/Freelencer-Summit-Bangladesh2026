@@ -1,0 +1,48 @@
+// Inner-page kit strings (forms, directories, honest states). Nested in en.ts as `inner`.
+// NATIVE-REVIEW: every key here still needs a Bangla translation.
+const inner = {
+    crumbs: { label: 'Breadcrumb', home: 'Home' },
+    subnav: 'On this page',
+    tbc: {
+        title: 'Date and venue to be confirmed',
+        body: 'The Grand Summit is planned for late November {edition} in {city}. We will announce the exact date and venue here first.',
+        date: 'Date',
+        venue: 'Venue',
+        city: 'City',
+        lateNov: 'Late November {edition}',
+        toBeConfirmed: 'To be confirmed',
+    },
+    empty: { title: 'Announcing soon', body: 'We are confirming the details. Check back soon or register to hear first.' },
+    sample: 'Sample',
+    download: { action: 'Download', soon: 'Available soon', size: '{size} MB' },
+    share: { action: 'Share', copy: 'Copy link', copied: 'Link copied' },
+    list: { results: 'No results | 1 result | {n} results', clear: 'Clear filters', all: 'All', loading: 'Loading results', noMatch: 'Nothing matches these filters yet.', search: 'Search' },
+    pager: { label: 'Pagination', previous: 'Previous page', next: 'Next page', page: 'Page {n} of {total}' },
+    form: {
+        optional: 'optional',
+        required: 'required',
+        choose: 'Choose…',
+        mobileHelp: 'Bangladesh mobile number, for example 01712345678 or +8801712345678.',
+        counter: '{n} of {max} characters',
+        addLink: 'Add another link',
+        removeLink: 'Remove link {n}',
+        platform: 'Platform',
+        url: 'Profile or portfolio link',
+        files: 'Choose files',
+        fileHelp: 'PDF, JPG or PNG. Up to {mb} MB each, {max} files at most.',
+        fileTooBig: '{name} is larger than {mb} MB.',
+        fileType: '{name} is not a PDF, JPG or PNG.',
+        fileMax: 'You can attach up to {max} files.',
+        removeFile: 'Remove {name}',
+        errorTitle: 'Please check the highlighted field | Please check the {n} highlighted fields',
+        step: 'Step {n} of {total}',
+        back: 'Back',
+        continue: 'Continue',
+        submit: 'Submit',
+        sending: 'Sending…',
+        honeypot: 'Leave this field empty',
+        consentLabel: 'I agree',
+    },
+};
+
+export default inner;

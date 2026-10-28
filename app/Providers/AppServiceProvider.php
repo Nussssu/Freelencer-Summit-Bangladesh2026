@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use App\Content\HomeContent;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Every public form: 5 posts a minute and 30 an hour per IP (`throttle:forms`).
+        RateLimiter::for('forms', fn (Request $request) => [Limit::perMinute(5)->by($request->ip()), Limit::perHour(30)->by($request->ip())]);
     }
 }
