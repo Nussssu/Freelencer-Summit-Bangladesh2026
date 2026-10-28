@@ -6,6 +6,29 @@
 
 /* Design tokens: values and sources in docs/design-decisions.md */
 :root {
+    /* Light-theme palette (single source; the roles below point at these) */
+    --ivory: #f5f2e9; /* warm ivory background */
+    --white: #ffffff;
+    --ice: #e7f2f5; /* soft ice blue background */
+    --pale-mint: #eaf5ef; /* pale mint background */
+    --slate: #475569; /* body text on light (7.0:1 on ivory) */
+    --sky: #00aeef; /* technology accents (decorative, not for text) */
+
+    /* Section gradients: seamless pairs, chained so each section ends where the next begins */
+    --grad-ivory-ice: linear-gradient(180deg, var(--ivory), var(--ice));
+    --grad-ice-mint: linear-gradient(180deg, var(--ice), var(--pale-mint));
+    --grad-white-ivory: linear-gradient(180deg, var(--white), var(--ivory));
+    /* Site blend (the earlier soft blue-gold band): ice blue into ivory, a teal glow top-right, a gold glow bottom-left */
+    --grad-site:
+        radial-gradient(60% 80% at 100% 0%, rgb(8 127 140 / 0.08), transparent 70%),
+        radial-gradient(55% 70% at 0% 100%, rgb(234 185 75 / 0.08), transparent 70%),
+        linear-gradient(135deg, var(--ice), #eef6f8 55%, var(--ivory)) var(--ice);
+    /* Mirrored glows, crossfaded in and out so the blend drifts slowly */
+    --grad-site-alt:
+        radial-gradient(60% 80% at 0% 0%, rgb(234 185 75 / 0.08), transparent 70%),
+        radial-gradient(55% 70% at 100% 100%, rgb(8 127 140 / 0.08), transparent 70%),
+        linear-gradient(225deg, var(--ice), #eef6f8 55%, var(--ivory)) var(--ice);
+
     --night: #071411; /* deep navy: headings and body ink */
     --delta: #083a40; /* deep teal surface */
     --green: #087f8c; /* teal highlight, 4.6:1 on ivory */
@@ -13,13 +36,13 @@
     --red-ink: #b3132a; /* error text on paper (5.9:1) */
     --gold: #eab94b; /* summit gold: primary CTAs */
     --mint: #7fe0c8;
-    --paper: #f5f2e9; /* warm ivory band */
-    --paper-2: #ffffff; /* pure white band */
-    --snow: #ffffff; /* pure white surface */
-    --mist: #e7f2f5; /* soft ice blue band */
+    --paper: var(--ivory); /* warm ivory band */
+    --paper-2: var(--white); /* pure white band */
+    --snow: var(--white); /* pure white surface */
+    --mist: var(--ice); /* soft ice blue band */
     --gold-ink: #087f8c; /* accent text on light surfaces: teal highlight */
     --muted: #8fa096;
-    --ink-2: #3f4b44;
+    --ink-2: var(--slate); /* body text on light */
     --bacco: #3167ae;
     --bacco-light: #8db0e6; /* BACCO blue lifted for text on dark (8.9:1) */
     --line-dark: rgb(242 236 223 / 0.14);
@@ -49,6 +72,8 @@
     --color-paper-2: var(--paper-2);
     --color-snow: var(--snow);
     --color-mist: var(--mist);
+    --color-pale-mint: var(--pale-mint);
+    --color-sky: var(--sky);
     --color-gold-ink: var(--gold-ink);
     --color-muted: var(--muted);
     --color-ink-2: var(--ink-2);
@@ -84,6 +109,29 @@
         line-height: 1.55;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+    }
+    /* The site's one blended background, fixed to the viewport so it reads the same on every section */
+    body::before,
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+    }
+    body::before {
+        background: var(--grad-site);
+    }
+    /* Same colours, mirrored: crossfading it in and out makes the blend drift slowly (opacity only) */
+    body::after {
+        background: var(--grad-site-alt);
+        animation: flow-breathe 18s ease-in-out infinite alternate;
+    }
+    @media (max-width: 767px) {
+        body::after {
+            animation: none;
+            opacity: 0;
+        }
     }
     :lang(bn) body,
     html[lang='bn'] body {
@@ -132,12 +180,45 @@
         background: var(--paper);
         color: var(--night);
     }
-    /* Soft teal-to-sky light gradient: the light-theme stand-in for solid green bands */
-    .soft-green {
+    /*
+     * One blended background for the whole site below the hero: a fixed Ivory → Ice Blue → Mint layer behind
+     * every page (see body::before/::after), with light sections left transparent over it, so the colour is the
+     * same everywhere and never breaks at a section edge. Two faint light pools per section breathe over 16–20s
+     * (opacity only); off on small screens and for reduced motion.
+     */
+    .flow {
+        position: relative;
+        isolation: isolate;
+        background: none; /* let the site blend show through (.on-light would paint solid ivory) */
+    }
+    .flow::before,
+    .flow::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        /* Pools fade out before the top and bottom edges, so neighbouring sections meet seamlessly */
+        mask-image: linear-gradient(180deg, transparent, #000 22%, #000 78%, transparent);
+        animation: flow-breathe 16s ease-in-out infinite alternate;
+    }
+    .flow::before {
         background:
-            radial-gradient(60% 80% at 100% 0%, rgb(8 127 140 / 0.08), transparent 70%),
-            radial-gradient(55% 70% at 0% 100%, rgb(234 185 75 / 0.08), transparent 70%),
-            linear-gradient(135deg, var(--mist), #eef6f8 55%, var(--paper)) var(--mist); /* base colour is what the header samples */
+            radial-gradient(50% 45% at 18% 22%, rgb(255 255 255 / 0.5), transparent 70%),
+            radial-gradient(45% 50% at 85% 80%, rgb(8 127 140 / 0.04), transparent 70%);
+    }
+    .flow::after {
+        background:
+            radial-gradient(45% 50% at 80% 25%, rgb(255 255 255 / 0.5), transparent 70%),
+            radial-gradient(50% 45% at 15% 85%, rgb(0 174 239 / 0.04), transparent 70%);
+        animation-duration: 20s;
+        animation-direction: alternate-reverse;
+    }
+    @media (max-width: 767px) {
+        .flow::before,
+        .flow::after {
+            animation: none;
+        }
     }
     /* Card surface: white, hairline border, soft shadow; lifts on hover where interactive */
     .card {
@@ -207,7 +288,7 @@
     .btn {
         --btn-bg: var(--gold);
         --btn-fg: var(--night);
-        --btn-hover: var(--red);
+        --btn-hover: #e0aa38; /* deeper summit gold */
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -403,6 +484,14 @@
     filter: invert(1) hue-rotate(180deg);
 }
 
+@keyframes flow-breathe {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 @keyframes marquee {
     to {
         transform: translateX(-50%);

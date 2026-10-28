@@ -15,7 +15,7 @@ useReveal(root);
 </script>
 
 <template>
-    <section ref="root" data-section="14" aria-labelledby="nw-title" class="on-light section relative z-[1] bg-paper-2">
+    <section ref="root" data-section="14" aria-labelledby="nw-title" class="on-light flow section relative z-[1]">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>

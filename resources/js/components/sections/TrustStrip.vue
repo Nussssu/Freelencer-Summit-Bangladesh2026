@@ -16,7 +16,7 @@ const band = computed(() => [...site.value.organisers.map((o) => o.short), ...pr
 </script>
 
 <template>
-    <section ref="root" data-section="2" :aria-label="t('sections.trust')" class="on-light relative z-[1]">
+    <section ref="root" data-section="2" :aria-label="t('sections.trust')" class="on-light flow relative z-[1]">
         <div class="flex items-center border-b border-line-light bg-paper-2 text-night">
             <p class="t-label shrink-0 bg-green px-4 py-3 text-snow">{{ t('sections.tickerLabel') }}</p>
             <Marquee :items="trust.ticker" :duration="48" separator="|" class="py-3 text-sm font-medium" />

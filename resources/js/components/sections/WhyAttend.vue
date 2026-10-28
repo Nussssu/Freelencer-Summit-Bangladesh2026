@@ -19,7 +19,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
 </script>
 
 <template>
-    <section ref="root" data-section="5" aria-labelledby="why-title" class="on-light section relative z-[1] bg-snow">
+    <section ref="root" data-section="5" aria-labelledby="why-title" class="on-light flow section relative z-[1]">
         <div class="container-site">
             <p class="t-label text-green">{{ t('sections.why') }}</p>
             <SplitHeading id="why-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3 max-w-3xl" />
@@ -60,7 +60,7 @@ const num = (i: number) => String(i + 1).padStart(2, '0');
                 </ol>
 
                 <div id="why-panel" aria-live="polite" class="hidden md:col-span-5 md:block">
-                    <div class="sticky top-[calc(var(--header-h)+24px)] card bg-mist p-8">
+                    <div class="sticky top-[calc(var(--header-h)+24px)] card p-8">
                         <p class="font-display text-[8rem] leading-[0.8] font-black t-outline" style="--outline: var(--green)" aria-hidden="true">{{ num(active) }}</p>
                         <h3 class="mt-6 font-display text-4xl font-black uppercase">{{ audiences[active].title }}</h3>
                         <ul class="mt-6 space-y-4">

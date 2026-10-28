@@ -25,7 +25,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
 </script>
 
 <template>
-    <section ref="root" data-section="7" aria-labelledby="sp-title" class="on-light section relative z-[1]">
+    <section ref="root" data-section="7" aria-labelledby="sp-title" class="on-light flow section relative z-[1]">
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div>

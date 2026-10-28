@@ -5,15 +5,14 @@ import { useI18n } from 'vue-i18n';
 import SplitHeading from '@/components/ui/SplitHeading.vue';
 import { ScrollTrigger, gsap, useGsap } from '@/composables/motion';
 import { useReveal } from '@/composables/useReveal';
-import { useStageVisibility } from '@/composables/useStageVisibility';
 import { toBanglaDigits } from '@/i18n';
-import { stage, stageMode } from '@/stage/state';
+import { stage } from '@/stage/state';
 import type { Journey } from '@/types/content';
 import JourneyCounters from './journey/JourneyCounters.vue';
 import JourneyDirectory from './journey/JourneyDirectory.vue';
-import JourneyMap from './journey/JourneyMap.vue';
+import JourneyMapStages from './journey/JourneyMapStages.vue';
 
-// Section 4, the signature section. Desktop: pinned ~4.5 screens, scrubbed, the shared canvas morphs flow → map.
+// Section 4, the signature section. Desktop: pinned ~4.5 screens, scrubbed, the map image highlights campuses → districts → divisions → Dhaka.
 // Mobile / reduced motion / SSR: a vertical stacked timeline with division cards (all content in the DOM).
 defineProps<{ journey: Journey }>();
 const { t, locale } = useI18n();
@@ -21,8 +20,8 @@ const root = ref<HTMLElement>();
 const pin = ref<HTMLElement>();
 const active = ref(0);
 const pinned = ref(false);
+const map = ref<InstanceType<typeof JourneyMapStages>>();
 
-useStageVisibility(pin, 'journey');
 useReveal(root);
 
 const stepIndex = (s: number) => (s < 1.5 ? 0 : s < 2.5 ? 1 : s < 3.4 ? 2 : 3);
@@ -31,12 +30,17 @@ useGsap(root, () => {
     const mm = gsap.matchMedia();
     mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
         pinned.value = true;
-        // Map morph begins while the section scrolls in…
+        // Map morph begins while the section scrolls in; the map holds its pinned screen position meanwhile,
+        // so the section's top edge uncovers it (as the fixed canvas did)…
         ScrollTrigger.create({
             trigger: pin.value,
             start: 'top bottom',
             end: 'top top',
-            onUpdate: (st) => (stage.step = st.progress * 0.5),
+            onUpdate: (st) => {
+                stage.step = st.progress * 0.5;
+                map.value?.setStep(stage.step);
+                pin.value?.style.setProperty('--enter-y', `${(-innerHeight * (1 - st.progress)).toFixed(1)}px`);
+            },
         });
         // …then the pinned, scrubbed journey: step 0.5 → 4 over 3.5 extra screen-heights.
         ScrollTrigger.create({
@@ -47,6 +51,7 @@ useGsap(root, () => {
             scrub: 1,
             onUpdate: (st) => {
                 stage.step = 0.5 + st.progress * 3.5;
+                map.value?.setStep(stage.step);
                 const i = stepIndex(stage.step);
                 if (i !== active.value) active.value = i; // reactive only on the 4 step changes
                 pin.value?.style.setProperty('--progress', st.progress.toFixed(3));
@@ -55,6 +60,7 @@ useGsap(root, () => {
         return () => {
             pinned.value = false;
             stage.step = 0;
+            pin.value?.style.removeProperty('--enter-y');
         };
     });
 });
@@ -65,9 +71,7 @@ useGsap(root, () => {
         <div ref="pin" class="journey-pin light-tokens relative" :class="pinned && 'is-pinned'">
             <div class="container-site grid grid-cols-1 gap-10 py-20 md:min-h-[100svh] md:grid-cols-12 md:items-center md:py-0 md:pt-[112px] xl:pt-[148px]">
                 <div class="min-w-0 md:col-span-6 lg:col-span-5">
-                    <p class="t-label text-mint">{{ t('sections.journey') }}</p>
-                    <SplitHeading id="journey-title" :text="journey.headline" :emphasis="journey.headlineEmphasis" emphasis-class="text-gold" class="t-h2 mt-3 journey-title" />
-                    <p class="mt-4 max-w-md text-ink-2">{{ t('sections.journeyLead') }}</p>
+                    <SplitHeading id="journey-title" :text="t('sections.journey')" class="t-h2 journey-title" />
 
                     <!-- Stitch progress line with four ticks -->
                     <div class="journey-progress relative mt-8 hidden h-6 md:block" aria-hidden="true">
@@ -98,14 +102,14 @@ useGsap(root, () => {
                     </ol>
                 </div>
 
-                <!-- Static map: always on mobile, on desktop only when WebGL is unavailable -->
-                <div class="journey-map md:col-span-6 md:col-start-7 lg:col-span-6 lg:col-start-7" :class="stageMode === 'on' && 'md:invisible'">
-                    <JourneyMap :step="pinned ? active : 3" :beacon-label="journey.beaconLabel" class="mx-auto max-w-md md:max-w-none" />
+                <!-- Map images: scrubbed by the pin on desktop, plays once in view otherwise (SVG fallback until the images exist) -->
+                <div class="journey-map md:col-span-6 md:col-start-7 lg:col-span-6 lg:col-start-7">
+                    <JourneyMapStages ref="map" :key="pinned ? 'pin' : 'free'" :scrubbed="pinned" :beacon-label="journey.beaconLabel" class="mx-auto max-w-md md:max-w-none" />
                 </div>
             </div>
         </div>
 
-        <div class="on-light relative bg-mist">
+        <div class="on-light flow relative">
             <JourneyCounters :counters="journey.counters" />
             <JourneyDirectory :directory="journey.directory" :steps="journey.steps" />
         </div>
@@ -138,6 +142,13 @@ useGsap(root, () => {
 }
 .is-pinned .journey-cards {
     display: none;
+}
+/* Pinned mode: the map stays put on screen while the section scrolls in, revealed from the section's top edge */
+.is-pinned {
+    clip-path: inset(0);
+}
+.is-pinned .journey-map {
+    transform: translateY(var(--enter-y, 0px));
 }
 .journey-progress-fill {
     clip-path: inset(0 calc((1 - var(--progress, 0)) * 100%) 0 0);

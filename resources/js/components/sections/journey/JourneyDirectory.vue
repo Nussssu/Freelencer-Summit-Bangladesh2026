@@ -59,7 +59,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
                 <label class="relative flex items-center">
                     <span class="sr-only">{{ t('sections.search') }}</span>
                     <Icon name="search" class="pointer-events-none absolute left-3 text-ink-2" />
-                    <input v-model="query" type="search" :placeholder="t('sections.search')" class="min-h-11 w-full rounded-[2px] border border-line-light bg-paper py-2 pr-3 pl-10 text-sm placeholder:text-ink-2 focus:border-green sm:w-64" />
+                    <input v-model="query" type="search" :placeholder="t('sections.search')" class="min-h-11 w-full rounded-[2px] border border-line-light bg-snow py-2 pr-3 pl-10 text-sm placeholder:text-ink-2 focus:border-green sm:w-64" />
                 </label>
             </div>
         </div>
@@ -76,7 +76,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="r in rows" :key="r.name" class="border-b border-line-light transition-colors duration-300 hover:bg-paper">
+                    <tr v-for="r in rows" :key="r.name" class="border-b border-line-light transition-colors duration-300 hover:bg-mist">
                         <th scope="row" class="py-4 pr-4 font-display text-xl font-black uppercase">{{ r.name }}</th>
                         <td class="py-4 pr-4 text-ink-2">{{ r.date ?? t('common.tba') }}</td>
                         <td class="py-4 pr-4">{{ r.location ?? t('common.tba') }}</td>

@@ -44,7 +44,7 @@ onBeforeUnmount(() => (io?.disconnect(), stage.visible.delete('stub')));
             </div>
         </div>
     </section>
-    <section class="on-light section">
+    <section class="on-light flow section">
         <div class="container-site">
             <h2 class="t-label text-ink-2">{{ t('page.meanwhile') }}</h2>
             <ul class="mt-6 grid border-t border-line-light sm:grid-cols-2 lg:grid-cols-4">

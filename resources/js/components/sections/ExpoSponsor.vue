@@ -27,7 +27,7 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
 <template>
     <section ref="root" data-section="10" :aria-label="`${t('sections.exhibition')} · ${t('sections.sponsorship')}`" class="relative z-[1] grid grid-cols-1 lg:grid-cols-2">
         <!-- Exhibition -->
-        <div class="on-light section expo-side">
+        <div class="on-light flow section expo-side">
             <div class="mx-auto max-w-[660px] px-4 md:px-8">
                 <p class="t-label text-green">{{ t('sections.exhibition') }}</p>
                 <SplitHeading :text="headings.exhibition.title" :emphasis="headings.exhibition.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
@@ -77,7 +77,7 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
         </div>
 
         <!-- Sponsorship -->
-        <div class="on-light section sponsor-side bg-mist">
+        <div class="on-light flow section sponsor-side">
             <div class="mx-auto max-w-[660px] px-4 md:px-8 lg:pl-16">
                 <p class="t-label text-gold-ink">{{ t('sections.sponsorship') }}</p>
                 <SplitHeading :text="headings.sponsorship.title" :emphasis="headings.sponsorship.emphasis" emphasis-class="text-gold-ink" class="t-h2 mt-3" />

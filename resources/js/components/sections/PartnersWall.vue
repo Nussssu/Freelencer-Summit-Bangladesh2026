@@ -13,7 +13,7 @@ useReveal(root);
 </script>
 
 <template>
-    <section ref="root" data-section="13" aria-labelledby="pt-title" class="on-light section relative z-[1] border-t border-line-light">
+    <section ref="root" data-section="13" aria-labelledby="pt-title" class="on-light flow section relative z-[1]">
         <div class="container-site">
             <p class="t-label text-center text-green">{{ t('sections.partners') }}<span v-if="partners.provisional"> · {{ t('common.provisional') }}</span></p>
             <SplitHeading id="pt-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3 text-center" />

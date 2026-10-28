@@ -27,7 +27,7 @@ useGsap(root, () => {
 </script>
 
 <template>
-    <section ref="root" data-section="6" aria-labelledby="hl-title" class="relative z-[1] overflow-hidden bg-mist text-night">
+    <section ref="root" data-section="6" aria-labelledby="hl-title" class="flow relative z-[1] overflow-hidden text-night">
         <div class="flex min-h-[100svh] flex-col justify-center py-16 md:pt-[calc(var(--header-h)+24px)]">
             <div class="container-site">
                 <p class="t-label text-green">{{ t('sections.highlights') }}</p>

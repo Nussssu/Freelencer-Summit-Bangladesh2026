@@ -21,7 +21,7 @@ useGsap(root, (reduced) => {
 </script>
 
 <template>
-    <footer ref="root" id="footer" data-section="17" class="on-light light-tokens relative z-[1] overflow-hidden border-t border-line-light bg-paper-2 pt-16 pb-24 md:pb-8">
+    <footer ref="root" id="footer" data-section="17" class="on-light light-tokens relative z-[1] overflow-hidden flow border-t border-line-light pt-16 pb-24 md:pb-8">
         <div class="container-site grid gap-12 lg:grid-cols-12">
             <div class="lg:col-span-4">
                 <p class="t-label text-green">{{ summit.hashtag }}</p>

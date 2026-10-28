@@ -63,7 +63,7 @@ onBeforeUnmount(() => timeline?.kill());
 </script>
 
 <template>
-    <section ref="root" data-section="9" aria-labelledby="aw-title" class="on-light light-tokens soft-green section relative z-[1] overflow-hidden">
+    <section ref="root" data-section="9" aria-labelledby="aw-title" class="on-light light-tokens flow section relative z-[1] overflow-hidden">
         <div class="container-site grid grid-cols-1 gap-12 lg:grid-cols-12">
             <div class="min-w-0 lg:col-span-7">
                 <p class="t-label text-gold">{{ t('sections.awards') }} {{ summit.edition }}</p>

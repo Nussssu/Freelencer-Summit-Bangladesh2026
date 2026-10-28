@@ -18,7 +18,7 @@ const cta = computed(() => site.value.ctas.primary.find((c) => c.id === 'forum')
 </script>
 
 <template>
-    <section ref="root" data-section="11" aria-labelledby="forum-title" class="on-light section relative z-[1] border-t-8 border-bacco bg-snow">
+    <section ref="root" data-section="11" aria-labelledby="forum-title" class="on-light flow section relative z-[1] border-t-8 border-bacco">
         <div class="container-site grid grid-cols-1 gap-12 lg:grid-cols-12">
             <div class="min-w-0 lg:col-span-5">
                 <p class="t-label text-bacco">{{ t('sections.forum') }}</p>

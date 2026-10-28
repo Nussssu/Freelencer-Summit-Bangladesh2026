@@ -15,7 +15,7 @@ useReveal(root);
 </script>
 
 <template>
-    <section ref="root" data-section="16" aria-labelledby="final-title" class="on-light light-tokens soft-green relative z-[1] overflow-hidden py-24 md:py-32">
+    <section ref="root" data-section="16" aria-labelledby="final-title" class="on-light light-tokens flow relative z-[1] overflow-hidden py-24 md:py-32">
         <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 font-display text-[22vw] leading-none font-black text-green/[0.07] uppercase" aria-hidden="true">
             <Marquee :items="[finalCta.marquee, finalCta.marquee]" :duration="50" separator="·" />
         </div>
