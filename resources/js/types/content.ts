@@ -123,6 +123,7 @@ export interface Audience {
 export interface Highlight {
     title: string;
     text: string;
+    image: string | null;
 }
 export interface Speaker {
     slug: string;
@@ -182,7 +183,7 @@ export interface Forum {
     portalNote: string;
 }
 export type StoryTile =
-    | { kind: 'video'; role: string; youtubeId: string | null }
+    | { kind: 'video'; role: string; youtubeId: string | null; poster?: string | null }
     | { kind: 'quote'; role: string; quote: string | null }
     | { kind: 'stat'; role: string; value: string | null; label: string };
 export interface Stories {
@@ -192,7 +193,7 @@ export interface Stories {
 }
 export interface Partners {
     provisional: boolean;
-    tiers: { name: string; slots: number; sponsors: { name: string; logo: string; href?: string }[] }[];
+    tiers: { name: string; slots: number; sponsors: { name: string; logo: string | null; href?: string }[] }[];
 }
 export interface NewsItem {
     category: string;

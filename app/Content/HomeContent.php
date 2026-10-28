@@ -2,6 +2,8 @@
 
 namespace App\Content;
 
+use Illuminate\Support\Str;
+
 /**
  * Homepage section content. Each public method feeds one section, keeps the
  * shape the Vue types expect (resources/js/types/content.ts) and can later be
@@ -9,10 +11,14 @@ namespace App\Content;
  *
  * Rules: no invented people, quotes, statistics or sponsors. Missing data is
  * null and the UI renders "TBA" / "Revealing soon" / "Story coming soon".
- * Anything illustrative carries 'sample' => true.
+ * Anything illustrative carries 'sample' => true. Temporary exceptions are
+ * marked `shortcut:` (speakers, sponsors, photos).
  */
 class HomeContent
 {
+    // shortcut: placeholder photos of other events, source/licence unrecorded; replace with real summit photos before launch.
+    private const PHOTOS = '/media/photos/';
+
     public function __construct(private array $summit) {}
 
     public static function fromConfig(): self
@@ -56,11 +62,11 @@ class HomeContent
                 'Award nominations: opening soon',
                 'Exhibition enquiries: open now',
             ],
-            'groups' => [
-                ['label' => 'Government & development partners', 'slots' => 3, 'partners' => []],
-                ['label' => 'Strategic partners', 'slots' => 3, 'partners' => []],
-                ['label' => 'Supporting organisations', 'slots' => 4, 'partners' => []],
-            ],
+            // shortcut: invented partner names, same as partners(); replace with confirmed partners.
+            'groups' => array_map(fn ($label, $names) => ['label' => $label, 'slots' => count($names), 'partners' => array_map(fn ($n) => ['name' => $n, 'logo' => null], $names)],
+                ['Government & development partners', 'Strategic partners', 'Supporting organisations'],
+                [['Digital Growth Agency', 'Skills for Jobs Programme', 'Asia Development Fund'], ['Global BPO Partners', 'TechCorp IT', 'Bangla Talent Hub'], ['Freelance Pro Network', 'CodeNest Labs', 'Future Skills Academy', 'PayLink BD']],
+            ),
         ];
     }
 
@@ -154,40 +160,50 @@ class HomeContent
 
     public function highlights(): array
     {
-        $h = fn (string $title, string $text) => compact('title', 'text');
+        $h = fn (string $title, string $text, string $image) => ['title' => $title, 'text' => $text, 'image' => self::PHOTOS."highlight-{$image}.jpg"];
 
         return [
-            $h('Freelancer Awards', 'National recognition for the best work across categories.'),
-            $h('Keynote sessions', 'Policy makers, global experts and marketplace leaders on one stage.'),
-            $h('AI showcase', 'Live demonstrations of AI tools freelancers can use today.'),
-            $h('Marketplace sessions', 'Platform representatives on profiles, ranking and payments.'),
-            $h('Workshops', 'Hands-on skill sessions in small groups.'),
-            $h('Career talks', 'Routes into ITES, BPO and digital services careers.'),
-            $h('Success stories', 'Bangladeshi freelancers and founders tell how they did it.'),
-            $h('Exhibition', 'Companies, marketplaces and training providers in one hall.'),
-            $h('Networking', 'Meet buyers, mentors, investors and each other.'),
+            $h('Freelancer Awards', 'National recognition for the best work across categories.', 'awards'),
+            $h('Keynote sessions', 'Policy makers, global experts and marketplace leaders on one stage.', 'keynote'),
+            $h('AI showcase', 'Live demonstrations of AI tools freelancers can use today.', 'ai'),
+            $h('Marketplace sessions', 'Platform representatives on profiles, ranking and payments.', 'marketplace'),
+            $h('Workshops', 'Hands-on skill sessions in small groups.', 'workshops'),
+            $h('Career talks', 'Routes into ITES, BPO and digital services careers.', 'career'),
+            $h('Success stories', 'Bangladeshi freelancers and founders tell how they did it.', 'stories'),
+            $h('Exhibition', 'Companies, marketplaces and training providers in one hall.', 'exhibition'),
+            $h('Networking', 'Meet buyers, mentors, investors and each other.', 'networking'),
         ];
     }
 
-    /** Speaker slots: data shape is final, people are announced later. */
+    // shortcut: guests and speakers of BPO Summit 2026 (bposummit.org.bd/speakers), not confirmed for this summit; replace before launch.
     public function speakers(): array
     {
-        $roles = ['Chief Guest', 'Special Guest', 'Special Guest', 'Guest', 'Guest', 'Speaker', 'Speaker', 'Speaker'];
+        $people = [
+            ['Chief Guest', 'Mir Mohammed Helal Uddin, MP', 'Honorable State Minister', 'Ministry of Land and Ministry of Chittagong Hill Tracts Affairs', 'helal-uddin.jpg'],
+            ['Special Guest', 'Tanvir Ibrahim', 'President', 'BACCO', 'tanvir-ibrahim.jpg'],
+            ['Special Guest', 'Faisal Alim', 'Secretary General', 'BACCO', 'faisal-alim.jpg'],
+            ['Guest', 'Sayma Shawkat', 'Director', 'BACCO', 'sayma-shawkat.jpg'],
+            ['Speaker', 'Md Musnad E Ahmed', 'Founder and CEO', 'SkyTech Solutions', 'musnad-e-ahmed.png'],
+            ['Speaker', 'Shuvasish Bhowmick', 'Managing Director', 'ATEC Australia International Ltd', 'shuvasish-bhowmick.jpg'],
+            ['Speaker', 'Emrazina Islam', 'Founder', 'Kaz360', 'emrazina-islam.jpg'],
+            ['Speaker', 'Abdur Rashid Sohag', 'Founder and CEO, School Bus', 'President, Startup Association of Bangladesh', 'abdur-rashid-sohag.jpg'],
+            ['Speaker', 'Saber Shah', 'Founder', 'AW Communication', 'saber-shah.jpg'],
+        ];
 
-        return array_map(fn ($role, $i) => [
-            'slug' => 'speaker-'.($i + 1),
-            'role' => $role,
-            'name' => null,
-            'designation' => null,
-            'organisation' => null,
-            'country' => null,
-            'photo' => null,
+        return array_map(fn ($p, $i) => [
+            'slug' => Str::slug($p[1]),
+            'role' => $p[0],
+            'name' => $p[1],
+            'designation' => $p[2],
+            'organisation' => $p[3],
+            'country' => 'Bangladesh',
+            'photo' => '/media/speakers/'.$p[4],
             'bio' => null,
             'credential' => null,
             'expertise' => [],
             'links' => [],
             'featured' => $i === 0,
-        ], $roles, array_keys($roles));
+        ], $people, array_keys($people));
     }
 
     public function agenda(): array
@@ -270,7 +286,7 @@ class HomeContent
         return [
             'sample' => true,
             'tiles' => [
-                ['kind' => 'video', 'role' => 'Freelance video editor', 'youtubeId' => null],
+                ['kind' => 'video', 'role' => 'Freelance video editor', 'youtubeId' => null, 'poster' => self::PHOTOS.'story-video-editor.jpg'],
                 ['kind' => 'quote', 'role' => 'Full-stack developer', 'quote' => null],
                 ['kind' => 'stat', 'role' => 'Campus ambassador', 'value' => null, 'label' => 'Programmes attended'],
                 ['kind' => 'quote', 'role' => 'Graphic designer', 'quote' => null],
@@ -287,13 +303,20 @@ class HomeContent
 
     public function partners(): array
     {
-        $tier = fn (string $name, int $slots) => ['name' => $name, 'slots' => $slots, 'sponsors' => []];
+        // shortcut: invented sponsor names without logos, so the wall looks filled; replace with confirmed sponsors.
+        $tier = fn (string $name, array $sponsors) => ['name' => $name, 'slots' => count($sponsors), 'sponsors' => array_map(fn ($s) => ['name' => $s, 'logo' => null], $sponsors)];
 
         return [
             'provisional' => true,
             'tiers' => [
-                $tier('Title Sponsor', 1), $tier('Platinum', 2), $tier('Gold', 3), $tier('Silver', 4),
-                $tier('Strategic Partner', 3), $tier('Technology Partner', 3), $tier('Knowledge Partner', 3), $tier('Media Partner', 4),
+                $tier('Title Sponsor', ['TechCorp IT']),
+                $tier('Platinum Sponsor', ['Global BPO Partners', 'NexaCloud Systems']),
+                $tier('Gold Sponsor', ['Delta Digital Bank', 'BrightPath Outsourcing', 'Meghna Software']),
+                $tier('Silver Sponsor', ['PayLink BD', 'CodeNest Labs', 'Padma Data Services', 'Orbit Telecom']),
+                $tier('Strategic Partner', ['Bangla Talent Hub', 'SkillBridge Foundation', 'Remote Works Asia']),
+                $tier('Technology Partner', ['ByteForge Solutions', 'CloudAxis BD', 'Sundarban AI']),
+                $tier('Knowledge Partner', ['Dhaka Tech Institute', 'Future Skills Academy', 'Freelance Pro Network']),
+                $tier('Media Partner', ['Daily Tech Times', 'Startup Dhaka Media', 'Digital Bangla TV', 'GigBeat Radio']),
             ],
         ];
     }
@@ -319,9 +342,9 @@ class HomeContent
                 'id' => $i,
                 'programme' => $programmes[$i % 3],
                 'kind' => $i % 5 === 2 ? 'video' : 'photo',
-                'src' => null,
+                'src' => self::PHOTOS.sprintf('gallery-%02d.jpg', $i % 14 + 1),
                 'caption' => null,
-            ], range(0, 13)),
+            ], range(0, 15)),
             'videos' => [
                 ['title' => 'Divisional summit highlights', 'youtubeId' => null],
                 ['title' => 'District roadshow highlights', 'youtubeId' => null],

@@ -36,7 +36,7 @@ useGsap(root, () => {
             <ol ref="track" class="hl-track mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 md:w-max md:overflow-visible md:px-8">
                 <li v-for="(h, i) in highlights" :key="h.title" class="hl-panel flex w-[78vw] shrink-0 snap-start flex-col border border-night/80 bg-paper p-5 md:w-[min(26rem,32vw)]" :class="i % 2 ? 'md:rotate-2' : 'md:-rotate-2'">
                     <span class="font-display text-7xl leading-none font-black text-red" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
-                    <div class="duotone mt-4 aspect-[4/3] w-full" aria-hidden="true" />
+                    <div class="duotone mt-4 aspect-[4/3] w-full" aria-hidden="true"><img v-if="h.image" :src="h.image" alt="" loading="lazy" class="h-full w-full object-cover" /></div>
                     <h3 class="mt-5 font-display text-3xl font-black uppercase">{{ h.title }}</h3>
                     <p class="mt-2 text-ink-2">{{ h.text }}</p>
                 </li>

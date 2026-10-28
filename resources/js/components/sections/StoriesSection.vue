@@ -29,7 +29,7 @@ const span = ['md:col-span-2 md:row-span-2', '', '', 'md:col-span-2', '', ''];
             </div>
 
             <ul class="mt-12 grid auto-rows-[minmax(11rem,auto)] grid-cols-1 gap-3 md:grid-cols-4">
-                <li v-for="(tile, i) in stories.tiles" :key="i" class="relative flex flex-col justify-between overflow-hidden border border-line-light p-5" :class="[span[i], tile.kind === 'video' ? 'duotone text-paper' : 'bg-paper']" data-reveal="clip">
+                <li v-for="(tile, i) in stories.tiles" :key="i" class="relative flex flex-col justify-between overflow-hidden border border-line-light p-5" :class="[span[i], tile.kind === 'video' ? 'duotone text-paper' : 'bg-paper']" data-reveal="clip" :style="tile.kind === 'video' && tile.poster ? { backgroundImage: `linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)), url(${tile.poster})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined">
                     <p class="t-label" :class="tile.kind === 'video' ? 'text-mint' : 'text-green'">{{ tile.role }}</p>
                     <template v-if="tile.kind === 'video'">
                         <iframe v-if="playing === tile.youtubeId && tile.youtubeId" class="absolute inset-0 h-full w-full" :src="`https://www.youtube-nocookie.com/embed/${tile.youtubeId}?autoplay=1`" :title="tile.role" allow="autoplay; encrypted-media" allowfullscreen />

@@ -43,7 +43,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                 <div class="flex flex-col justify-center gap-4 p-6 md:col-span-7 md:p-10">
                     <p class="t-label text-gold-ink">{{ t('sections.featured') }} · {{ featured.role }}</p>
                     <h3 class="font-display text-5xl font-black uppercase md:text-6xl">{{ nameOf(featured) }}</h3>
-                    <p class="text-lg text-ink-2">{{ featured.credential ?? t('sections.announcement') }}</p>
+                    <p class="text-lg text-ink-2">{{ featured.credential ?? ([featured.designation, featured.organisation].filter(Boolean).join(', ') || t('sections.announcement')) }}</p>
                     <button type="button" class="btn btn-ghost self-start" @click="selected = featured">{{ t('common.details') }}</button>
                 </div>
             </article>
@@ -67,7 +67,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
 
         <Dialog v-model:open="drawerOpen" :label="selected ? `${selected.role}: ${nameOf(selected)}` : ''" tone="light">
             <template v-if="selected">
-                <div class="silhouette aspect-square w-40" aria-hidden="true" />
+                <div class="silhouette aspect-square w-40" aria-hidden="true"><img v-if="selected.photo" :src="selected.photo" alt="" class="h-full w-full object-cover" /></div>
                 <p class="t-label mt-6 text-gold-ink">{{ selected.role }} · {{ selected.country ?? t('common.tba') }}</p>
                 <h2 class="mt-2 font-display text-4xl font-black uppercase">{{ nameOf(selected) }}</h2>
                 <p class="mt-1 text-ink-2">{{ [selected.designation, selected.organisation].filter(Boolean).join(', ') || t('sections.announcement') }}</p>
@@ -88,6 +88,8 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
         radial-gradient(circle at 50% 38%, rgb(8 112 122 / 0.18) 0 14%, transparent 15%),
         radial-gradient(ellipse 34% 30% at 50% 95%, rgb(8 112 122 / 0.14) 0 98%, transparent 100%),
         linear-gradient(160deg, var(--mist), var(--paper-2));
+}
+.silhouette:not(:has(img)) {
     filter: blur(1.5px);
 }
 </style>
