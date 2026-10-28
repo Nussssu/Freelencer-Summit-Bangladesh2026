@@ -16,7 +16,7 @@ import JourneyMap from './journey/JourneyMap.vue';
 // Section 4, the signature section. Desktop: pinned ~4.5 screens, scrubbed, the shared canvas morphs flow → map.
 // Mobile / reduced motion / SSR: a vertical stacked timeline with division cards (all content in the DOM).
 defineProps<{ journey: Journey }>();
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const root = ref<HTMLElement>();
 const pin = ref<HTMLElement>();
 const active = ref(0);
@@ -79,8 +79,8 @@ useGsap(root, () => {
                     <ol class="journey-steps mt-10 space-y-12 md:mt-8">
                         <li v-for="(s, i) in journey.steps" :key="s.tag" class="journey-step" :class="{ 'is-active': active === i }" :aria-current="pinned && active === i ? 'step' : undefined">
                             <div class="flex items-end gap-4">
-                                <span class="font-display text-[clamp(4rem,8vw,7rem)] leading-[0.8] font-black t-outline" style="--outline: var(--gold-ink)">{{ s.count }}</span>
-                                <span class="font-bangla text-[clamp(2rem,4vw,3.5rem)] leading-none font-bold text-gold" lang="bn">{{ toBanglaDigits(s.count) }}</span>
+                                <span v-if="locale !== 'bn'" class="font-display text-[clamp(4rem,8vw,7rem)] leading-[0.8] font-black t-outline" style="--outline: var(--gold-ink)">{{ s.count }}</span>
+                                <span v-else class="font-bangla text-[clamp(2rem,4vw,3.5rem)] leading-none font-bold text-gold" lang="bn">{{ toBanglaDigits(s.count) }}</span>
                             </div>
                             <p class="t-label mt-4 inline-block border border-mint/40 px-2 py-1 text-mint">{{ s.tag }}</p>
                             <h3 class="mt-3 font-display text-3xl font-black uppercase">{{ s.title }}</h3>
