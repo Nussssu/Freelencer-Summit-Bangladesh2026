@@ -19,6 +19,11 @@ class HomeContent
     // shortcut: placeholder photos of other events, source/licence unrecorded; replace with real summit photos before launch.
     private const PHOTOS = '/media/photos/';
 
+    private static function sponsorLogo(string $name): string
+    {
+        return '/media/sponsors/'.Str::slug($name).'.svg';
+    }
+
     public function __construct(private array $summit) {}
 
     public static function fromConfig(): self
@@ -63,7 +68,7 @@ class HomeContent
                 'Exhibition enquiries: open now',
             ],
             // shortcut: invented partner names, same as partners(); replace with confirmed partners.
-            'groups' => array_map(fn ($label, $names) => ['label' => $label, 'slots' => count($names), 'partners' => array_map(fn ($n) => ['name' => $n, 'logo' => null], $names)],
+            'groups' => array_map(fn ($label, $names) => ['label' => $label, 'slots' => count($names), 'partners' => array_map(fn ($n) => ['name' => $n, 'logo' => self::sponsorLogo($n)], $names)],
                 ['Government & development partners', 'Strategic partners', 'Supporting organisations'],
                 [['Digital Growth Agency', 'Skills for Jobs Programme', 'Asia Development Fund'], ['Global BPO Partners', 'TechCorp IT', 'Bangla Talent Hub'], ['Freelance Pro Network', 'CodeNest Labs', 'Future Skills Academy', 'PayLink BD']],
             ),
@@ -303,8 +308,8 @@ class HomeContent
 
     public function partners(): array
     {
-        // shortcut: invented sponsor names without logos, so the wall looks filled; replace with confirmed sponsors.
-        $tier = fn (string $name, array $sponsors) => ['name' => $name, 'slots' => count($sponsors), 'sponsors' => array_map(fn ($s) => ['name' => $s, 'logo' => null], $sponsors)];
+        // shortcut: invented sponsors with generated SVG logos (public/media/sponsors), so the wall looks filled; replace with confirmed sponsors.
+        $tier = fn (string $name, array $sponsors) => ['name' => $name, 'slots' => count($sponsors), 'sponsors' => array_map(fn ($s) => ['name' => $s, 'logo' => self::sponsorLogo($s)], $sponsors)];
 
         return [
             'provisional' => true,

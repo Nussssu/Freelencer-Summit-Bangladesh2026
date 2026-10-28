@@ -20,9 +20,9 @@ useReveal(root);
             <div class="mt-14 space-y-14">
                 <div v-for="tier in partners.tiers.filter((x) => x.sponsors.length)" :key="tier.name" data-reveal="fade">
                     <h3 class="t-label mx-auto flex max-w-3xl items-center gap-6 text-center text-ink-2 before:h-px before:flex-1 before:bg-line-light after:h-px after:flex-1 after:bg-line-light">{{ tier.name }}</h3>
-                    <ul class="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-x-14 gap-y-6">
-                        <li v-for="s in tier.sponsors" :key="s.name" class="grid min-h-14 place-items-center">
-                            <a v-if="s.logo" :href="s.href" target="_blank" rel="noopener" class="logo"><img :src="s.logo" :alt="s.name" class="max-h-14 w-auto" loading="lazy" /></a>
+                    <ul class="mx-auto mt-8 flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-8 md:gap-x-14">
+                        <li v-for="s in tier.sponsors" :key="s.name" class="grid min-h-12 place-items-center">
+                            <a v-if="s.logo" :href="s.href" target="_blank" rel="noopener"><img :src="s.logo" :alt="s.name" class="h-7 w-auto max-w-[80vw] md:h-9" loading="lazy" /></a>
                             <span v-else class="text-center font-display text-2xl font-black tracking-wide text-ink-2 uppercase">{{ s.name }}</span>
                         </li>
                     </ul>
@@ -31,18 +31,3 @@ useReveal(root);
         </div>
     </section>
 </template>
-
-<style scoped>
-.logo img {
-    filter: grayscale(1);
-    opacity: 0.8;
-    transition:
-        filter 0.3s ease-in-out,
-        opacity 0.3s ease-in-out;
-}
-.logo:hover img,
-.logo:focus-visible img {
-    filter: none;
-    opacity: 1;
-}
-</style>
