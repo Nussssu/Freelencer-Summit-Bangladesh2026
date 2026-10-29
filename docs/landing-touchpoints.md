@@ -16,3 +16,7 @@ Frozen paths (docs/inner-design-kit.md) must show no diff against tag `landing-f
 | N0 | config/filesystems.php | `private` disk (storage/app/private/uploads, not served) | none |
 | N0 | database/seeders/DatabaseSeeder.php | default "Test User" seed replaced by StructureSeeder (+ DemoSeeder in local) | none: landing reads no seeded data |
 | N0 | database (new migration) | `exhibit_enquiries` gains nullable reference, consent, ip_hash, utm_source, deleted_at | none: landing popup still inserts the same fields |
+| N1 | routes/web.php | main-nav paths (`InnerPageContent::PAGES`) routed to InnerPageController; the rest stay on PageController | none: same URLs, `/` untouched |
+| N1 | components/layout/SiteHeader.vue | goes solid at the top over `[data-header=light]`; re-samples on Inertia navigate; active nav link (teal/gold underline + aria-current) | none on `/`: no light marker there, no nav link matches `/` |
+| N1 | components/layout/MenuOverlay.vue | active item in teal with a dot + aria-current | none on `/` beyond Home marked current |
+| N1 | i18n/inner.en.ts | `inner.list` day/type/hall/role/country | none |

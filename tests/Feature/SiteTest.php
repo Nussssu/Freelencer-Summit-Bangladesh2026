@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Content\HomeContent;
 use App\Content\InnerPageContent;
 use App\Content\PageContent;
 use App\Models\ExhibitEnquiry;
@@ -49,10 +50,20 @@ class SiteTest extends TestCase
                 ->where('page.title', PageContent::PAGES[$path][0])
                 ->where('page.hero.title', $content['title'])
                 ->missing('page.hero.component')
-                ->has('page.hero.actions', 2));
+                ->has('page.hero.actions', 2)
+                ->has('content.headings.cta'));
             $this->assertStringContainsString($content['emphasis'], $content['title'], "$path emphasis");
             $this->assertCount(1, array_filter($content['actions'], fn ($a) => $a['tone'] === 'gold'), "$path one gold CTA");
         }
+    }
+
+    public function test_inner_pages_carry_brief_sections(): void
+    {
+        $this->get('/about')->assertInertia(fn (Assert $p) => $p->has('content.objectives', 9)->has('content.phases', 4)->has('content.audiences', 9));
+        $this->get('/national-journey')->assertInertia(fn (Assert $p) => $p->has('content.journey.divisions', 8)->has('content.journey.counters', 4)->has('content.journey.steps', 4));
+        $this->get('/agenda')->assertInertia(fn (Assert $p) => $p->has('content.agenda.types', 11)->where('content.agenda.sessions.0.ics', '/agenda/sessions/0.ics')->has('content.downloads', 2));
+        $this->get('/speakers')->assertInertia(fn (Assert $p) => $p->where('content.speakers.0.href', '/speaker/'.app(HomeContent::class)->speakers()[0]['slug'])->where('content.speakers.0.sample', false));
+        $this->get('/awards')->assertInertia(fn (Assert $p) => $p->has('content.awards.categories')->has('content.steps', 4)->has('content.faq')->where('content.downloads.0.kind', 'guidelines'));
     }
 
     public function test_route_count_matches_brief(): void

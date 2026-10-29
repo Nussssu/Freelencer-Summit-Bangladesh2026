@@ -16,7 +16,7 @@ const inner = {
     sample: 'Sample',
     download: { action: 'Download', soon: 'Available soon', size: '{size} MB' },
     share: { action: 'Share', copy: 'Copy link', copied: 'Link copied' },
-    list: { results: 'No results | 1 result | {n} results', clear: 'Clear filters', all: 'All', loading: 'Loading results', noMatch: 'Nothing matches these filters yet.', search: 'Search' },
+    list: { results: 'No results | 1 result | {n} results', clear: 'Clear filters', all: 'All', loading: 'Loading results', noMatch: 'Nothing matches these filters yet.', search: 'Search', day: 'Day', type: 'Session type', hall: 'Hall', role: 'Role', country: 'Country' },
     pager: { label: 'Pagination', previous: 'Previous page', next: 'Next page', page: 'Page {n} of {total}' },
     form: {
         optional: 'optional',

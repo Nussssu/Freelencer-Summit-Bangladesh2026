@@ -1,5 +1,5 @@
 // Prop shapes for inner pages. Mirrors app/Queries/* (PHP is the source of truth).
-import type { CtaTone } from "./content";
+import type { About, Agenda, Audience, Awards, CtaTone, Highlight, Journey, Session } from './content';
 
 export interface Crumb {
     label: string;
@@ -21,13 +21,50 @@ export interface InnerPage {
     description: string;
     path: string;
     crumbs: Crumb[];
-    hero: {
-        eyebrow: string;
-        title: string;
-        emphasis: string;
-        intro: string;
-        actions: { label: string; href: string; tone: CtaTone }[];
-    };
+    hero: { eyebrow: string; title: string; emphasis: string; intro: string; actions: { label: string; href: string; tone: CtaTone }[] };
+}
+export interface SectionHeading {
+    eyebrow: string;
+    title: string;
+    emphasis: string | null;
+    intro: string | null;
+}
+type Headings<K extends string> = Record<K, SectionHeading>;
+
+export interface AboutContent {
+    headings: Headings<'why' | 'objectives' | 'phases' | 'audiences' | 'highlights' | 'organisers' | 'cta'>;
+    about: About;
+    objectives: string[];
+    phases: { title: string; coverage: string; href: string; activities: string[] }[];
+    audiences: Audience[];
+    highlights: Highlight[];
+}
+export interface JourneyContent {
+    headings: Headings<'progress' | 'route' | 'divisions' | 'includes' | 'cta'>;
+    journey: Journey;
+    includes: string[];
+}
+export interface AgendaContent {
+    headings: Headings<'programme' | 'formats' | 'downloads' | 'cta'>;
+    agenda: Omit<Agenda, 'sessions'> & { sessions: (Session & { ics: string })[] };
+    formats: { title: string; text: string }[];
+    downloads: DownloadItem[];
+}
+export interface SpeakersContent {
+    headings: Headings<'directory' | 'categories' | 'cta'>;
+    speakers: SpeakerCard[];
+    categories: string[];
+}
+export interface AwardsContent {
+    headings: Headings<'overview' | 'categories' | 'steps' | 'statuses' | 'shortlist' | 'winners' | 'faq' | 'cta'>;
+    awards: Awards;
+    facts: { label: string; value: string }[];
+    categoryNote: string;
+    shortlistEmpty: { title: string; body: string };
+    winnersEmpty: { title: string; body: string };
+    steps: { title: string; text: string }[];
+    faq: FaqItem[];
+    downloads: DownloadItem[];
 }
 
 export interface PageMeta {

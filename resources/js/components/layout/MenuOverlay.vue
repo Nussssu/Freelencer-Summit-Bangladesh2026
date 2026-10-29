@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Icon from '@/components/ui/Icon.vue';
@@ -15,6 +15,13 @@ const open = defineModel<boolean>('open', { required: true });
 const { site, summit } = useShared();
 const { t } = useI18n();
 const panel = ref<HTMLElement>();
+
+// Active nav item: exact path or any page below it; speaker profiles (/speaker/{slug}) belong to /speakers.
+const page = usePage();
+const isActive = (href: string) => {
+    const path = page.url.split(/[?#]/)[0];
+    return href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`) || (href === '/speakers' && path.startsWith('/speaker/'));
+};
 
 const close = () => (open.value = false);
 useFocusTrap(panel, open, close);
@@ -62,8 +69,13 @@ onBeforeUnmount(() => {
                             <h2 class="t-label mb-4 text-green">{{ g.label }}</h2>
                             <ul>
                                 <li v-for="item in g.items" :key="item.href">
-                                    <Link :href="item.href" class="group flex items-baseline gap-4 py-1 font-display text-3xl font-black text-night uppercase transition-colors duration-300 hover:text-green md:text-4xl">
-                                        <span class="t-label w-6 shrink-0 text-ink-2 transition-colors duration-300 group-hover:text-green">{{ item.index }}</span>
+                                    <Link
+                                        :href="item.href"
+                                        class="group flex items-baseline gap-4 py-1 font-display text-3xl font-black uppercase transition-colors duration-300 hover:text-green md:text-4xl"
+                                        :class="isActive(item.href) ? 'text-green' : 'text-night'"
+                                        :aria-current="isActive(item.href) ? 'page' : undefined"
+                                    >
+                                        <span class="t-label w-6 shrink-0 transition-colors duration-300 group-hover:text-green" :class="isActive(item.href) ? 'text-green' : 'text-ink-2'">{{ isActive(item.href) ? '●' : item.index }}</span>
                                         <span class="transition-transform duration-300 group-hover:translate-x-2">{{ item.label }}</span>
                                     </Link>
                                 </li>

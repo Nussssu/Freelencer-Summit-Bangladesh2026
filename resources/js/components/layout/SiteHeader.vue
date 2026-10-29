@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
@@ -19,6 +19,13 @@ const { t } = useI18n();
 const register = computed(() => site.value.ctas.primary.find((c) => c.id === 'register')!);
 const nominate = computed(() => site.value.ctas.primary.find((c) => c.id === 'nominate')!);
 const involved = computed(() => site.value.ctas.primary.filter((c) => ['sponsor', 'exhibit', 'forum'].includes(c.id)));
+
+// Active nav item: exact path or any page below it; speaker profiles (/speaker/{slug}) belong to /speakers.
+const page = usePage();
+const isActive = (href: string) => {
+    const path = page.url.split(/[?#]/)[0];
+    return href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`) || (href === '/speakers' && path.startsWith('/speaker/'));
+};
 
 const solid = ref(false);
 const tone = ref<{ bg: string; dark: boolean; vivid: boolean }>();
@@ -132,7 +139,13 @@ onBeforeUnmount(() => {
         <nav :aria-label="t('header.navPrimary')" class="hidden h-10 border-t border-line-dark xl:block">
             <ul class="container-site flex h-full items-center gap-8 xl:max-w-none xl:px-8">
                 <li v-for="link in site.headerLinks" :key="link.href">
-                    <Link :href="link.href" class="link-u text-[0.8125rem] font-medium tracking-wide whitespace-nowrap uppercase transition-colors duration-300 hover:text-gold">{{ link.label }}</Link>
+                    <Link
+                        :href="link.href"
+                        class="link-u text-[0.8125rem] font-medium tracking-wide whitespace-nowrap uppercase transition-colors duration-300 hover:text-gold"
+                        :class="isActive(link.href) && 'font-semibold text-gold [background-size:100%_2px]'"
+                        :aria-current="isActive(link.href) ? 'page' : undefined"
+                        >{{ link.label }}</Link
+                    >
                 </li>
             </ul>
         </nav>

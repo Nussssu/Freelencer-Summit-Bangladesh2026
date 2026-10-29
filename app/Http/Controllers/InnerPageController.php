@@ -26,6 +26,7 @@ class InnerPageController extends Controller
                 'crumbs' => [['label' => $title]],
                 'hero' => array_diff_key($hero, ['component' => 0]),
             ],
+            'content' => app()->call([app(InnerPageContent::class), lcfirst($component)]),
         ])->withViewData(['jsonLd' => Seo::graph(Seo::breadcrumbs(['Home' => '/', $title => $path]))]);
     }
 }
