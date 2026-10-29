@@ -56,6 +56,7 @@ const en = {
         tabs: { division: 'Divisions', district: 'Districts', campus: 'Campuses' },
         cols: { date: 'Date', location: 'Location', partner: 'Partner', register: 'Register' },
         why: 'Why attend',
+        whyLead: "Discover opportunities to learn, connect, collaborate, and grow within Bangladesh's digital economy.",
         highlights: 'Summit highlights',
         speakers: 'Featured speakers',
         announcement: 'Announcement: TBA',

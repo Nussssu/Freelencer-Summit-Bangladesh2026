@@ -30,9 +30,9 @@ const lines = computed(() => {
 
 useGsap(root, (reduced) => {
     if (reduced) return;
-    // Cinematic entrance: the photo settles from a slight push-in, then drifts with the scroll.
-    gsap.fromTo('[data-whatis-img]', { scale: 1.18 }, { scale: 1.06, ease: 'power2.out', scrollTrigger: { trigger: root.value, start: 'top bottom', end: 'top top', scrub: 1 } });
-    gsap.fromTo('[data-whatis-bg]', { yPercent: -4 }, { yPercent: 4, ease: 'none', scrollTrigger: { trigger: root.value, start: 'top bottom', end: 'bottom top', scrub: true } });
+    // Cinematic entrance: the photo settles from a slight push-in while the section scrolls in, locked to the scroll
+    // (no catch-up smoothing) and finished before the hold, so it stays still while held.
+    gsap.fromTo('[data-whatis-img]', { scale: 1.12 }, { scale: 1, ease: 'none', force3D: true, scrollTrigger: { trigger: root.value, start: 'top bottom', end: 'top top', scrub: true } });
     // Desktop (where it fits one screen): hold the full section in view for a moment before it scrolls on normally.
     gsap.matchMedia().add('(min-width: 1024px)', () => {
         ScrollTrigger.create({ trigger: root.value, start: 'top top', end: '+=70%', pin: true });
@@ -42,7 +42,7 @@ useGsap(root, (reduced) => {
 
 <template>
     <section ref="root" data-section="3" aria-labelledby="whatis-title" class="whatis on-light section relative z-[1] overflow-hidden bg-snow text-night">
-        <div data-whatis-bg class="whatis-bg absolute inset-[-4%_0] -z-10" aria-hidden="true">
+        <div data-whatis-bg class="whatis-bg absolute inset-0 -z-10" aria-hidden="true">
             <img data-whatis-img :src="about.image" alt="" loading="lazy" decoding="async" class="whatis-img h-full w-full object-cover" />
             <div class="whatis-shade absolute inset-0" />
         </div>
@@ -109,6 +109,7 @@ useGsap(root, (reduced) => {
 .whatis-img {
     object-position: 100% 50%;
     transform-origin: 100% 50%;
+    will-change: transform;
 }
 /* Desktop: the photo is a right-hand panel fading into the design's light blue → cream wash, so the copy never sits on it */
 @media (min-width: 1024px) {

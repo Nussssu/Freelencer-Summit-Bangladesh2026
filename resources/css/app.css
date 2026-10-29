@@ -57,6 +57,7 @@
 
     --header-h: 112px; /* 148px ≥1280 with the nav row */
     --section-y: clamp(4rem, 7vw, 7.5rem);
+    --section-gap: clamp(3rem, 6vw, 5rem); /* standard space between back-to-back homepage blocks */
     --notch: 10px;
 }
 

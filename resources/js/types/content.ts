@@ -120,6 +120,8 @@ export interface Journey {
 }
 export interface Audience {
     title: string;
+    summary: string;
+    icon: 'people' | 'rocket' | 'cap' | 'bulb' | 'building' | 'briefcase' | 'globe' | 'chart' | 'handshake';
     benefits: string[];
     cta: string;
     href: string;

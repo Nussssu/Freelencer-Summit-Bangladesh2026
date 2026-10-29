@@ -153,18 +153,19 @@ class HomeContent
 
     public function audiences(): array
     {
-        $row = fn (string $title, array $benefits, string $cta, string $href) => compact('title', 'benefits', 'cta', 'href');
+        // summary + icon feed the homepage cards; benefits/cta are used by the inner About page.
+        $row = fn (string $title, string $summary, string $icon, array $benefits, string $cta, string $href) => compact('title', 'summary', 'icon', 'benefits', 'cta', 'href');
 
         return [
-            $row('Freelancers', ['Meet marketplace representatives in person', 'Pricing, contracts and getting paid from abroad', 'Be seen by buyers and the national awards'], 'Register for Summit', '/register'),
-            $row('Aspiring freelancers', ['Learn which skills clients pay for now', 'Workshops on landing a first client', 'Mentors who started where you are'], 'Register for Summit', '/register'),
-            $row('Students', ['A campus program may come to your institution', 'Career talks on ITES, BPO and AI services', 'Become a campus ambassador'], 'See campus programs', '/campus-programs'),
-            $row('Entrepreneurs', ['Freelancer-to-entrepreneur sessions', 'Meet investors and partner companies', 'Build a team from the talent you meet'], 'Register for Summit', '/register'),
-            $row('Companies', ['Hire skilled freelancers and graduates', 'Exhibit your services to thousands', 'Shape the next generation of talent'], 'Exhibit at Summit', '/exhibition/apply'),
-            $row('Buyers', ['Find vetted Bangladeshi talent', 'See work across design, development and AI', 'Meet service providers face to face'], 'Register for Summit', '/register'),
-            $row('Marketplaces', ['Reach freelancers in every division', 'Run onboarding and marketplace sessions', 'Partner with the national campaign'], 'Become a Sponsor', '/sponsorship-opportunity'),
-            $row('Investors', ['Meet founders who grew out of freelancing', 'See the AI and services startups forming', 'Connect with BACCO members'], 'Register for Summit', '/register'),
-            $row('Partners', ['Put your name on a national campaign', 'Support campus and district programmes', 'Category-based visibility on site and stage'], 'Become a Sponsor', '/sponsorship-opportunity'),
+            $row('Freelancers', 'Expand your skills, meet clients, and grow your freelancing career.', 'people', ['Meet marketplace representatives in person', 'Pricing, contracts and getting paid from abroad', 'Be seen by buyers and the national awards'], 'Register for Summit', '/register'),
+            $row('Aspiring Freelancers', 'Learn from experts and get guidance to start your journey.', 'rocket', ['Learn which skills clients pay for now', 'Workshops on landing a first client', 'Mentors who started where you are'], 'Register for Summit', '/register'),
+            $row('Students', 'Explore digital careers, gain industry insights, and find mentorship.', 'cap', ['A campus program may come to your institution', 'Career talks on ITES, BPO and AI services', 'Become a campus ambassador'], 'See campus programs', '/campus-programs'),
+            $row('Entrepreneurs', 'Discover new partnerships and opportunities to scale your business.', 'bulb', ['Freelancer-to-entrepreneur sessions', 'Meet investors and partner companies', 'Build a team from the talent you meet'], 'Register for Summit', '/register'),
+            $row('Companies', 'Connect with skilled talent and reliable service providers.', 'building', ['Hire skilled freelancers and graduates', 'Exhibit your services to thousands', 'Shape the next generation of talent'], 'Exhibit at Summit', '/exhibition/apply'),
+            $row('Buyers', 'Find trusted freelancers and digital teams for your next project.', 'briefcase', ['Find vetted Bangladeshi talent', 'See work across design, development and AI', 'Meet service providers face to face'], 'Register for Summit', '/register'),
+            $row('Marketplaces', "Engage with Bangladesh's growing talent ecosystem.", 'globe', ['Reach freelancers in every division', 'Run onboarding and marketplace sessions', 'Partner with the national campaign'], 'Become a Sponsor', '/sponsorship-opportunity'),
+            $row('Investors', 'Explore emerging talent, innovative ventures, and growth opportunities.', 'chart', ['Meet founders who grew out of freelancing', 'See the AI and services startups forming', 'Connect with BACCO members'], 'Register for Summit', '/register'),
+            $row('Partners', 'Build meaningful collaborations and drive collective impact.', 'handshake', ['Put your name on a national campaign', 'Support campus and district programmes', 'Category-based visibility on site and stage'], 'Become a Sponsor', '/sponsorship-opportunity'),
         ];
     }
 
@@ -374,7 +375,7 @@ class HomeContent
         $h = fn (string $title, string $emphasis) => compact('title', 'emphasis');
 
         return [
-            'why' => $h('Nine reasons to be in the room.', 'in the room.'),
+            'why' => $h('Built for every ambition.', 'every ambition.'),
             'highlights' => $h('Nine reasons Dhaka will be loud.', 'loud.'),
             'speakers' => $h('The people on stage.', 'on stage.'),
             'agenda' => $h('A day built for doing.', 'doing.'),

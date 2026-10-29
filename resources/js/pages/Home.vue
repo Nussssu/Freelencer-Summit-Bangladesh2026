@@ -13,6 +13,8 @@ import StoriesSection from '@/components/sections/StoriesSection.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
 import HighlightsSection from '@/components/sections/HighlightsSection.vue';
 import JourneySection from '@/components/sections/JourneySection.vue';
+import JourneyCounters from '@/components/sections/journey/JourneyCounters.vue';
+import JourneyDirectory from '@/components/sections/journey/JourneyDirectory.vue';
 import SpeakersSection from '@/components/sections/SpeakersSection.vue';
 import TrustStrip from '@/components/sections/TrustStrip.vue';
 import WhatIsSection from '@/components/sections/WhatIsSection.vue';
@@ -44,6 +46,21 @@ useGsap(page2, (reduced) => {
     );
     gsap.fromTo('[data-section="2"] > *', { y: 48, opacity: 0.2 }, { y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1, scrollTrigger: { ...st, end: 'top 40%' } });
 });
+
+// Page 3 (campaign progress + why attend) arrives the same way over the held journey map. It paints the site blend
+// itself so the map doesn't show through. refreshPriority -1: measured after the journey pin above it.
+const page3 = ref<HTMLElement>();
+useGsap(page3, (reduced) => {
+    const el = page3.value;
+    if (reduced || !el) return;
+    const st = { trigger: el, start: 'top bottom', end: 'top top', scrub: true, refreshPriority: -1 };
+    gsap.fromTo(
+        el,
+        { clipPath: 'inset(0% 4% 0% 4% round 2.5rem 2.5rem 0rem 0rem)' },
+        { clipPath: 'inset(0% 0% 0% 0% round 0rem 0rem 0rem 0rem)', ease: 'power2.out', scrollTrigger: { ...st, onLeave: () => gsap.set(el, { clipPath: 'none' }), onEnterBack: () => gsap.set(el, { clipPath: '' }) } },
+    );
+    gsap.fromTo(el.querySelector('.on-light > .container-site')!.children, { y: 48, opacity: 0.2 }, { y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1, scrollTrigger: { ...st, end: 'top 40%' } });
+});
 </script>
 
 <template>
@@ -54,7 +71,16 @@ useGsap(page2, (reduced) => {
         <WhatIsSection :about="content.about" />
     </div>
     <JourneySection :journey="content.journey" />
-    <WhyAttend :audiences="content.audiences" :heading="content.headings.why" />
+    <!-- Page 3: campaign progress + why attend, sliding over the held journey map (as page 2 over the hero) -->
+    <div ref="page3" class="relative z-[1] mt-[calc(-1*var(--journey-hold,0px))] [background:var(--grad-site)_fixed]">
+        <div class="on-light flow relative">
+            <JourneyCounters :counters="content.journey.counters" />
+        </div>
+        <WhyAttend :audiences="content.audiences" :heading="content.headings.why" />
+    </div>
+    <div class="on-light flow relative z-[1]">
+        <JourneyDirectory :directory="content.journey.directory" :steps="content.journey.steps" />
+    </div>
     <HighlightsSection :highlights="content.highlights" :heading="content.headings.highlights" />
     <SpeakersSection :speakers="content.speakers" :heading="content.headings.speakers" />
     <AgendaPreview :agenda="content.agenda" :heading="content.headings.agenda" />

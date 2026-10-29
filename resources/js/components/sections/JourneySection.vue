@@ -8,8 +8,6 @@ import { useReveal } from '@/composables/useReveal';
 import { toBanglaDigits } from '@/i18n';
 import { stage } from '@/stage/state';
 import type { Journey } from '@/types/content';
-import JourneyCounters from './journey/JourneyCounters.vue';
-import JourneyDirectory from './journey/JourneyDirectory.vue';
 import JourneyMapStages from './journey/JourneyMapStages.vue';
 
 // Section 4, the signature section. Desktop: pinned ~4.5 screens, scrubbed, the map image highlights campuses → districts → divisions → Dhaka.
@@ -42,25 +40,32 @@ useGsap(root, () => {
                 pin.value?.style.setProperty('--enter-y', `${(-innerHeight * (1 - st.progress)).toFixed(1)}px`);
             },
         });
-        // …then the pinned, scrubbed journey: step 0.5 → 4 over 3.5 extra screen-heights.
+        // …then the pinned, scrubbed journey: step 0.5 → 4 over 3.5 extra screen-heights, plus one held screen at the end
+        // (as Hero → About): the finished map stays put and recedes into shadow while the next page, which Home.vue
+        // pulls up by one screen (--journey-hold), slides over it. One pin, so nothing nests.
+        document.documentElement.style.setProperty('--journey-hold', '100svh');
         ScrollTrigger.create({
             trigger: pin.value,
             start: 'top top',
-            end: '+=350%',
+            end: '+=450%',
             pin: true,
             scrub: 1,
             onUpdate: (st) => {
-                stage.step = 0.5 + st.progress * 3.5;
+                const journey = Math.min(1, (st.progress * 4.5) / 3.5);
+                stage.step = 0.5 + journey * 3.5;
                 map.value?.setStep(stage.step);
                 const i = stepIndex(stage.step);
                 if (i !== active.value) active.value = i; // reactive only on the 4 step changes
-                pin.value?.style.setProperty('--progress', st.progress.toFixed(3));
+                pin.value?.style.setProperty('--progress', journey.toFixed(3));
+                pin.value?.style.setProperty('--hold', Math.max(0, st.progress * 4.5 - 3.5).toFixed(3));
             },
         });
         return () => {
+            document.documentElement.style.removeProperty('--journey-hold');
             pinned.value = false;
             stage.step = 0;
             pin.value?.style.removeProperty('--enter-y');
+            pin.value?.style.removeProperty('--hold');
         };
     });
 });
@@ -107,11 +112,8 @@ useGsap(root, () => {
                     <JourneyMapStages ref="map" :key="pinned ? 'pin' : 'free'" :scrubbed="pinned" :beacon-label="journey.beaconLabel" class="mx-auto max-w-md md:max-w-none" />
                 </div>
             </div>
-        </div>
-
-        <div class="on-light flow relative">
-            <JourneyCounters :counters="journey.counters" />
-            <JourneyDirectory :directory="journey.directory" :steps="journey.steps" />
+            <!-- Darkens during the held screen while the next page (campaign progress + why attend) slides over -->
+            <div class="journey-dim pointer-events-none absolute inset-0 z-30 bg-night" aria-hidden="true" />
         </div>
     </section>
 </template>
@@ -149,6 +151,9 @@ useGsap(root, () => {
 }
 .is-pinned .journey-map {
     transform: translateY(var(--enter-y, 0px));
+}
+.journey-dim {
+    opacity: calc(var(--hold, 0) * 0.45);
 }
 .journey-progress-fill {
     clip-path: inset(0 calc((1 - var(--progress, 0)) * 100%) 0 0);

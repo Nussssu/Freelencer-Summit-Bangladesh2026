@@ -41,49 +41,69 @@ const arc = ([x, y]: [number, number]) => {
     return { x, y, d: `M${x},${y}Q${(x + dx) / 2},${(y + dy) / 2 - len * 0.35} ${dx},${dy}` };
 };
 const others = areas.divisions.slice(1).map(([, x, y]) => arc([x, y]));
+// spread: how far apart (in steps) the lines start; dur: how long each takes to draw. The division lines draw and pulse
+// from the divisions step (2.5) and stay through the Dhaka finale.
 const ROUTES = [
-    { kind: 'campus', from: 0.3, lines: areas.campuses.filter(([x, y]) => Math.hypot(dx - x, dy - y) > 40).map(arc) },
-    { kind: 'district', from: 1.4, lines: areas.districts.map(([, x, y]) => arc([x, y])) },
-    { kind: 'division', from: 3.3, lines: others },
+    { kind: 'campus', from: 0.3, spread: 0.35, dur: 0.5, lines: areas.campuses.filter(([x, y]) => Math.hypot(dx - x, dy - y) > 40).map(arc) },
+    { kind: 'district', from: 1.4, spread: 0.35, dur: 0.5, lines: areas.districts.map(([, x, y]) => arc([x, y])) },
+    { kind: 'division', from: 2.5, spread: 0.15, dur: 0.35, lines: others },
 ];
 const routeEls: SVGGElement[] = [];
+// The division lines' own layer: visible from the divisions step to the end (the others live in their step's labels).
+let divisionRoutes: SVGGElement | undefined;
 
-const setStep = (s: number) => {
+const render = (s: number) => {
     STAGES.forEach((show, i) => {
         const o = show(s).toFixed(3);
         masks[i]?.setAttribute('opacity', o);
         labels[i]?.setAttribute('opacity', o);
     });
+    divisionRoutes?.setAttribute('opacity', smooth(2.4, 2.6, s).toFixed(3));
     // Each step's lines draw into Dhaka as it scrolls in, then a light pulse runs along them.
     ROUTES.forEach((r, k) => {
         const g = routeEls[k];
         if (!g) return;
         const n = r.lines.length;
+        // Lines start one after another and each draws over `dur`, so they flow in rather than pop.
         g.querySelectorAll<SVGPathElement>('[data-draw]').forEach((p, i) => {
-            const at = r.from + ((i % n) / n) * 0.15;
-            p.style.strokeDashoffset = String(1 - smooth(at, at + 0.3, s));
+            const at = r.from + ((i % n) / n) * r.spread;
+            p.style.strokeDashoffset = String(1 - smooth(at, at + r.dur, s));
         });
         g.querySelectorAll<SVGPathElement>('.jm-route-pulse').forEach((p) => (p.style.opacity = smooth(r.from + 0.45, r.from + 0.55, s).toFixed(3)));
     });
+};
+
+// The parent's scroll position arrives in jumps (fast wheels, dropped frames), so the drawn step glides toward it
+// each frame instead of snapping to it.
+let target = 0;
+let shown = 0;
+const glide = (_t: number, dt: number) => {
+    if (Math.abs(target - shown) < 0.0005) return;
+    shown += (target - shown) * (1 - Math.pow(1 - 0.12, dt / 16.67));
+    render(shown);
+};
+const setStep = (s: number) => {
+    target = s;
 };
 defineExpose({ setStep });
 
 let io: IntersectionObserver | undefined;
 let tween: gsap.core.Tween | undefined;
 onMounted(() => {
-    setStep(0);
-    if (props.scrubbed) return;
+    render(0);
+    if (props.scrubbed) return void gsap.ticker.add(glide);
     // Not scrubbed (mobile / reduced motion): step through once in view, or show the finale straight away.
     io = new IntersectionObserver(([e]) => {
         if (!e.isIntersecting) return;
         io?.disconnect();
-        if (reducedMotion()) return setStep(4);
+        if (reducedMotion()) return render(4);
         const p = { v: 0 };
-        tween = gsap.to(p, { v: 4, duration: 8, ease: 'none', delay: 0.3, onUpdate: () => setStep(p.v) });
+        tween = gsap.to(p, { v: 4, duration: 8, ease: 'none', delay: 0.3, onUpdate: () => render(p.v) });
     });
     io.observe(root.value!);
 });
 onBeforeUnmount(() => {
+    gsap.ticker.remove(glide);
     io?.disconnect();
     tween?.kill();
 });
@@ -140,13 +160,15 @@ onBeforeUnmount(() => {
                 <g :ref="(el) => (labels[2] = el as SVGGElement)" opacity="0">
                     <text v-for="[n, x, y] in areas.divisions.slice(1)" :key="n" :x="x" :y="y + 36" text-anchor="middle">{{ n }}</text>
                 </g>
-                <g :ref="(el) => (labels[3] = el as SVGGElement)" opacity="0">
+                <g :ref="(el) => (divisionRoutes = el as SVGGElement)" opacity="0">
                     <g :ref="(el) => (routeEls[2] = el as SVGGElement)" class="jm-routes" :class="`is-${ROUTES[2].kind}`">
                         <path v-for="(r, i) in ROUTES[2].lines" :key="`g${i}`" :d="r.d" pathLength="1" data-draw class="jm-route-glow" />
                         <path v-for="(r, i) in ROUTES[2].lines" :key="`l${i}`" :d="r.d" pathLength="1" data-draw class="jm-route" />
                         <path v-for="(r, i) in ROUTES[2].lines" :key="`p${i}`" :d="r.d" pathLength="1" class="jm-route-pulse" :style="{ animationDelay: `${-i * 0.37}s` }" />
                         <circle v-for="(r, i) in ROUTES[2].lines" :key="`c${i}`" :cx="r.x" :cy="r.y" class="jm-route-dot" />
                     </g>
+                </g>
+                <g :ref="(el) => (labels[3] = el as SVGGElement)" opacity="0">
                     <g :transform="`translate(${areas.divisions[0][1]} ${areas.divisions[0][2]})`">
                         <circle class="jm-route-dot jm-hub" />
                         <text y="-30" text-anchor="middle" class="jm-dhaka">Dhaka</text>
