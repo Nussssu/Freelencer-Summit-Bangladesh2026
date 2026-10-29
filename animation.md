@@ -1,0 +1,39 @@
+# Animations
+
+- Lenis smooth scroll
+- Preloader
+- Route wipe
+- Scroll progress bar
+- Custom cursor
+- Header tone sampling
+- Background flow breathe
+- Menu overlay
+- Scroll reveal (lines, fade, clip, stitch)
+- Split heading
+- Hover lift & colour swap
+- Accordion
+- Dialog / drawer
+- Hero layered photo intro
+- Hero "SUMMIT" letter build
+- Hero photo drift
+- Hero light sweep
+- Countdown spin-up
+- Message slider
+- Marker highlight
+- Rotated stamp
+- Pinned map journey
+- Map stage reveal
+- Odometer counters
+- Hover panel swap
+- Pinned horizontal scroll
+- Spinning text ring
+- Awards card deck opening
+- Booth & tier hover
+- Column drift parallax
+- Marquee
+- Light hero reveal
+- Sticky sub-nav
+- Skeleton shimmer
+- Delta Flow 3D stage (not mounted)
+- Journey SVG map (not mounted)
+- Magnetic CTA (unused)

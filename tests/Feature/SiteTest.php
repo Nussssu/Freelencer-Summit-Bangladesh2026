@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Content\InnerPageContent;
 use App\Content\PageContent;
 use App\Models\ExhibitEnquiry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,11 +33,26 @@ class SiteTest extends TestCase
     public function test_route_returns_200(string $path): void
     {
         $this->get($path)->assertOk()->assertInertia(fn (Assert $page) => $page
-            ->component($path === '/' ? 'Home' : 'ComingNext')
+            ->component($path === '/' ? 'Home' : (InnerPageContent::PAGES[$path]['component'] ?? 'ComingNext'))
             ->has('site.navigation', 16)
             ->has('site.ctas.primary', 5)
             ->has('site.ctas.secondary', 2)
             ->has('summit.startsAt'));
+    }
+
+    public function test_inner_pages_render_hero_and_breadcrumbs(): void
+    {
+        foreach (InnerPageContent::PAGES as $path => $content) {
+            $this->get($path)->assertOk()->assertInertia(fn (Assert $page) => $page
+                ->component($content['component'])
+                ->where('page.path', $path)
+                ->where('page.title', PageContent::PAGES[$path][0])
+                ->where('page.hero.title', $content['title'])
+                ->missing('page.hero.component')
+                ->has('page.hero.actions', 2));
+            $this->assertStringContainsString($content['emphasis'], $content['title'], "$path emphasis");
+            $this->assertCount(1, array_filter($content['actions'], fn ($a) => $a['tone'] === 'gold'), "$path one gold CTA");
+        }
     }
 
     public function test_route_count_matches_brief(): void

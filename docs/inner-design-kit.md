@@ -24,8 +24,8 @@ Read this first. Source of truth is the landing at `/` (tag `landing-frozen`). V
 
 ## Layout, stage, data
 - `layouts/MainLayout.vue` is persistent (header, footer, Lenis, cursor, stage, mobile CTA bar, route wipe).
-- Stage: `DeltaStage` is a fixed canvas behind `<main>`. Its render loop pauses when `stage.visible` is empty; sections opt in with `useStageVisibility(el, key)`. Inner pages hide it: MainLayout only shows the canvas for `STAGE_PAGES` (Home, ComingNext, and later GrandSummit / NationalJourney). Never register visibility behind forms or long text.
-- Header: transparent with a night gradient and paper text until 75vh, then samples the band under it. So every inner hero has a dark top (night or photo + night overlay).
+- Stage: `DeltaStage` (3D canvas) is no longer mounted (removed from MainLayout 2026-10-28); code kept in `stage/`. Full motion inventory: `/animation.md`.
+- Header: transparent with a night gradient and paper text until 75vh, then samples the band under it. A light hero (`<PageHero tone="light">`, marked `data-header="light"`) makes it sample from the top instead. Main nav pages (About, National Journey, Agenda, Speakers, Awards) use the light hero; copy in `App\Content\InnerPageContent`, rendered by `InnerPageController`.
 - Data: PHP content classes / Query classes → `Inertia::render('Page', props)` → typed props (`types/content.ts`, inner types in `types/inner.ts`). Shared props via `HandleInertiaRequests` (`summit`, `site`, `flash`, `locale`), read with `useShared()`. No query logic or copy in Vue.
 - SEO: `<SeoHead title description path image? robots?>`; JSON-LD built in PHP (`App\Support\Seo`) and passed with `->withViewData(['jsonLd' => …])` (blade prints it).
 

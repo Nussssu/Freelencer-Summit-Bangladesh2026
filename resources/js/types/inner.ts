@@ -1,4 +1,5 @@
 // Prop shapes for inner pages. Mirrors app/Queries/* (PHP is the source of truth).
+import type { CtaTone } from "./content";
 
 export interface Crumb {
     label: string;
@@ -14,6 +15,21 @@ export interface OptionGroup {
     label: string;
     options: Option[];
 }
+/** Built main-navigation page (App\Content\InnerPageContent via InnerPageController). */
+export interface InnerPage {
+    title: string;
+    description: string;
+    path: string;
+    crumbs: Crumb[];
+    hero: {
+        eyebrow: string;
+        title: string;
+        emphasis: string;
+        intro: string;
+        actions: { label: string; href: string; tone: CtaTone }[];
+    };
+}
+
 export interface PageMeta {
     page: number;
     lastPage: number;

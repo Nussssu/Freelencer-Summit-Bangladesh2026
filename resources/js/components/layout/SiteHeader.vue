@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
@@ -38,7 +38,8 @@ const paint = (el: Element) => {
 let frame = 0;
 const sample = () => {
     frame = 0;
-    solid.value = scrollY > innerHeight * 0.75;
+    // A light hero (PageHero tone="light") has no dark top for the transparent header, so sample from the first pixel.
+    solid.value = scrollY > innerHeight * 0.75 || !!document.querySelector('[data-header="light"]');
     if (!solid.value || !header.value) return;
     const under = document.elementsFromPoint(1, header.value.offsetHeight + 1).find((el) => !header.value!.contains(el));
     const section = under?.closest('[data-section]');
@@ -51,12 +52,16 @@ const onScroll = () => (frame ||= requestAnimationFrame(sample));
 const onDocClick = (e: MouseEvent) => drop.value && !drop.value.contains(e.target as Node) && (dropOpen.value = false);
 const onDropKey = (e: KeyboardEvent) => e.key === 'Escape' && dropOpen.value && ((dropOpen.value = false), drop.value?.querySelector('button')?.focus());
 
+// The header lives in the persistent layout, so re-sample when Inertia swaps the page under it.
+let offNavigate: VoidFunction | undefined;
 onMounted(() => {
     sample();
     addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('click', onDocClick);
+    offNavigate = router.on('navigate', onScroll);
 });
 onBeforeUnmount(() => {
+    offNavigate?.();
     removeEventListener('scroll', onScroll);
     cancelAnimationFrame(frame);
     document.removeEventListener('click', onDocClick);

@@ -1,10 +1,12 @@
 <?php
 
+use App\Content\InnerPageContent;
 use App\Content\PageContent;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Dev\KitController;
 use App\Http\Controllers\ExhibitEnquiryController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InnerPageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SeoController;
 use Illuminate\Http\Request;
@@ -12,8 +14,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
-// Every brief URL resolves; unbuilt pages share the "Coming next" page.
-foreach (array_keys(PageContent::PAGES) as $path) {
+// Every brief URL resolves; built pages get their own controller, unbuilt ones share the "Coming next" page.
+foreach (array_keys(InnerPageContent::PAGES) as $path) {
+    Route::get($path, InnerPageController::class);
+}
+foreach (array_diff(array_keys(PageContent::PAGES), array_keys(InnerPageContent::PAGES)) as $path) {
     Route::get($path, PageController::class)->where('slug', '[a-z0-9-]+');
 }
 
