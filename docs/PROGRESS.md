@@ -8,6 +8,7 @@
 | 3 Foundation | done | Laravel 13 + Inertia v2 + Vue 3 + TS + Tailwind v4, SSR entry, content classes, 28 routes, enquiry endpoint, tests green (34) |
 | 4 Header/Hero/Journey | done | Delta Flow scene (40k particles), pinned journey, SVG fallback, video/poster + OG image recorded via Playwright. QA: 0 console errors, 0 overflow @1440/390, hero 120fps (5s sample, 120Hz headless) |
 | 5 Sections | done | All 17 sections SSR-rendered; Dialog Teleport client-only (hydration fix). QA: 0 console errors/hydration warnings, 0 overflow @1440/390 |
+| About upgrade | done | /about rebuilt with page-local components (photo-led hero, statement + count-up, editorial objectives, connected strands, audience tabs, bento highlights, organisers, calmer closing CTA); tag about-before for rollback |
 | 6 Audit | todo | |
 | N0 Inner kit + data foundation | done | docs/inner-design-kit.md, image-map.md, landing-touchpoints.md; tag `landing-frozen`; kit components (components/inner, components/forms) previewed at `/_kit` (local); 33 tables, 12 enums, query classes, honeypot + `throttle:forms`, private disk, BD mobile rule, queued branded mail; Pest FoundationTest. QA /_kit @1440/390: 0 console errors, 0 overflow, canvas hidden, URL-synced filters/pagination, error summary focus, valid submit. Frozen diff: none |
 | N1 Registration journeys + contact | todo | |

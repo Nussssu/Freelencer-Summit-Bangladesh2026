@@ -32,8 +32,16 @@
 - Column drift parallax
 - Marquee
 - Light hero reveal
+- About hero photo wipe
+- About hero photo parallax
+- About facts panel slide-in
+- Objective numeral fill
+- Strand card lift
+- Audience panel switch
+- Bento caption rise
+- Bento photo parallax
+- Magnetic CTA
 - Sticky sub-nav
 - Skeleton shimmer
 - Delta Flow 3D stage (not mounted)
 - Journey SVG map (not mounted)
-- Magnetic CTA (unused)
