@@ -72,10 +72,14 @@ export interface Trust {
     groups: PartnerGroup[];
 }
 export interface About {
-    statement: string;
-    highlight: string;
-    paragraphs: string[];
-    stamp: string;
+    eyebrow: string;
+    headline: string;
+    emphasis: string;
+    intro: string;
+    points: { title: string; icon: 'people' | 'ai' | 'globe' }[];
+    cta: { label: string; href: string };
+    image: string;
+    video: string | null;
     baccoStats: { value: string; label: string }[] | null;
     baccoStatsSource: string;
 }

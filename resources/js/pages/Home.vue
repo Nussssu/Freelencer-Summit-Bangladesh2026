@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import AgendaPreview from '@/components/sections/AgendaPreview.vue';
 import AwardsSpotlight from '@/components/sections/AwardsSpotlight.vue';
@@ -17,6 +17,7 @@ import SpeakersSection from '@/components/sections/SpeakersSection.vue';
 import TrustStrip from '@/components/sections/TrustStrip.vue';
 import WhatIsSection from '@/components/sections/WhatIsSection.vue';
 import WhyAttend from '@/components/sections/WhyAttend.vue';
+import { gsap, useGsap } from '@/composables/motion';
 import { useShared } from '@/composables/useShared';
 import type { HomeContent } from '@/types/content';
 
@@ -27,13 +28,31 @@ const title = computed(() => `Freelancer Summit Bangladesh ${summit.value.editio
 const description = computed(
     () => `The national flagship summit for Bangladeshi freelancers: ${summit.value.campuses} campus programmes, ${summit.value.districts} district roadshows and ${summit.value.divisions} divisional summits leading to the Grand Summit in Dhaka, late November ${summit.value.edition}.`,
 );
+
+// Page 2 (trust strip + "What is") slides over the pinned hero. Section reveal: it rises with rounded top corners
+// and inset sides that open to full width as it reaches the top, while the strip's content lifts in. The clip is
+// dropped once open, so it can't cut off the "What is" section when that pins later.
+const page2 = ref<HTMLElement>();
+useGsap(page2, (reduced) => {
+    const el = page2.value;
+    if (reduced || !el) return;
+    const st = { trigger: el, start: 'top bottom', end: 'top top', scrub: true };
+    gsap.fromTo(
+        el,
+        { clipPath: 'inset(0% 4% 0% 4% round 2.5rem 2.5rem 0rem 0rem)' },
+        { clipPath: 'inset(0% 0% 0% 0% round 0rem 0rem 0rem 0rem)', ease: 'power2.out', scrollTrigger: { ...st, onLeave: () => gsap.set(el, { clipPath: 'none' }) } },
+    );
+    gsap.fromTo('[data-section="2"] > *', { y: 48, opacity: 0.2 }, { y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1, scrollTrigger: { ...st, end: 'top 40%' } });
+});
 </script>
 
 <template>
     <SeoHead :title="title" :description="description" path="/" />
     <HeroSection :hero="content.hero" />
-    <TrustStrip :trust="content.trust" />
-    <WhatIsSection :about="content.about" />
+    <div ref="page2" class="relative z-[1]">
+        <TrustStrip :trust="content.trust" />
+        <WhatIsSection :about="content.about" />
+    </div>
     <JourneySection :journey="content.journey" />
     <WhyAttend :audiences="content.audiences" :heading="content.headings.why" />
     <HighlightsSection :highlights="content.highlights" :heading="content.headings.highlights" />

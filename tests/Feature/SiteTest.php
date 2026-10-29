@@ -80,7 +80,7 @@ class SiteTest extends TestCase
                 ->has('hero.messages', 4)
                 ->has('trust.ticker')
                 ->has('trust.groups', 3)
-                ->has('about.paragraphs', 3)
+                ->has('about.points', 3)
                 ->has('journey.steps', 4)
                 ->has('journey.divisions', 8)
                 ->has('journey.counters', 4)

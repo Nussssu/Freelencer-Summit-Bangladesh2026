@@ -9,7 +9,7 @@ import RouteWipe from '@/components/layout/RouteWipe.vue';
 import ScrollProgress from '@/components/layout/ScrollProgress.vue';
 import SiteFooter from '@/components/layout/SiteFooter.vue';
 import SiteHeader from '@/components/layout/SiteHeader.vue';
-import { ScrollTrigger, finePointer, reducedMotion } from '@/composables/motion';
+import { ScrollTrigger, finePointer, reducedMotion, startIntro } from '@/composables/motion';
 import { destroyLenis, scrollToTarget, startLenis } from '@/composables/useLenis';
 import { captureUtm } from '@/composables/useUtm';
 import type { SharedProps } from '@/types/content';
@@ -39,6 +39,7 @@ onMounted(() => {
     } catch {
         preloading.value = false;
     }
+    if (!preloading.value) startIntro();
 
     offs = [
         router.on('navigate', () => {

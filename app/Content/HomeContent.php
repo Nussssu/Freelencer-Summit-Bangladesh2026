@@ -78,14 +78,19 @@ class HomeContent
     public function about(): array
     {
         return [
-            'statement' => 'Freelancing should be one of the most respected careers in Bangladesh. This is where that starts.',
-            'highlight' => 'one of the most respected careers in Bangladesh',
-            'paragraphs' => [
-                'Freelancer Summit Bangladesh is a national platform for freelancers, aspiring freelancers, AI practitioners, entrepreneurs, marketplaces and the companies that hire them.',
-                'It connects university and polytechnic students with the global digital economy, through programmes on their own campuses and in their own districts.',
-                'It follows the whole journey: the first gig, a skilled career, and the step from freelancer to entrepreneur.',
+            'eyebrow' => 'About the Summit',
+            'headline' => "What is Freelancer Summit Bangladesh {$this->summit['edition']}?",
+            'emphasis' => 'Freelancer Summit',
+            'intro' => "Bangladesh's national flagship platform bringing together freelancers, students, digital professionals, industry leaders, and global partners to advance digital skills, AI, and global opportunities.",
+            'points' => [
+                ['title' => 'National flagship event', 'icon' => 'people'],
+                ['title' => 'Skills, AI & opportunities', 'icon' => 'ai'],
+                ['title' => 'Connecting talent to the world', 'icon' => 'globe'],
             ],
-            'stamp' => 'Not a one-day event',
+            'cta' => ['label' => 'Explore the Summit', 'href' => '/about'],
+            // shortcut: the photo half of the client's design mock-up (a rendered visual, not a real event photo); replace with summit photography.
+            'image' => self::PHOTOS.'about-summit-light.jpg',
+            'video' => null, // overview film not produced yet; the button opens a "coming soon" notice
             'baccoStats' => ($this->summit['show_bacco_stats'] ?? false) ? [
                 ['value' => '2011', 'label' => 'BACCO founded'],
                 ['value' => '500+', 'label' => 'Member organisations'],

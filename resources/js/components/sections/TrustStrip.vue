@@ -1,54 +1,143 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import Marquee from '@/components/ui/Marquee.vue';
-import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
 import type { Trust } from '@/types/content';
 
-// Section 2. GITEX one-line ticker (G5) above organiser lockups and partner slots; empty slots are dashed.
+// Section 2. Organiser & partner strip under the hero: BACCO × DoICT static on the left, then every partner
+// category (label + logos) as columns in one shared, seamless marquee. Hover pauses it; under reduced motion it is
+// swapped for the same columns as a static, wrapped list (which also serves screen readers, since the moving copies
+// are aria-hidden).
 const props = defineProps<{ trust: Trust }>();
 const { site } = useShared();
 const { t } = useI18n();
-const root = ref<HTMLElement>();
-useReveal(root);
-const band = computed(() => [...site.value.organisers.map((o) => o.short), ...props.trust.groups.map((g) => g.label)]);
+const groups = computed(() => props.trust.groups.filter((g) => g.partners.length));
+// ~5s per logo keeps the drift slow whatever the partner count.
+const duration = computed(() => `${groups.value.reduce((n, g) => n + g.partners.length, 0) * 5}s`);
+
+// Organiser logos come in very different shapes (BACCO wide, DoICT tall), so size each by its aspect ratio to the
+// same visual area instead of the same height.
+const orgRow = ref<HTMLElement>();
+const ratios = ref<number[]>([]);
+const orgLogoHeight = (i: number) => (ratios.value[i] ? `${Math.min(56, Math.round(54 / Math.sqrt(ratios.value[i])))}px` : undefined);
+onMounted(() =>
+    orgRow.value?.querySelectorAll('img').forEach((img, i) => {
+        const read = () => img.naturalWidth && (ratios.value[i] = img.naturalWidth / img.naturalHeight);
+        if (img.complete) read();
+        else img.addEventListener('load', read, { once: true });
+    }),
+);
 </script>
 
 <template>
-    <section ref="root" data-section="2" :aria-label="t('sections.trust')" class="on-light flow relative z-[1]">
-        <div class="flex items-center border-b border-line-light bg-paper-2 text-night">
-            <p class="t-label shrink-0 bg-green px-4 py-3 text-snow">{{ t('sections.tickerLabel') }}</p>
-            <Marquee :items="trust.ticker" :duration="48" separator="|" class="py-3 text-sm font-medium" />
+    <section data-section="2" :aria-label="t('sections.trust')" class="trust on-light relative z-[1] flex flex-col lg:flex-row">
+        <div class="trust-col trust-org shrink-0 px-6 py-6 md:px-10">
+            <h2 class="trust-label">{{ t('sections.jointly') }}</h2>
+            <ul ref="orgRow" class="flex items-center gap-8">
+                <li v-for="(o, i) in site.organisers" :key="o.short" class="flex h-14 items-center">
+                    <img v-if="o.logo" :src="o.logo" :alt="o.name" class="h-10 w-auto" :style="{ height: orgLogoHeight(i) }" />
+                    <abbr v-else :title="o.name" class="font-display text-[2rem] leading-none font-black uppercase no-underline" :class="o.short === 'BACCO' && 'text-bacco'">{{ o.short }}</abbr>
+                </li>
+            </ul>
         </div>
 
-        <div class="container-site grid grid-cols-1 gap-10 py-16 lg:grid-cols-12">
-            <div class="min-w-0 lg:col-span-4">
-                <h2 class="t-label text-ink-2">{{ t('sections.jointly') }}</h2>
-                <ul class="mt-4 grid grid-cols-2 gap-px border border-line-light bg-line-light">
-                    <li v-for="o in site.organisers" :key="o.short" class="flex min-h-36 flex-col justify-between bg-snow p-4" data-reveal="fade">
-                        <img v-if="o.logo" :src="o.logo" :alt="o.name" class="h-12 w-auto" />
-                        <span v-else class="font-display text-5xl font-black uppercase" :class="o.short === 'BACCO' && 'text-bacco'">{{ o.short }}</span>
-                        <span class="text-xs leading-snug text-ink-2">{{ o.name }}</span>
-                    </li>
-                </ul>
+        <div class="flex min-w-0 flex-1 items-stretch py-6">
+            <div class="trust-marquee w-full overflow-hidden" aria-hidden="true">
+                <div class="marquee h-full" :style="{ '--marquee-dur': duration }">
+                    <div v-for="copy in 2" :key="copy" class="flex shrink-0 items-stretch">
+                        <div v-for="g in groups" :key="g.label" class="trust-col trust-group px-8">
+                            <span class="trust-label">{{ g.label }}</span>
+                            <div class="flex h-14 items-center gap-10">
+                                <template v-for="p in g.partners" :key="p.name">
+                                    <img v-if="p.logo" :src="p.logo" alt="" loading="lazy" class="trust-logo" />
+                                    <span v-else class="font-bold whitespace-nowrap">{{ p.name }}</span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="grid min-w-0 gap-8 sm:grid-cols-3 lg:col-span-8">
-                <div v-for="g in trust.groups" :key="g.label">
-                    <h3 class="t-label text-ink-2">{{ g.label }}</h3>
-                    <ul class="mt-4 grid gap-2">
-                        <li v-for="p in g.partners" :key="p.name" class="card card-hover grid min-h-[88px] place-items-center p-4">
-                            <img v-if="p.logo" :src="p.logo" :alt="p.name" class="max-h-12 w-auto" />
+
+            <div class="trust-static">
+                <div v-for="g in groups" :key="g.label" class="trust-col px-6 md:px-8">
+                    <h3 class="trust-label">{{ g.label }}</h3>
+                    <ul class="flex min-h-14 flex-wrap items-center gap-x-8 gap-y-4">
+                        <li v-for="p in g.partners" :key="p.name">
+                            <img v-if="p.logo" :src="p.logo" :alt="p.name" loading="lazy" class="trust-logo" />
                             <span v-else class="font-bold">{{ p.name }}</span>
                         </li>
-                        <li v-for="n in Math.max(0, g.slots - g.partners.length)" :key="`slot-${n}`" class="slot t-label" data-reveal="fade">{{ t('common.yourLogo') }}</li>
                     </ul>
                 </div>
             </div>
         </div>
-
-        <div class="border-t border-line-light py-4 font-display text-3xl font-black text-ink-2/60 uppercase" :aria-label="t('sections.bandLabel')">
-            <Marquee :items="band" :duration="60" reverse separator="/" />
-        </div>
     </section>
 </template>
+
+<style scoped>
+.trust {
+    --trust-line: #e2e8f0;
+    background: #ffffff;
+    color: var(--night);
+    border-bottom: 1px solid var(--trust-line);
+}
+.trust-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+/* Subtle dividers: under the organisers when stacked, beside them when side by side, and between moving groups */
+.trust-org {
+    border-bottom: 1px solid var(--trust-line);
+}
+.trust-group {
+    border-right: 1px solid var(--trust-line);
+}
+.trust-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--green);
+}
+.trust-logo {
+    height: 1.75rem;
+    width: auto;
+    max-width: 11rem;
+    object-fit: contain;
+}
+/* Columns fade in and out at the edges instead of being cut */
+.trust-marquee {
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+/* Static columns: screen readers only, unless motion is reduced, where they replace the marquee */
+.trust-static {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+@media (min-width: 1024px) {
+    .trust-org {
+        border-bottom: 0;
+        border-right: 1px solid var(--trust-line);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .trust-marquee {
+        display: none;
+    }
+    .trust-static {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip-path: none;
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 1.5rem;
+    }
+}
+</style>

@@ -8,6 +8,7 @@
 .playwright-mcp/
 .qodo/
 /.codex
+/.commandcode/
 /.cursor/
 /.idea
 /.nova

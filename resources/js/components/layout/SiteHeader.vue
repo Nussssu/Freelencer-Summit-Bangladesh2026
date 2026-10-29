@@ -3,7 +3,6 @@ import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
-import Countdown from '@/components/ui/Countdown.vue';
 import Icon from '@/components/ui/Icon.vue';
 import { useShared } from '@/composables/useShared';
 import { utm, withUtm } from '@/composables/useUtm';
@@ -16,7 +15,6 @@ import Wordmark from './Wordmark.vue';
 const { summit, site } = useShared();
 const { t } = useI18n();
 
-const register = computed(() => site.value.ctas.primary.find((c) => c.id === 'register')!);
 const nominate = computed(() => site.value.ctas.primary.find((c) => c.id === 'nominate')!);
 const involved = computed(() => site.value.ctas.primary.filter((c) => ['sponsor', 'exhibit', 'forum'].includes(c.id)));
 
@@ -88,7 +86,6 @@ onBeforeUnmount(() => {
                 <span class="t-label border border-line-dark px-2 py-1">{{ t('header.lateNov', { edition: summit.edition }) }}</span>
                 <span class="t-label border border-line-dark px-2 py-1">{{ summit.venue ?? t('header.city') }}</span>
                 <span v-if="!summit.dateConfirmed" class="text-xs text-muted">{{ t('header.tbc') }}</span>
-                <Countdown :target="summit.startsAt" compact class="ml-4 hidden text-mint lg:block 2xl:hidden" />
                 <div class="ml-auto flex items-center gap-2">
                     <LocaleToggle />
                     <span class="h-4 w-px bg-line-dark" aria-hidden="true" />
@@ -111,8 +108,6 @@ onBeforeUnmount(() => {
 
 
             <div class="ml-auto flex items-center gap-2">
-                <Countdown :target="summit.startsAt" compact class="mr-2 hidden text-mint 2xl:block" />
-                <CtaLink :href="register.href" class="hidden !px-4 md:inline-flex">{{ t('cta.register') }}</CtaLink>
                 <CtaLink :href="nominate.href" tone="outline" class="hidden !px-4 lg:inline-flex">{{ nominate.label }}</CtaLink>
 
                 <div ref="drop" class="relative hidden lg:block" @keydown="onDropKey">

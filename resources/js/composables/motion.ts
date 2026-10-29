@@ -10,6 +10,11 @@ export { gsap, ScrollTrigger };
 export const EASE = 'expo.out';
 export const STAGGER = 0.055;
 
+/** Resolves once the first-visit preloader starts opening (or straight away when there is none), so the hero intro isn't spent behind it. */
+let releaseIntro = () => {};
+export const introReady = isClient ? new Promise<void>((r) => (releaseIntro = r)) : Promise.resolve();
+export const startIntro = () => releaseIntro();
+
 export const reducedMotion = () => isClient && matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const finePointer = () => isClient && matchMedia('(hover: hover) and (pointer: fine)').matches;
 

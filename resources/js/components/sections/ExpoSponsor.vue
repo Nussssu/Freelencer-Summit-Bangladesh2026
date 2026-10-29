@@ -93,7 +93,7 @@ const stateClass = { available: 'bg-mint/70', reserved: 'bg-gold', confirmed: 'b
                 </ol>
                 <div class="mt-8 flex flex-wrap gap-2">
                     <CtaLink :href="cta('sponsor').href" tone="red">{{ cta('sponsor').label }}</CtaLink>
-                    <button type="button" class="btn btn-ghost" disabled><Icon name="download" :size="16" /> {{ t('sections.prospectus') }} · {{ t('common.comingSoon') }}</button>
+                    <button type="button" class="btn btn-ghost max-w-full !whitespace-normal" disabled><Icon name="download" :size="16" /> {{ t('sections.prospectus') }} · {{ t('common.comingSoon') }}</button>
                 </div>
             </div>
         </div>

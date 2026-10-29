@@ -74,8 +74,8 @@ class SiteContent
     public function organisers(): array
     {
         return [
-            ['short' => 'BACCO', 'name' => 'Bangladesh Association of Contact Center & Outsourcing', 'role' => 'Primary organiser', 'logo' => null],
-            ['short' => 'DoICT', 'name' => 'Department of Information and Communication Technology', 'role' => 'Primary organiser', 'logo' => null],
+            ['short' => 'BACCO', 'name' => 'Bangladesh Association of Contact Center & Outsourcing', 'role' => 'Primary organiser', 'logo' => '/media/organisers/bacco.png'],
+            ['short' => 'DoICT', 'name' => 'Department of Information and Communication Technology', 'role' => 'Primary organiser', 'logo' => '/media/organisers/doict.png'],
         ];
     }
 
