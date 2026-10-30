@@ -6,12 +6,15 @@ use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 use Throwable;
 
 class UsersTable
@@ -52,6 +55,21 @@ class UsersTable
                             }
                         }),
                     DeleteAction::make(),
+                ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    // Same rules as the row delete: never yourself, and only a Super Admin removes a Super Admin.
+                    BulkAction::make('delete')->label('Delete selected')->icon('heroicon-o-trash')->color('danger')
+                        ->requiresConfirmation()->modalDescription('Your own account and accounts you may not remove are skipped.')
+                        ->authorize(fn () => UserResource::can('deleteAny'))
+                        ->action(function (Collection $records) {
+                            [$allowed, $kept] = $records->partition(fn (User $u) => UserResource::canDelete($u));
+                            $allowed->each->delete();
+                            $note = Notification::make()->title("Deleted {$allowed->count()} user(s)");
+                            $kept->isEmpty() ? $note->success()->send() : $note->warning()->body('Kept: '.$kept->pluck('email')->implode(', '))->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

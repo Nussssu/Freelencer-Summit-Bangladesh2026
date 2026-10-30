@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\Concerns\IsSubmission;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExhibitionApplication extends Model
 {
-    use IsSubmission;
+    use HasFactory, IsSubmission;
 
     protected $guarded = ['id'];
 

@@ -42,7 +42,7 @@ class CmsTest extends TestCase
         $this->get('/admin')->assertRedirect('/admin/login');
 
         $this->actingAs(User::factory()->create()->assignRole(Access::SUPER_ADMIN));
-        foreach (['/admin', '/admin/media', '/admin/media?display=list', '/admin/leads', '/admin/pages', '/admin/email-templates', '/admin/site-settings',
+        foreach (['/admin', '/admin/media', '/admin/media?display=list', '/admin/leads', '/admin/pages', '/admin/email-templates', '/admin/site-settings', '/admin/header-footer',
             '/admin/users', '/admin/users/create', '/admin/roles', '/admin/audit-logs', '/admin/submissions/summit-registrations',
             '/admin/submissions/award-nominations', '/admin/submissions/exhibition-inquiries', '/admin/submissions/booth-applications'] as $url) {
             $this->get($url)->assertOk();

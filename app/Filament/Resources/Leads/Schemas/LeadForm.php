@@ -20,7 +20,7 @@ class LeadForm
             Grid::make(['lg' => 3])->columnSpanFull()->schema([
                 Section::make('Submission')->columnSpan(['lg' => 2])->schema([
                     TextEntry::make('type')->formatStateUsing(fn (string $state) => Str::headline($state))->badge(),
-                    TextEntry::make('created_at')->label('Received')->dateTime('j M Y, H:i'),
+                    TextEntry::make('created_at')->label('Received')->dateTime('d M Y, h:i A'),
                     KeyValueEntry::make('data')->hiddenLabel()->keyLabel('Field')->valueLabel('Value')
                         ->state(fn (Lead $record) => collect($record->data)->reject(fn ($v) => $v === null || $v === '')
                             ->mapWithKeys(fn ($v, $k) => [Str::headline($k) => is_scalar($v) ? (string) $v : json_encode($v)])->all()),

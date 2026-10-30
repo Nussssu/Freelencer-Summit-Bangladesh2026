@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\AwardStatus;
 use App\Models\Concerns\IsSubmission;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AwardApplication extends Model
 {
-    use IsSubmission;
+    use HasFactory, IsSubmission;
 
     protected $guarded = ['id'];
 

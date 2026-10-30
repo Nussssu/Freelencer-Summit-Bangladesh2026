@@ -3,6 +3,10 @@
 namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Concerns\ChecksModulePermission;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\Column;
@@ -13,8 +17,9 @@ use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 /**
- * Read-only table of one public form's submissions, opened in a view modal. Encrypted columns (phones) are decrypted
- * by the model casts for display only; they are never searchable or exported. Each form's own resource sets the columns.
+ * One public form's submissions: view, correct or delete (soft delete) in modals; never created from the admin.
+ * Encrypted columns (phones) are decrypted by the model casts for display and editing only; they are never searchable
+ * or exported. Each form's own resource sets the columns, view and edit form.
  */
 abstract class SubmissionResource extends Resource
 {
@@ -22,10 +27,10 @@ abstract class SubmissionResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Leads';
 
-    /** Actions beyond viewing (e.g. award status) are added per resource and authorised as "edit". */
+    /** Submissions only come from the public forms. */
     public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response
     {
-        return in_array($action, ['view', 'viewAny', 'update'], true) ? static::modulePermission($action, $record) : Response::deny();
+        return in_array($action, ['create', 'replicate'], true) ? Response::deny() : static::modulePermission($action, $record);
     }
 
     /** @return list<Column> */
@@ -35,11 +40,12 @@ abstract class SubmissionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('created_at')->label('Received')->dateTime('j M Y, H:i')->sortable(),
+                TextColumn::make('created_at')->label('Received')->dateTime('d M Y, h:i A')->sortable(),
                 ...static::columns(),
             ])
             ->defaultSort('created_at', 'desc')
-            ->recordActions([ViewAction::make()]);
+            ->recordActions([ViewAction::make()->iconButton()->tooltip('View'), EditAction::make()->iconButton()->tooltip('Edit'), DeleteAction::make()->iconButton()->tooltip('Delete')]) // icons keep actions on screen at desktop width
+            ->toolbarActions([BulkActionGroup::make([DeleteBulkAction::make()])]); // soft delete; needs the module's delete permission
     }
 
     /** List-of-links JSON ([{platform, url}] or [url]) as plain URLs. */

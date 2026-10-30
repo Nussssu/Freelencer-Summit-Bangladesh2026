@@ -11,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -29,13 +30,16 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->passwordReset() // also the "set your password" page for invited users
-            ->brandName('Freelancer Summit CMS')
+            ->brandName('Freelancer Summit Bangladesh')
             ->brandLogo(fn () => ($logo = Settings::identity()['logo']) ? url($logo) : null)
             ->favicon(fn () => Settings::identity()['favicon'] ?? '/favicon.svg')
             ->colors([
                 'primary' => Color::hex('#087f8c'), // site teal (--green)
             ])
             ->navigationGroups(['Content', 'Leads', 'Settings', 'Access'])
+            ->sidebarWidth('16rem') // default 20rem
+            ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.hooks.theme'))
+            ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn () => view('filament.hooks.sidebar-logout'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

@@ -21,12 +21,12 @@ class LeadsTable
     {
         return $table
             ->columns([
-                TextColumn::make('created_at')->label('Received')->dateTime('j M Y, H:i')->sortable(),
+                TextColumn::make('created_at')->label('Received')->dateTime('d M Y, h:i A')->sortable(),
                 TextColumn::make('type')->badge()->formatStateUsing(fn (string $state) => Str::headline($state))->color('primary'),
-                TextColumn::make('name')->searchable()->weight('medium')->placeholder('—'),
-                TextColumn::make('email')->searchable()->copyable()->placeholder('—'),
+                TextColumn::make('name')->searchable()->sortable()->weight('medium')->placeholder('—'),
+                TextColumn::make('email')->searchable()->sortable()->copyable()->limit(26)->tooltip(fn ($state) => $state)->placeholder('—'),
                 TextColumn::make('phone')->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('reference')->searchable()->fontFamily('mono')->placeholder('—'),
+                TextColumn::make('reference')->searchable()->sortable()->fontFamily('mono')->placeholder('—')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')->badge()->formatStateUsing(fn (string $state) => Lead::STATUSES[$state] ?? $state)->color(fn (string $state) => self::COLORS[$state] ?? 'gray'),
             ])
             ->defaultSort('created_at', 'desc')

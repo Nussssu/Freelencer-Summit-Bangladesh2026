@@ -41,7 +41,7 @@ class AuditLogResource extends Resource
 
         return $table
             ->columns([
-                TextColumn::make('created_at')->label('Time')->dateTime('j M Y, H:i:s')->sortable(),
+                TextColumn::make('created_at')->label('Time')->dateTime('d M Y, h:i A')->sortable(),
                 TextColumn::make('user.name')->label('User')->placeholder('System')->searchable(),
                 TextColumn::make('action')->badge()->color(fn (string $state) => $colors[$state] ?? 'warning'),
                 TextColumn::make('module')->searchable(),

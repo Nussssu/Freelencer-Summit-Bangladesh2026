@@ -2,7 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Content\SiteContent;
 use App\Filament\Fields\MediaPicker;
 use App\Filament\Resources\EmailTemplates\EmailTemplateResource;
 use App\Models\AuditLog;
@@ -10,7 +9,6 @@ use App\Support\Access;
 use App\Support\Settings;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -32,22 +30,18 @@ use Illuminate\Support\Facades\Mail;
 use Throwable;
 use UnitEnum;
 
-/**
- * Identity, global header and footer content, social links, SEO defaults, reCAPTCHA and email delivery. Each list saves under the SiteContent method
- * of the same name with the same shape, so the Vue layout reads it unchanged.
- */
+/** Identity, social links, SEO defaults, reCAPTCHA and email delivery. Header and footer content lives in HeaderFooter. */
 class SiteSettings extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string|UnitEnum|null $navigationGroup = 'Settings';
 
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Settings';
 
     protected static ?string $title = 'Global settings';
-
-    /** Settings keys that mirror SiteContent methods one to one. */
-    private const LISTS = ['headerLinks', 'navigation', 'ctas', 'organisers', 'contacts', 'importantLinks', 'legal'];
 
     public ?array $data = [];
 
@@ -58,14 +52,12 @@ class SiteSettings extends Page
 
     public function mount(): void
     {
-        $site = app(SiteContent::class);
         $mail = Settings::get('mail', []);
         unset($mail['smtp']['password']); // never sent back to the browser; blank keeps the saved one
         $recaptcha = Settings::get('recaptcha', []);
         unset($recaptcha['secret_key']); // same rule as the SMTP password
 
         $this->form->fill([
-            ...collect(self::LISTS)->mapWithKeys(fn ($k) => [$k => $site->{$k}()])->all(),
             'identity' => Settings::identity(),
             'social' => Settings::get('social', config('summit.social')),
             'seo' => Settings::get('seo', []),
@@ -76,19 +68,6 @@ class SiteSettings extends Page
 
     public function form(Schema $schema): Schema
     {
-        $link = fn (string $name, string $label) => Repeater::make($name)->label($label)->schema([
-            TextInput::make('label')->required()->maxLength(60),
-            TextInput::make('href')->label('Link')->required()->maxLength(255)->placeholder('/agenda or https://…'),
-        ])->columns(2)->reorderable()->collapsible()->itemLabel(fn (array $state) => $state['label'] ?? null)->defaultItems(0);
-
-        $tones = ['gold' => 'Gold (primary)', 'outline' => 'Outline', 'red' => 'Red', 'green' => 'Teal', 'blue' => 'BACCO blue', 'ghost' => 'Ghost'];
-        $cta = fn (string $name, string $label) => Repeater::make($name)->label($label)->schema([
-            TextInput::make('id')->label('Key')->required()->alphaDash()->maxLength(30)->helperText('Used by the code to find this button, e.g. register.'),
-            TextInput::make('label')->required()->maxLength(60),
-            TextInput::make('href')->label('Link')->required()->maxLength(255),
-            Select::make('tone')->options($tones)->required()->native(false),
-        ])->columns(4)->reorderable()->collapsible()->itemLabel(fn (array $state) => $state['label'] ?? null);
-
         return $schema->statePath('data')->components([
             Tabs::make()->persistTabInQueryString()->columnSpanFull()->tabs([
                 Tab::make('General & identity')->icon(Heroicon::OutlinedIdentification)->schema([
@@ -105,32 +84,6 @@ class SiteSettings extends Page
                         TextInput::make('identity.email')->label('Contact email')->email()->maxLength(160),
                         Textarea::make('identity.address')->label('Office address')->rows(2)->maxLength(300)->columnSpanFull(),
                     ]),
-                ]),
-                Tab::make('Header')->icon(Heroicon::OutlinedBars3)->schema([
-                    $link('headerLinks', 'Header links (the row under the logo)')->maxItems(7),
-                    Repeater::make('navigation')->label('Full menu (opens from "Menu")')->schema([
-                        TextInput::make('label')->required()->maxLength(60),
-                        TextInput::make('href')->label('Link')->required()->maxLength(255),
-                        Select::make('group')->options(collect(app(SiteContent::class)->navGroups())->pluck('label', 'id'))->required()->native(false),
-                    ])->columns(3)->reorderable()->collapsible()->collapsed()->itemLabel(fn (array $state) => $state['label'] ?? null),
-                    Section::make('Call-to-action buttons')->description('Primary buttons appear in the header "Get involved" menu and across pages.')->schema([
-                        $cta('ctas.primary', 'Primary'),
-                        $cta('ctas.secondary', 'Secondary'),
-                    ]),
-                ]),
-                Tab::make('Footer')->icon(Heroicon::OutlinedQueueList)->schema([
-                    Repeater::make('contacts')->label('Contact lines')->schema([
-                        TextInput::make('label')->required()->maxLength(60),
-                        TextInput::make('value')->label('Email or phone')->maxLength(120)->helperText('Blank shows "TBA".'),
-                    ])->columns(2)->reorderable()->itemLabel(fn (array $state) => $state['label'] ?? null),
-                    $link('importantLinks', 'Important links'),
-                    $link('legal', 'Legal links'),
-                    Repeater::make('organisers')->label('Organisers (header and footer)')->schema([
-                        TextInput::make('short')->label('Short name')->required()->maxLength(20),
-                        TextInput::make('name')->label('Full name')->required()->maxLength(160),
-                        TextInput::make('role')->required()->maxLength(60),
-                        MediaPicker::make('logo')->label('Logo'),
-                    ])->columns(2)->reorderable()->minItems(2)->itemLabel(fn (array $state) => $state['short'] ?? null),
                 ]),
                 Tab::make('Social')->icon(Heroicon::OutlinedShare)->schema([
                     Grid::make(2)->schema([
@@ -165,7 +118,7 @@ class SiteSettings extends Page
                 ]),
                 Tab::make('Email')->icon(Heroicon::OutlinedEnvelope)->schema([
                     Section::make('Email templates')->schema([
-                        Text::make('Subjects and bodies of the automatic emails (New lead alert, Enquiry received, Registration confirmed) are edited in Settings › Email templates.'),
+                        Text::make('Subjects and bodies of the automatic emails (New lead alert, Enquiry received, Registration confirmed) are edited in Leads › Email Templates.'),
                         Actions::make([Action::make('templates')->label('Edit email templates')->color('gray')->url(fn () => EmailTemplateResource::getUrl())]),
                     ]),
                     Section::make('Lead notifications')->schema([
@@ -205,10 +158,6 @@ class SiteSettings extends Page
     {
         $data = $this->form->getState();
 
-        foreach (array_diff(self::LISTS, ['ctas']) as $key) {
-            Settings::put($key, array_values($data[$key] ?? []));
-        }
-        Settings::put('ctas', ['primary' => array_values($data['ctas']['primary'] ?? []), 'secondary' => array_values($data['ctas']['secondary'] ?? [])]);
         Settings::put('social', array_map(fn ($v) => $v ?: null, $data['social'] ?? []));
         Settings::put('identity', $data['identity'] ?? []);
         Settings::put('seo', array_filter($data['seo'] ?? []));

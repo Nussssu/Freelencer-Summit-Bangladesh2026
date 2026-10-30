@@ -7,6 +7,9 @@ use App\Enums\Interest;
 use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
 use App\Models\SummitRegistration;
 use BackedEnum;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -23,22 +26,22 @@ class SummitRegistrationResource extends SubmissionResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
-    protected static ?string $navigationLabel = 'Summit Registrations';
+    protected static ?string $navigationLabel = 'Registrations';
 
-    protected static ?string $pluralModelLabel = 'Summit Registrations';
+    protected static ?string $pluralModelLabel = 'Registrations';
 
     protected static ?int $navigationSort = 2;
 
     protected static function columns(): array
     {
         return [
-            TextColumn::make('reference')->fontFamily('mono')->searchable(),
-            TextColumn::make('name')->searchable()->weight('medium'),
-            TextColumn::make('email')->searchable()->copyable(),
-            TextColumn::make('phone')->toggleable(), // decrypted by the model cast
-            TextColumn::make('organisation')->searchable()->toggleable(),
+            TextColumn::make('reference')->fontFamily('mono')->searchable()->sortable(),
+            TextColumn::make('name')->searchable()->sortable()->weight('medium'),
+            TextColumn::make('email')->searchable()->sortable()->copyable()->limit(26)->tooltip(fn ($state) => $state),
+            TextColumn::make('phone')->toggleable(isToggledHiddenByDefault: true), // decrypted by the model cast
+            TextColumn::make('organisation')->searchable()->sortable()->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('designation')->toggleable(isToggledHiddenByDefault: true),
-            TextColumn::make('district.name')->label('District')->toggleable(),
+            TextColumn::make('district.name')->label('District')->toggleable(isToggledHiddenByDefault: true),
             TextColumn::make('attendee_type')->label('Attendee type')->badge()->formatStateUsing(fn (AttendeeType $state) => $state->label()),
             TextColumn::make('interests')->badge()->formatStateUsing(fn (string $state) => Interest::tryFrom($state)?->label() ?? $state)->toggleable(isToggledHiddenByDefault: true),
         ];
@@ -52,11 +55,27 @@ class SummitRegistrationResource extends SubmissionResource
         ]);
     }
 
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make()->columns(2)->columnSpanFull()->schema([
+                TextInput::make('name')->required()->maxLength(255),
+                TextInput::make('email')->email()->required()->maxLength(255),
+                TextInput::make('phone')->tel()->required()->maxLength(32),
+                Select::make('district_id')->label('District')->relationship('district', 'name')->searchable()->preload(),
+                TextInput::make('organisation')->maxLength(255),
+                TextInput::make('designation')->maxLength(255),
+                Select::make('attendee_type')->label('Attendee type')->options(array_column(AttendeeType::options(), 'label', 'value'))->required()->native(false),
+                CheckboxList::make('interests')->options(array_column(Interest::options(), 'label', 'value'))->columns(2),
+            ]),
+        ]);
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
             Section::make()->columns(2)->columnSpanFull()->schema([
-                TextEntry::make('reference'), TextEntry::make('created_at')->label('Received')->dateTime(),
+                TextEntry::make('reference'), TextEntry::make('created_at')->label('Received')->dateTime('d M Y, h:i A'),
                 TextEntry::make('name'), TextEntry::make('email')->copyable(),
                 TextEntry::make('phone')->copyable(), TextEntry::make('district.name')->label('District')->placeholder('—'),
                 TextEntry::make('organisation')->placeholder('—'), TextEntry::make('designation')->placeholder('—'),

@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Content\HomeContent;
+use App\Filament\Pages\HeaderFooter;
 use App\Filament\Resources\Media\Pages\ListMedia;
 use App\Filament\Resources\Pages\Pages\EditPage;
+use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
+use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Mail\LeadMail;
 use App\Models\AuditLog;
 use App\Models\ExhibitEnquiry;
@@ -119,6 +122,54 @@ class CmsAccessTest extends TestCase
         $this->actingAs($this->user('Admin'));
         $this->get('/admin/users')->assertOk();
         $this->get('/admin/roles')->assertForbidden();
+    }
+
+    public function test_submission_rows_follow_role_permissions_and_delete_softly(): void
+    {
+        $reg = SummitRegistration::factory()->create();
+
+        $this->actingAs($this->user('Staff'));
+        Livewire::test(ListSummitRegistrations::class)
+            ->assertActionVisible(TestAction::make('view')->table($reg))
+            ->assertActionHidden(TestAction::make('edit')->table($reg))
+            ->assertActionHidden(TestAction::make('delete')->table($reg));
+
+        $this->actingAs($this->user('Admin'));
+        Livewire::test(ListSummitRegistrations::class)
+            ->callAction(TestAction::make('edit')->table($reg), ['name' => 'Corrected Name', 'phone' => '+880 1711 000000'])
+            ->callAction(TestAction::make('delete')->table($reg));
+
+        $reg = SummitRegistration::withTrashed()->find($reg->id);
+        $this->assertSame(['Corrected Name', '+880 1711 000000'], [$reg->name, $reg->phone]);
+        $this->assertSoftDeleted($reg);
+    }
+
+    public function test_bulk_delete_on_registrations_and_users(): void
+    {
+        $regs = SummitRegistration::factory()->count(3)->create();
+        $me = $this->user('Admin');
+        $boss = $this->user(Access::SUPER_ADMIN);
+        $staff = $this->user('Staff');
+
+        $this->actingAs($me);
+        Livewire::test(ListSummitRegistrations::class)->selectTableRecords($regs->pluck('id')->all())->callAction(TestAction::make('delete')->table()->bulk());
+        $regs->each(fn ($r) => $this->assertSoftDeleted($r));
+
+        Livewire::test(ListUsers::class)->selectTableRecords([$me->id, $boss->id, $staff->id])->callAction(TestAction::make('delete')->table()->bulk());
+        $this->assertModelMissing($staff);
+        $this->assertModelExists($me);   // never yourself
+        $this->assertModelExists($boss); // an Admin can't remove a Super Admin
+    }
+
+    public function test_header_and_footer_save_from_their_own_page(): void
+    {
+        $this->actingAs($this->user(Access::SUPER_ADMIN));
+        Livewire::test(HeaderFooter::class)
+            ->set('data.headerLinks', [['label' => 'Programme', 'href' => '/agenda']])
+            ->call('save')->assertHasNoFormErrors();
+
+        $this->assertSame([['label' => 'Programme', 'href' => '/agenda']], Settings::get('headerLinks'));
+        $this->assertNotNull(Settings::get('organisers')); // the rest of the page saved in its usual shape
     }
 
     public function test_suspended_users_are_locked_out(): void
