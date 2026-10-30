@@ -8,6 +8,8 @@ use App\Filament\Resources\Media\Pages\ListMedia;
 use App\Filament\Resources\Pages\Pages\EditPage;
 use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Widgets\LeadsBreakdownChart;
+use App\Filament\Widgets\RegistrationsChart;
 use App\Mail\LeadMail;
 use App\Models\AuditLog;
 use App\Models\ExhibitEnquiry;
@@ -170,6 +172,25 @@ class CmsAccessTest extends TestCase
 
         $this->assertSame([['label' => 'Programme', 'href' => '/agenda']], Settings::get('headerLinks'));
         $this->assertNotNull(Settings::get('organisers')); // the rest of the page saved in its usual shape
+    }
+
+    public function test_dashboard_charts_count_submissions(): void
+    {
+        Mail::fake();
+        SummitRegistration::factory()->count(2)->create(['created_at' => now()]);
+        $this->from('/')->post('/exhibition/enquiries', $this->enquiry());
+
+        $this->actingAs($this->user(Access::SUPER_ADMIN));
+        $this->get('/admin')->assertOk()->assertDontSee('Welcome');
+
+        $line = Livewire::test(RegistrationsChart::class)->instance();
+        $data = (fn () => $this->getData())->call($line);
+        $this->assertCount(30, $data['labels']);
+        $this->assertSame([2, 3], [end($data['datasets'][0]['data']), end($data['datasets'][1]['data'])]); // today: 2 registrations, 3 leads
+
+        $doughnut = (fn () => $this->getData())->call(Livewire::test(LeadsBreakdownChart::class)->instance());
+        $this->assertEqualsCanonicalizing(['Registrations', 'Exhibition inquiries'], $doughnut['labels']);
+        $this->assertSame(3, array_sum($doughnut['datasets'][0]['data']));
     }
 
     public function test_suspended_users_are_locked_out(): void

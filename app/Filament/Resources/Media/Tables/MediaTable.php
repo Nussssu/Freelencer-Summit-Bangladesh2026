@@ -4,16 +4,18 @@ namespace App\Filament\Resources\Media\Tables;
 
 use App\Filament\Resources\Media\MediaResource;
 use App\Models\Media;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Js;
 use Illuminate\Support\Number;
 
 class MediaTable
@@ -24,37 +26,39 @@ class MediaTable
         $thumb = ImageColumn::make('preview')->label('Preview')
             ->state(fn (Media $r) => $r->isImage() ? url($r->url) : null)
             ->defaultImageUrl(fn (Media $r) => $r->isImage() ? null : 'data:image/svg+xml,'.rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3"><rect width="4" height="3" fill="#e7f2f5"/></svg>'));
-        $name = TextColumn::make('name')->searchable(['name', 'path', 'alt'])->sortable()->weight('medium')->limit(40);
-        $meta = TextColumn::make('size')->formatStateUsing(fn (Media $r) => trim(($r->width ? "{$r->width}×{$r->height} · " : '').Number::fileSize($r->size)))->color('gray')->size('sm');
+        // The stored name is the original filename without its extension; the extension comes from the saved path.
+        $name = TextColumn::make('name')->label('File name')->searchable(['name', 'path', 'alt'])->sortable()->weight('medium')
+            ->formatStateUsing(fn (Media $r) => $r->name.'.'.pathinfo($r->path, PATHINFO_EXTENSION))->limit(34)->tooltip(fn (Media $r) => $r->path);
+        $meta = TextColumn::make('size')->label('Size')->sortable()->color('gray')->size('sm')
+            ->formatStateUsing(fn (Media $r) => trim(($r->width ? "{$r->width}×{$r->height} · " : '').Number::fileSize($r->size)));
+        $type = TextColumn::make('type')->label('Type')->badge()->color(fn (Media $r) => str_starts_with((string) $r->mime, 'image/') ? 'info' : (str_starts_with((string) $r->mime, 'video/') ? 'warning' : 'gray'))
+            ->state(fn (Media $r) => strtoupper(pathinfo($r->path, PATHINFO_EXTENSION)));
+        $added = TextColumn::make('created_at')->label('Date added')->date('d M Y')->sortable();
 
         return $table
             ->columns($grid
-                ? [Stack::make([$thumb->imageHeight(150)->extraImgAttributes(['style' => 'width:100%;max-width:100%;height:150px;object-fit:contain;border-radius:8px;background:#f5f2e9'])->width('100%'), $name, $meta])->space(2)]
-                : [$thumb->imageHeight(48), $name, TextColumn::make('url')->label('URL')->copyable()->color('gray')->limit(50), TextColumn::make('mime')->label('Type')->badge(), $meta->label('Size'), TextColumn::make('created_at')->label('Added')->date()->sortable()])
-            ->contentGrid($grid ? ['md' => 3, 'xl' => 5] : null)
+                ? [Stack::make([
+                    $thumb->imageHeight(150)->extraImgAttributes(['style' => 'width:100%;max-width:100%;height:150px;object-fit:contain;border-radius:8px;background:#eef5f9'])->width('100%'),
+                    $name,
+                    Split::make([$meta, $type->grow(false)]),
+                ])->space(2)]
+                : [$thumb->imageHeight(48), $name, TextColumn::make('url')->label('URL')->copyable()->color('gray')->limit(50), $type, $meta, $added])
+            ->contentGrid($grid ? ['md' => 3, 'xl' => 4, '2xl' => 5] : null)
             ->defaultSort('created_at', 'desc')
-            ->paginated([20, 40, 80])
-            ->filters([
-                SelectFilter::make('kind')->label('Type')
-                    ->options(['image' => 'Images', 'video' => 'Video', 'other' => 'Other'])
-                    ->query(fn ($q, array $data) => match ($data['value'] ?? null) {
-                        'image' => $q->where('mime', 'like', 'image/%'),
-                        'video' => $q->where('mime', 'like', 'video/%'),
-                        'other' => $q->where('mime', 'not like', 'image/%')->where('mime', 'not like', 'video/%'),
-                        default => $q,
-                    }),
-                SelectFilter::make('source')->options(['uploads' => 'Uploaded in CMS', 'site' => 'Built-in site assets'])
-                    ->query(fn ($q, array $data) => match ($data['value'] ?? null) {
-                        'uploads' => $q->where('path', 'like', 'uploads/%'),
-                        'site' => $q->where('path', 'not like', 'uploads/%'),
-                        default => $q,
-                    }),
-            ])
+            ->paginated([24, 48, 96])
             ->recordActions([
-                EditAction::make(),
-                static::delete(),
+                static::copyUrl(),
+                EditAction::make()->iconButton()->tooltip('Edit details'),
+                static::delete()->iconButton()->tooltip('Delete'),
             ])
             ->toolbarActions([static::bulkDelete()]);
+    }
+
+    /** Copies the file's full URL in the browser; nothing goes to the server. */
+    public static function copyUrl(): Action
+    {
+        return Action::make('copyUrl')->label('Copy URL')->icon('heroicon-o-clipboard-document')->color('gray')->iconButton()->tooltip('Copy URL')
+            ->alpineClickHandler(fn (Media $record) => 'window.navigator.clipboard.writeText('.Js::from(url($record->url)).'); $tooltip(\'URL copied\', { theme: $store.theme, timeout: 1500 })');
     }
 
     /** Bulk delete with the same guard: files in use are skipped and listed, the rest are removed. */
