@@ -8,7 +8,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(StructureSeeder::class);
+        $this->call([StructureSeeder::class, CmsSeeder::class]);
 
         if (app()->environment('local')) {
             $this->call(DemoSeeder::class);

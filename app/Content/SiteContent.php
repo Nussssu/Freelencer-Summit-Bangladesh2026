@@ -2,16 +2,18 @@
 
 namespace App\Content;
 
+use App\Support\Settings;
+
 /**
- * Content shared by every page (header, menu, footer). Arrays today; an admin
- * panel can swap each method for an Eloquent query with the same shape.
+ * Content shared by every page (header, menu, footer). Each list is editable in the CMS
+ * (Settings › Header, footer & email); the arrays below are the defaults until it is saved.
  */
 class SiteContent
 {
     /** The 16 navigation items from the client brief, in brief order. */
     public function navigation(): array
     {
-        return [
+        return Settings::get('navigation', [
             ['label' => 'Home', 'href' => '/', 'group' => 'summit'],
             ['label' => 'About Summit', 'href' => '/about', 'group' => 'summit'],
             ['label' => 'District Summits', 'href' => '/district-roadshows', 'group' => 'journey'],
@@ -28,7 +30,7 @@ class SiteContent
             ['label' => 'Media Gallery', 'href' => '/media', 'group' => 'media'],
             ['label' => 'Partners', 'href' => '/partners', 'group' => 'media'],
             ['label' => 'Contact', 'href' => '/contact', 'group' => 'media'],
-        ];
+        ]);
     }
 
     public function navGroups(): array
@@ -44,19 +46,19 @@ class SiteContent
     /** Inline header links (subset; National Journey is a page, not a nav item). */
     public function headerLinks(): array
     {
-        return [
+        return Settings::get('headerLinks', [
             ['label' => 'About Summit', 'href' => '/about'],
             ['label' => 'National Journey', 'href' => '/national-journey'],
             ['label' => 'Agenda', 'href' => '/agenda'],
             ['label' => 'Speakers & Experts', 'href' => '/speakers'],
             ['label' => 'Freelancer Awards', 'href' => '/awards'],
-        ];
+        ]);
     }
 
     /** Five separate registration journeys + two secondary CTAs (brief §20). */
     public function ctas(): array
     {
-        return [
+        return Settings::get('ctas', [
             'primary' => [
                 ['id' => 'register', 'label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'],
                 ['id' => 'nominate', 'label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'outline'],
@@ -68,48 +70,48 @@ class SiteContent
                 ['id' => 'agenda', 'label' => 'Explore Agenda', 'href' => '/agenda', 'tone' => 'ghost'],
                 ['id' => 'speakers', 'label' => 'Meet the Speakers', 'href' => '/speakers', 'tone' => 'ghost'],
             ],
-        ];
+        ]);
     }
 
     public function organisers(): array
     {
-        return [
+        return Settings::get('organisers', [
             ['short' => 'BACCO', 'name' => 'Bangladesh Association of Contact Center & Outsourcing', 'role' => 'Primary organiser', 'logo' => '/media/organisers/bacco.png'],
             ['short' => 'DoICT', 'name' => 'Department of Information and Communication Technology', 'role' => 'Primary organiser', 'logo' => '/media/organisers/doict.png'],
-        ];
+        ]);
     }
 
     /** One contact per journey; addresses arrive with the client's content inputs (brief §21). */
     public function contacts(): array
     {
-        return [
+        return Settings::get('contacts', [
             ['label' => 'Summit registration', 'value' => null],
             ['label' => 'Awards & nominations', 'value' => null],
             ['label' => 'Sponsorship', 'value' => null],
             ['label' => 'Exhibition', 'value' => null],
             ['label' => 'BACCO Freelancer Forum', 'value' => null],
             ['label' => 'Media & press', 'value' => null],
-        ];
+        ]);
     }
 
     public function legal(): array
     {
-        return [
+        return Settings::get('legal', [
             ['label' => 'Privacy Policy', 'href' => '/privacy-policy'],
             ['label' => 'Terms', 'href' => '/terms'],
             ['label' => 'Sitemap', 'href' => '/sitemap.xml'],
-        ];
+        ]);
     }
 
     /** Footer "important links": the pages people look for first. */
     public function importantLinks(): array
     {
-        return [
+        return Settings::get('importantLinks', [
             ['label' => 'National Journey', 'href' => '/national-journey'],
             ['label' => 'Divisional Summits', 'href' => '/divisional-summits'],
             ['label' => 'Award Categories', 'href' => '/awards/categories'],
             ['label' => 'Sponsors', 'href' => '/sponsors'],
             ['label' => 'Success Stories', 'href' => '/success-stories'],
-        ];
+        ]);
     }
 }

@@ -4,14 +4,18 @@ import { computed } from 'vue';
 import { useShared } from '@/composables/useShared';
 
 const props = defineProps<{ title: string; description: string; path: string; image?: string; robots?: string }>(); // robots: e.g. 'noindex' on thank-you pages
-const { site } = useShared();
+const { site, seo } = useShared();
+// Admin-set SEO (CMS › Pages & SEO) wins over the coded values; blank CMS fields fall back.
+const title = computed(() => seo.value?.title ?? props.title);
+const description = computed(() => seo.value?.description ?? props.description);
 const url = computed(() => site.value.url + props.path);
-const image = computed(() => site.value.url + (props.image ?? '/og-image.png'));
+const image = computed(() => site.value.url + (seo.value?.image ?? props.image ?? '/og-image.png'));
 </script>
 
 <template>
     <Head :title="title">
         <meta head-key="description" name="description" :content="description" />
+        <meta v-if="seo?.keywords" head-key="keywords" name="keywords" :content="seo.keywords" />
         <link head-key="canonical" rel="canonical" :href="url" />
         <meta v-if="robots" head-key="robots" name="robots" :content="robots" />
         <meta head-key="og:type" property="og:type" content="website" />

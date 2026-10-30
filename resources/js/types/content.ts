@@ -51,6 +51,7 @@ export interface SharedProps {
     locale: 'en' | 'bn';
     summit: Summit;
     site: SiteData;
+    seo: { title?: string; description?: string; keywords?: string; image?: string } | null;
     flash: { success: string | null };
     errors: Record<string, string>;
     [key: string]: unknown;

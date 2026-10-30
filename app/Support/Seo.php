@@ -2,9 +2,32 @@
 
 namespace App\Support;
 
+use App\Models\Page;
+
 /** schema.org JSON-LD for inner pages; controllers pass the result as view data `jsonLd`. */
 class Seo
 {
+    /**
+     * CMS SEO for the current route (Pages & SEO), only the fields an admin filled in; SeoHead prefers these
+     * over the page's coded title and description.
+     *
+     * @return array{title?: string, description?: string, keywords?: string, image?: string}|null
+     */
+    public static function overrides(?string $uri): ?array
+    {
+        if ($uri === null) {
+            return null;
+        }
+        $page = rescue(fn () => Page::query()->where('slug', $uri === '/' ? '/' : '/'.$uri)->first(), report: false);
+
+        return $page ? array_filter([
+            'title' => $page->meta_title,
+            'description' => $page->meta_description,
+            'keywords' => $page->keywords,
+            'image' => $page->og_image,
+        ]) ?: null : null;
+    }
+
     /** @param array<string, string> $crumbs label => path, home first */
     public static function breadcrumbs(array $crumbs): array
     {

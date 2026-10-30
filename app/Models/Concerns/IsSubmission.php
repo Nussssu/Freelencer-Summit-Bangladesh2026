@@ -2,6 +2,7 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\Lead;
 use App\Support\ReferenceNumber;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ trait IsSubmission
         static::creating(function (self $model) {
             $model->reference ??= ReferenceNumber::next(static::REF_PREFIX);
         });
+        static::created(fn (self $model) => Lead::capture($model));
     }
 
     public function initializeIsSubmission(): void

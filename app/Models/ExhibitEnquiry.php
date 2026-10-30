@@ -15,4 +15,9 @@ class ExhibitEnquiry extends Model
     {
         return ['utm' => 'array'];
     }
+
+    protected static function booted(): void
+    {
+        static::created(fn (self $m) => Lead::capture($m));
+    }
 }

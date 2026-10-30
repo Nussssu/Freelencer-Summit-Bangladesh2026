@@ -48,6 +48,16 @@ return [
             'report' => false,
         ],
 
+        // Media Library: the site's existing public/media folder, so library URLs are the same /media/... paths.
+        'media' => [
+            'driver' => 'local',
+            'root' => public_path('media'),
+            'url' => '/media',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

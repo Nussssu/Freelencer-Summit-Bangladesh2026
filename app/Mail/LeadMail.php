@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Mail;
+
+use App\Models\EmailTemplate;
+use App\Models\Lead;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
+
+/** A lead email built from an admin-edited template (admin summary or user confirmation). */
+class LeadMail extends Mailable implements ShouldQueue
+{
+    use Queueable, SerializesModels;
+
+    public function __construct(public Lead $lead, public EmailTemplate $template) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(subject: $this->fill($this->template->subject, escape: false));
+    }
+
+    public function content(): Content
+    {
+        return new Content(view: 'mail.lead', with: [
+            'heading' => $this->fill($this->template->heading, escape: false),
+            // Markdown first (admin-authored), then placeholders with escaped visitor input, so submitted text can't inject HTML.
+            'body' => new HtmlString($this->fill(Str::markdown($this->template->body, ['html_input' => 'strip']))),
+        ]);
+    }
+
+    private function fill(string $text, bool $escape = true): string
+    {
+        $e = fn ($v) => $escape ? e((string) $v) : (string) $v;
+        $values = [
+            '{name}' => $e($this->lead->name ?? 'there'),
+            '{email}' => $e($this->lead->email),
+            '{type}' => $e($this->lead->typeLabel()),
+            '{reference}' => $e($this->lead->reference ?? '#'.$this->lead->id),
+            '{site}' => $e(config('summit.name')),
+            '{fields}' => $escape ? $this->fieldsTable() : '',
+        ];
+
+        return strtr($text, $values);
+    }
+
+    private function fieldsTable(): string
+    {
+        $rows = collect($this->lead->data)
+            ->reject(fn ($v) => $v === null || $v === '')
+            ->map(fn ($v, $k) => '<tr><td style="padding:6px 12px 6px 0;color:#3f4b44;vertical-align:top;white-space:nowrap">'.e(Str::headline($k)).'</td><td style="padding:6px 0">'.e(is_scalar($v) ? (string) $v : json_encode($v)).'</td></tr>')
+            ->implode('');
+
+        return '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-top:1px solid rgba(7,20,17,.1);font-size:14px">'.$rows.'</table>';
+    }
+}

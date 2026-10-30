@@ -7,6 +7,7 @@ export function useShared() {
     return {
         summit: computed(() => page.props.summit),
         site: computed(() => page.props.site),
+        seo: computed(() => page.props.seo),
         locale: computed(() => page.props.locale),
     };
 }
