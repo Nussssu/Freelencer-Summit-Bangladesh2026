@@ -13,7 +13,7 @@ class ExhibitEnquiry extends Model
 
     protected function casts(): array
     {
-        return ['utm' => 'array'];
+        return ['utm' => 'array', 'phone' => 'encrypted'];
     }
 
     protected static function booted(): void

@@ -3,9 +3,15 @@
 namespace App\Providers;
 
 use App\Content\HomeContent;
+use App\Models\AuditLog;
+use App\Models\User;
 use App\Support\Settings;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -31,5 +37,19 @@ class AppServiceProvider extends ServiceProvider
         // SMTP saved in the CMS (Settings > Email) overrides .env, applied only when mail is actually used.
         $this->app->afterResolving('mail.manager', fn () => Settings::applyMail());
         Queue::before(fn () => Settings::flush()); // workers are long-lived; read settings fresh per job
+
+        Gate::before(fn (User $user) => $user->isSuperAdmin() ?: null);
+
+        // Audit log: staff CRUD and sign-ins. last_login_at is a quiet write (no updated_at, no audit row of its own).
+        foreach (['created' => 'Created', 'updated' => 'Updated', 'deleted' => 'Deleted'] as $event => $action) {
+            Event::listen("eloquent.{$event}: *", fn (string $name, array $payload) => AuditLog::forModel($action, $payload[0]));
+        }
+        Event::listen(function (Login $e) {
+            if ($e->user instanceof User) {
+                User::withoutTimestamps(fn () => $e->user->forceFill(['last_login_at' => now()])->saveQuietly());
+                AuditLog::record('Logged in', 'Auth', "{$e->user->email} signed in", $e->user);
+            }
+        });
+        Event::listen(fn (Logout $e) => $e->user && AuditLog::record('Logged out', 'Auth', "{$e->user->email} signed out", $e->user));
     }
 }

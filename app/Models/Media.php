@@ -68,7 +68,7 @@ class Media extends Model
     /**
      * Why this file can't be deleted yet. Built-in assets (anything outside uploads/) are referenced from code,
      * sometimes by assembled paths a text search can't find, so they stay protected.
-     * shortcut: built-in assets are all protected; once page content moves into CMS blocks (phase 2), check real references instead.
+     * shortcut: built-in assets stay protected even when unreferenced, because code assembles some paths (sponsor logos, gallery tiles); drop the rule once all content is CMS-only.
      *
      * @return list<string>
      */
@@ -80,6 +80,11 @@ class Media extends Model
         }
         if (DB::table('pages')->where('og_image', $this->url)->exists()) {
             $hits[] = 'Page SEO';
+        }
+        $pages = Page::query()->whereNotNull('sections')->get(['title', 'sections'])
+            ->filter(fn (Page $p) => str_contains(json_encode($p->sections, JSON_UNESCAPED_SLASHES), $this->url));
+        if ($pages->isNotEmpty()) {
+            $hits[] = 'Page content: '.$pages->pluck('title')->implode(', ');
         }
 
         return $hits;

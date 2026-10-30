@@ -25,7 +25,7 @@ class LeadsTable
                 TextColumn::make('type')->badge()->formatStateUsing(fn (string $state) => Str::headline($state))->color('primary'),
                 TextColumn::make('name')->searchable()->weight('medium')->placeholder('—'),
                 TextColumn::make('email')->searchable()->copyable()->placeholder('—'),
-                TextColumn::make('phone')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('phone')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('reference')->searchable()->fontFamily('mono')->placeholder('—'),
                 TextColumn::make('status')->badge()->formatStateUsing(fn (string $state) => Lead::STATUSES[$state] ?? $state)->color(fn (string $state) => self::COLORS[$state] ?? 'gray'),
             ])

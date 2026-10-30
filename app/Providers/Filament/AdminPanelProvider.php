@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Support\Settings;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,11 +28,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->passwordReset() // also the "set your password" page for invited users
             ->brandName('Freelancer Summit CMS')
+            ->brandLogo(fn () => ($logo = Settings::identity()['logo']) ? url($logo) : null)
+            ->favicon(fn () => Settings::identity()['favicon'] ?? '/favicon.svg')
             ->colors([
                 'primary' => Color::hex('#087f8c'), // site teal (--green)
             ])
-            ->navigationGroups(['Content', 'Leads', 'Settings'])
+            ->navigationGroups(['Content', 'Leads', 'Settings', 'Access'])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

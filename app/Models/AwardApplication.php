@@ -26,6 +26,11 @@ class AwardApplication extends Model
         return $this->belongsTo(AwardCategory::class, 'award_category_id');
     }
 
+    public function district(): BelongsTo
+    {
+        return $this->belongsTo(District::class);
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(AwardApplicationFile::class);

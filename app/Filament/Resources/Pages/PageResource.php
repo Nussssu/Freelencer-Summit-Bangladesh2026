@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Pages;
 
+use App\Filament\Concerns\ChecksModulePermission;
 use App\Filament\Resources\Pages\Pages\EditPage;
 use App\Filament\Resources\Pages\Pages\ListPages;
 use App\Filament\Resources\Pages\Schemas\PageForm;
@@ -14,9 +15,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
-/** Phase 1: SEO per routed page. Pages are defined by the site's routes, so they are edited here, not created. */
+/** Content blocks and SEO per routed page. Pages are defined by the site's routes, so they are edited here, not created. */
 class PageResource extends Resource
 {
+    use ChecksModulePermission;
+
+    protected static string $module = 'pages';
+
     protected static ?string $model = Page::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;

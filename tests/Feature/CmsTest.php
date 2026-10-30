@@ -8,11 +8,13 @@ use App\Models\Lead;
 use App\Models\Media;
 use App\Models\Page;
 use App\Models\User;
+use App\Support\Access;
 use App\Support\Settings;
 use Database\Seeders\CmsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class CmsTest extends TestCase
@@ -39,12 +41,16 @@ class CmsTest extends TestCase
     {
         $this->get('/admin')->assertRedirect('/admin/login');
 
-        $this->actingAs(User::factory()->create());
-        foreach (['/admin', '/admin/media', '/admin/media?display=list', '/admin/leads', '/admin/pages', '/admin/email-templates', '/admin/site-settings'] as $url) {
+        $this->actingAs(User::factory()->create()->assignRole(Access::SUPER_ADMIN));
+        foreach (['/admin', '/admin/media', '/admin/media?display=list', '/admin/leads', '/admin/pages', '/admin/email-templates', '/admin/site-settings',
+            '/admin/users', '/admin/users/create', '/admin/roles', '/admin/audit-logs', '/admin/submissions/summit-registrations',
+            '/admin/submissions/award-nominations', '/admin/submissions/exhibition-inquiries', '/admin/submissions/booth-applications'] as $url) {
             $this->get($url)->assertOk();
         }
         $this->get('/admin/media/'.Media::first()->id.'/edit')->assertOk();
         $this->get('/admin/pages/'.Page::first()->id.'/edit')->assertOk();
+        $this->get('/admin/pages/'.Page::where('slug', '/about')->value('id').'/edit')->assertOk();
+        $this->get('/admin/roles/'.Role::findByName('Manager')->id.'/edit')->assertOk();
     }
 
     public function test_seeder_imports_the_media_folder_and_one_page_per_route(): void
@@ -52,7 +58,7 @@ class CmsTest extends TestCase
         $this->assertTrue(Media::where('path', 'photos/gallery-01.jpg')->exists());
         $this->assertSame('/media/photos/gallery-01.jpg', Media::where('path', 'photos/gallery-01.jpg')->first()->url);
         $this->assertTrue(Page::where('slug', '/national-journey')->exists());
-        $this->assertSame(2, EmailTemplate::count());
+        $this->assertSame(3, EmailTemplate::count());
     }
 
     public function test_form_submission_becomes_a_lead_and_queues_both_emails(): void
@@ -114,7 +120,7 @@ class CmsTest extends TestCase
 
     public function test_built_in_and_referenced_media_cannot_be_deleted(): void
     {
-        $this->assertSame(['Built-in site asset'], Media::where('path', 'photos/gallery-01.jpg')->first()->usages());
+        $this->assertSame(['Built-in site asset', 'Page content: Home'], Media::where('path', 'photos/gallery-01.jpg')->first()->usages());
 
         $upload = Media::create(['path' => 'uploads/2026/10/test.jpg', 'name' => 'test', 'mime' => 'image/jpeg']);
         $this->assertSame([], $upload->usages());

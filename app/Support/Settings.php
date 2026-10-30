@@ -42,6 +42,25 @@ class Settings
         }
     }
 
+    /** Site name, tagline, logos, favicon and contact details, with the config values as defaults. */
+    public static function identity(): array
+    {
+        $saved = array_filter(static::get('identity', []), fn ($v) => $v !== null && $v !== '');
+
+        return $saved + [
+            'site_name' => config('summit.name'), 'tagline' => config('summit.tagline'),
+            'logo' => null, 'logo_dark' => null, 'favicon' => null, 'phone' => null, 'email' => null, 'address' => null,
+        ];
+    }
+
+    /** reCAPTCHA settings when protection is on and both keys are set, else null (forms unprotected). */
+    public static function recaptcha(): ?array
+    {
+        $r = static::get('recaptcha', []);
+
+        return ! empty($r['enabled']) && ! empty($r['site_key']) && ! empty($r['secret_key']) ? $r : null;
+    }
+
     /** Point the mailer at the SMTP details saved in the CMS, when there are any; .env stays the fallback. */
     public static function applyMail(): void
     {

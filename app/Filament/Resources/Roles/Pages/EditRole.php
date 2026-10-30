@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Filament\Resources\Roles\Pages;
+
+use App\Filament\Resources\Roles\RoleResource;
+use Filament\Resources\Pages\EditRecord;
+use Spatie\Permission\PermissionRegistrar;
+
+class EditRole extends EditRecord
+{
+    protected static string $resource = RoleResource::class;
+
+    // Permission checks are cached; a sync through the form bypasses the package's own cache reset.
+    protected function afterSave(): void
+    {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+}

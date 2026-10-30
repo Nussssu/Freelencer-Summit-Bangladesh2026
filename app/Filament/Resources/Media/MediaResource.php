@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Media;
 
+use App\Filament\Concerns\ChecksModulePermission;
 use App\Filament\Resources\Media\Pages\EditMedia;
 use App\Filament\Resources\Media\Pages\ListMedia;
 use App\Filament\Resources\Media\Schemas\MediaForm;
@@ -16,6 +17,10 @@ use UnitEnum;
 
 class MediaResource extends Resource
 {
+    use ChecksModulePermission;
+
+    protected static string $module = 'media';
+
     protected static ?string $model = Media::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;

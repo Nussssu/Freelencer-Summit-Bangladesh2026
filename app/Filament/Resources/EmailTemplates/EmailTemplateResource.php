@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmailTemplates;
 
+use App\Filament\Concerns\ChecksModulePermission;
 use App\Filament\Resources\EmailTemplates\Pages\EditEmailTemplate;
 use App\Filament\Resources\EmailTemplates\Pages\ListEmailTemplates;
 use App\Filament\Resources\EmailTemplates\Schemas\EmailTemplateForm;
@@ -18,6 +19,10 @@ use UnitEnum;
 /** The two lead emails (admin summary, user confirmation): editable, never created or deleted. */
 class EmailTemplateResource extends Resource
 {
+    use ChecksModulePermission;
+
+    protected static string $module = 'email_templates';
+
     protected static ?string $model = EmailTemplate::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;

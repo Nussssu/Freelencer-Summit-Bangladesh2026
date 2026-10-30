@@ -16,12 +16,15 @@ class Lead extends Model
 
     public const STATUSES = ['new' => 'New', 'contacted' => 'Contacted', 'closed' => 'Closed', 'spam' => 'Spam'];
 
+    /** Lead types confirmed with the "Registration confirmed" template instead of "Enquiry received". */
+    private const REGISTRATIONS = ['summit_registration', 'program_registration'];
+
     // Never copied into the lead or its emails.
     private const HIDDEN = ['id', 'ip_hash', 'utm', 'consent_version', 'deleted_at', 'updated_at', 'created_at', 'password'];
 
     protected function casts(): array
     {
-        return ['data' => 'array'];
+        return ['data' => 'encrypted:array', 'phone' => 'encrypted']; // source tables encrypt phones; the copy must too
     }
 
     public function submittable(): MorphTo
@@ -61,8 +64,10 @@ class Lead extends Model
         if ($admins && $templates->has('admin_notification')) {
             Mail::to($admins)->queue(new LeadMail($this, $templates['admin_notification']));
         }
-        if ($this->email && $templates->has('user_confirmation')) {
-            Mail::to($this->email)->queue(new LeadMail($this, $templates['user_confirmation']));
+        $confirmation = in_array($this->type, self::REGISTRATIONS, true) && $templates->has('registration_confirmed')
+            ? $templates['registration_confirmed'] : $templates->get('user_confirmation');
+        if ($this->email && $confirmation) {
+            Mail::to($this->email)->queue(new LeadMail($this, $confirmation));
         }
     }
 }

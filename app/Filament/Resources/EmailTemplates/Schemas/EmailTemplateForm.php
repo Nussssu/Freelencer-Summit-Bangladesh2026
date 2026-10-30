@@ -15,9 +15,11 @@ class EmailTemplateForm
     {
         return $schema->components([
             Section::make()->columnSpanFull()->schema([
-                Toggle::make('enabled')->label('Send this email')->helperText(fn (?EmailTemplate $record) => $record?->key === 'admin_notification'
-                    ? 'Goes to the admin addresses in Settings › Email.'
-                    : 'Goes to the person who submitted the form.'),
+                Toggle::make('enabled')->label('Send this email')->helperText(fn (?EmailTemplate $record) => match ($record?->key) {
+                    'admin_notification' => 'Goes to the admin addresses in Settings › Email.',
+                    'registration_confirmed' => 'Goes to people who register (summit, programmes). Other forms get "Enquiry received".',
+                    default => 'Goes to the person who submitted the form.',
+                }),
                 TextInput::make('subject')->required()->maxLength(255),
                 TextInput::make('heading')->required()->maxLength(255)->helperText('The large title at the top of the email.'),
                 MarkdownEditor::make('body')->required()->toolbarButtons([['bold', 'italic', 'link'], ['bulletList', 'orderedList'], ['undo', 'redo']])

@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Media\Tables;
 
+use App\Filament\Resources\Media\MediaResource;
 use App\Models\Media;
+use Filament\Actions\BulkAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
@@ -11,6 +13,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Number;
 
 class MediaTable
@@ -50,7 +53,25 @@ class MediaTable
             ->recordActions([
                 EditAction::make(),
                 static::delete(),
-            ]);
+            ])
+            ->toolbarActions([static::bulkDelete()]);
+    }
+
+    /** Bulk delete with the same guard: files in use are skipped and listed, the rest are removed. */
+    public static function bulkDelete(): BulkAction
+    {
+        return BulkAction::make('delete')->label('Delete selected')->icon('heroicon-o-trash')->color('danger')
+            ->requiresConfirmation()->modalDescription('Files the site still uses are skipped.')
+            ->authorize(fn () => MediaResource::can('deleteAny'))
+            ->action(function (Collection $records) {
+                [$used, $free] = $records->partition(fn (Media $m) => $m->usages());
+                $free->each->delete();
+                $note = Notification::make()->title("Deleted {$free->count()} file(s)");
+                $used->isEmpty()
+                    ? $note->success()->send()
+                    : $note->warning()->body('Kept because they are in use: '.$used->pluck('name')->take(10)->implode(', ').($used->count() > 10 ? '…' : ''))->persistent()->send();
+            })
+            ->deselectRecordsAfterCompletion();
     }
 
     /** Delete that refuses files the live site still uses (see Media::usages). */

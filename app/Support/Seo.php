@@ -19,13 +19,16 @@ class Seo
             return null;
         }
         $page = rescue(fn () => Page::query()->where('slug', $uri === '/' ? '/' : '/'.$uri)->first(), report: false);
+        // Settings › SEO defaults: title and description for the home page, share image for every page.
+        $defaults = Settings::get('seo', []);
+        $home = $uri === '/';
 
-        return $page ? array_filter([
-            'title' => $page->meta_title,
-            'description' => $page->meta_description,
-            'keywords' => $page->keywords,
-            'image' => $page->og_image,
-        ]) ?: null : null;
+        return array_filter([
+            'title' => $page?->meta_title ?: ($home ? ($defaults['title'] ?? null) : null),
+            'description' => $page?->meta_description ?: ($home ? ($defaults['description'] ?? null) : null),
+            'keywords' => $page?->keywords,
+            'image' => $page?->og_image ?: ($defaults['og_image'] ?? null),
+        ]) ?: null;
     }
 
     /** @param array<string, string> $crumbs label => path, home first */

@@ -34,10 +34,12 @@ class ListMedia extends ListRecords
                 ->tooltip('Add files copied into public/media by hand')
                 ->icon(Heroicon::OutlinedArrowPath)
                 ->color('gray')
+                ->authorize(fn () => MediaResource::can('create'))
                 ->action(fn () => Notification::make()->success()->title(Media::syncDisk().' new file(s) added')->send()),
             Action::make('upload')
                 ->label('Upload files')
                 ->icon(Heroicon::OutlinedArrowUpTray)
+                ->authorize(fn () => MediaResource::can('create'))
                 ->modalWidth('2xl')
                 ->schema([
                     // Drag-and-drop zone; files go to public/media/uploads/{year}/{month}.

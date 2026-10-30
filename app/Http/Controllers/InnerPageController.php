@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Content\InnerPageContent;
 use App\Content\PageContent;
+use App\Support\PageBlocks;
 use App\Support\Seo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,7 +27,7 @@ class InnerPageController extends Controller
                 'crumbs' => [['label' => $title]],
                 'hero' => array_diff_key($hero, ['component' => 0]),
             ],
-            'content' => app()->call([app(InnerPageContent::class), lcfirst($component)]),
+            'content' => PageBlocks::apply($path, PageBlocks::coded($path)),
         ])->withViewData(['jsonLd' => Seo::graph(Seo::breadcrumbs(['Home' => '/', $title => $path]))]);
     }
 }

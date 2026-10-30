@@ -16,12 +16,13 @@ class HandleInertiaRequests extends Middleware
     {
         $site = app(SiteContent::class);
         $summit = config('summit');
+        $identity = Settings::identity();
 
         return [
             ...parent::share($request),
             'locale' => app()->getLocale(),
             'summit' => [
-                'name' => $summit['name'],
+                'name' => $identity['site_name'],
                 'edition' => $summit['edition'],
                 'startsAt' => $summit['starts_at'],
                 'dateConfirmed' => $summit['date_confirmed'],
@@ -30,7 +31,7 @@ class HandleInertiaRequests extends Middleware
                 'divisions' => $summit['divisions'],
                 'districts' => $summit['districts'],
                 'campuses' => $summit['campuses'],
-                'tagline' => $summit['tagline'],
+                'tagline' => $identity['tagline'],
                 'taglineFinal' => $summit['tagline_final'],
                 'hashtag' => $summit['hashtag'],
                 'social' => Settings::get('social', $summit['social']),

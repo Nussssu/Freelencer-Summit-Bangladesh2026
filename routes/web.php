@@ -23,7 +23,7 @@ foreach (array_diff(array_keys(PageContent::PAGES), array_keys(InnerPageContent:
 }
 
 Route::post('/exhibition/enquiries', [ExhibitEnquiryController::class, 'store'])
-    ->middleware('throttle:5,1')
+    ->middleware(['throttle:5,1', 'recaptcha'])
     ->name('exhibition.enquiries.store');
 
 Route::post('/locale', function (Request $request) {
@@ -41,5 +41,5 @@ Route::get('/robots.txt', [SeoController::class, 'robots']);
 // Inner-page kit preview, local only (docs/inner-design-kit.md).
 if (app()->isLocal()) {
     Route::get('/_kit', [KitController::class, 'show']);
-    Route::post('/_kit/form', [KitController::class, 'submit'])->middleware(['honeypot', 'throttle:forms']);
+    Route::post('/_kit/form', [KitController::class, 'submit'])->middleware(['honeypot', 'throttle:forms', 'recaptcha']);
 }

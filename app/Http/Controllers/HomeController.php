@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Content\HomeContent;
 use App\Content\SiteContent;
+use App\Support\PageBlocks;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -11,7 +12,7 @@ class HomeController extends Controller
 {
     public function __invoke(HomeContent $content, SiteContent $site): Response
     {
-        return Inertia::render('Home', ['content' => $content->all()])
+        return Inertia::render('Home', ['content' => PageBlocks::apply('/', $content->all())])
             ->withViewData(['jsonLd' => $this->jsonLd($site)]);
     }
 
