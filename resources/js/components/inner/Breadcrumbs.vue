@@ -10,12 +10,12 @@ const { t } = useI18n();
 
 <template>
     <nav :aria-label="t('inner.crumbs.label')">
-        <ol class="t-label flex flex-wrap items-center gap-x-2 gap-y-1">
-            <li><Link href="/" class="link-u">{{ t('inner.crumbs.home') }}</Link></li>
+        <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-ink-2">
+            <li><Link href="/" class="transition-colors duration-300 hover:text-green">{{ t('inner.crumbs.home') }}</Link></li>
             <li v-for="(c, i) in items" :key="c.label" class="flex items-center gap-2">
                 <span aria-hidden="true" class="opacity-50">/</span>
-                <Link v-if="c.href && i < items.length - 1" :href="c.href" class="link-u">{{ c.label }}</Link>
-                <span v-else aria-current="page" class="opacity-75">{{ c.label }}</span>
+                <Link v-if="c.href && i < items.length - 1" :href="c.href" class="transition-colors duration-300 hover:text-green">{{ c.label }}</Link>
+                <span v-else aria-current="page" class="text-night">{{ c.label }}</span>
             </li>
         </ol>
     </nav>

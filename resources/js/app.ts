@@ -1,4 +1,5 @@
 import '../css/app.css';
+import '../css/inner.css';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { createSSRApp, h } from 'vue';
 import { makeI18n, type Locale } from './i18n';

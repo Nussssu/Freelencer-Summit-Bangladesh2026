@@ -19,8 +19,7 @@ useReveal(root);
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p class="t-label text-green">{{ t('sections.news') }}</p>
-                    <SplitHeading id="nw-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
+                    <SplitHeading id="nw-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2" />
                 </div>
                 <Link href="/news" class="link-u t-label inline-flex min-h-11 items-center gap-2">{{ t('sections.allNews') }} <Icon name="arrow" :size="16" /></Link>
             </div>

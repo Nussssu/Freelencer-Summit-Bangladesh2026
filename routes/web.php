@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InnerPageController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\SubmissionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,18 @@ foreach (array_keys(InnerPageContent::PAGES) as $path) {
 foreach (array_diff(array_keys(PageContent::PAGES), array_keys(InnerPageContent::PAGES)) as $path) {
     Route::get($path, PageController::class)->where('slug', '[a-z0-9-]+');
 }
+
+// Brief §8: one journey per form, each with its own record, reference number and confirmation.
+Route::middleware(['honeypot', 'throttle:forms'])->controller(SubmissionController::class)->group(function () {
+    Route::post('/register', 'register')->name('submit.register');
+    Route::post('/awards/nominate', 'nominate')->name('submit.nominate');
+    Route::post('/sponsorship-opportunity', 'sponsor')->name('submit.sponsor');
+    Route::post('/exhibition/apply', 'exhibit')->name('submit.exhibit');
+    Route::post('/forum/register', 'forum')->name('submit.forum');
+    Route::post('/contact', 'contact')->name('submit.contact');
+    Route::post('/campus-programs/ambassadors', 'ambassador')->name('submit.ambassador');
+    Route::post('/programs/{type}/{slug}/register', 'program')->whereIn('type', ['divisional-summit', 'district-roadshow', 'campus-program'])->name('submit.program');
+});
 
 Route::post('/exhibition/enquiries', [ExhibitEnquiryController::class, 'store'])
     ->middleware(['throttle:5,1', 'recaptcha'])

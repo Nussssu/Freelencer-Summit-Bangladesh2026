@@ -36,8 +36,8 @@ const last = () => step.value >= total() - 1;
         </div>
         <slot />
         <div class="flex flex-wrap items-center gap-3 border-t border-line-light pt-6">
-            <button v-if="step > 0" type="button" class="btn btn-ghost [clip-path:none]" @click="step--">{{ t('inner.form.back') }}</button>
-            <button type="submit" class="btn btn-green ml-auto [clip-path:none]" :disabled="form.processing">
+            <button v-if="step > 0" type="button" class="in-btn is-ghost" @click="step--">{{ t('inner.form.back') }}</button>
+            <button type="submit" class="in-btn ml-auto" :disabled="form.processing">
                 {{ !last() ? t('inner.form.continue') : form.processing ? t('inner.form.sending') : (submitLabel ?? t('inner.form.submit')) }}
             </button>
         </div>

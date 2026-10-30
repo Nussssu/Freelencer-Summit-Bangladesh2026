@@ -26,8 +26,13 @@ class PageBlocks
             return app(HomeContent::class)->all();
         }
         $page = InnerPageContent::PAGES[$slug] ?? null;
+        if (! $page) {
+            return null;
+        }
 
-        return $page ? app()->call([app(InnerPageContent::class), lcfirst($page['component'])]) : null;
+        [$class, $method] = $page['content'] ?? [InnerPageContent::class, lcfirst($page['component'])];
+
+        return app()->call([app($class), $method]);
     }
 
     /** @return array<string, mixed> block key => coded value, for the editor and the seeder */

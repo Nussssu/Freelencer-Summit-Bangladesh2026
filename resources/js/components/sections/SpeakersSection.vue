@@ -29,8 +29,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div>
-                    <p class="t-label text-green">{{ t('sections.speakers') }}</p>
-                    <SplitHeading id="sp-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
+                    <SplitHeading id="sp-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2" />
                 </div>
                 <CtaLink :href="cta.href" tone="ghost">{{ cta.label }}</CtaLink>
             </div>

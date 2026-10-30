@@ -15,8 +15,7 @@ useReveal(root);
 <template>
     <section ref="root" data-section="13" aria-labelledby="pt-title" class="on-light flow section relative z-[1]">
         <div class="container-site">
-            <p class="t-label text-center text-green">{{ t('sections.partners') }}<span v-if="partners.provisional"> · {{ t('common.provisional') }}</span></p>
-            <SplitHeading id="pt-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3 text-center" />
+            <SplitHeading id="pt-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 text-center" />
             <div class="mt-14 space-y-14">
                 <div v-for="tier in partners.tiers.filter((x) => x.sponsors.length)" :key="tier.name" data-reveal="fade">
                     <h3 class="t-label mx-auto flex max-w-3xl items-center gap-6 text-center text-ink-2 before:h-px before:flex-1 before:bg-line-light after:h-px after:flex-1 after:bg-line-light">{{ tier.name }}</h3>

@@ -2,24 +2,23 @@
 import { computed, ref } from 'vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import AgendaPreview from '@/components/sections/AgendaPreview.vue';
-import AwardsSpotlight from '@/components/sections/AwardsSpotlight.vue';
-import ExpoSponsor from '@/components/sections/ExpoSponsor.vue';
-import FinalCta from '@/components/sections/FinalCta.vue';
-import ForumSection from '@/components/sections/ForumSection.vue';
+import AwardsIntro from '@/components/sections/AwardsIntro.vue';
+import ExpoIntro from '@/components/sections/ExpoIntro.vue';
+import GetInvolved from '@/components/sections/GetInvolved.vue';
+import ForumIntro from '@/components/sections/ForumIntro.vue';
 import MediaGallery from '@/components/sections/MediaGallery.vue';
 import NewsList from '@/components/sections/NewsList.vue';
 import PartnersWall from '@/components/sections/PartnersWall.vue';
-import StoriesSection from '@/components/sections/StoriesSection.vue';
+import StoriesIntro from '@/components/sections/StoriesIntro.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
-import HighlightsSection from '@/components/sections/HighlightsSection.vue';
+import HighlightsGrid from '@/components/sections/HighlightsGrid.vue';
 import JourneySection from '@/components/sections/JourneySection.vue';
 import JourneyCounters from '@/components/sections/journey/JourneyCounters.vue';
-import JourneyDirectory from '@/components/sections/journey/JourneyDirectory.vue';
 import SpeakersSection from '@/components/sections/SpeakersSection.vue';
 import TrustStrip from '@/components/sections/TrustStrip.vue';
 import WhatIsSection from '@/components/sections/WhatIsSection.vue';
 import WhyAttend from '@/components/sections/WhyAttend.vue';
-import { gsap, useGsap } from '@/composables/motion';
+import { gsap, ScrollTrigger, useGsap } from '@/composables/motion';
 import { useShared } from '@/composables/useShared';
 import type { HomeContent } from '@/types/content';
 
@@ -61,6 +60,39 @@ useGsap(page3, (reduced) => {
     );
     gsap.fromTo(el.querySelector('.on-light > .container-site')!.children, { y: 48, opacity: 0.2 }, { y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1, scrollTrigger: { ...st, end: 'top 40%' } });
 });
+
+// Page 5 (exhibition & sponsorship) arrives the same way over the awards intro: the awards block is held as soon as it's
+// fully on screen (its bottom at the bottom) and stays put until the next page has covered it, and the next page paints
+// the site blend so nothing shows through. The next page sits a dwell lower (hidden behind the held block), so the settled
+// trophy gets a moment on screen before anything rises. refreshPriority -1: after the pins above.
+const awardsHold = ref<HTMLElement>();
+const page5 = ref<HTMLElement>();
+useGsap(page5, (reduced) => {
+    const el = page5.value;
+    const held = awardsHold.value;
+    if (reduced || !el || !held) return;
+    const dwell = () => Math.round(innerHeight * 0.6);
+    const setDwell = () => gsap.set(el, { marginTop: dwell() });
+    setDwell();
+    ScrollTrigger.addEventListener('refreshInit', setDwell);
+    ScrollTrigger.create({
+        trigger: held,
+        start: 'bottom bottom',
+        end: () => `+=${dwell() + Math.min(held.offsetHeight, innerHeight)}`,
+        pin: true,
+        pinSpacing: false,
+        invalidateOnRefresh: true,
+        refreshPriority: -1,
+    });
+    const st = { trigger: el, start: 'top bottom', end: 'top top', scrub: true, refreshPriority: -1 };
+    gsap.fromTo(
+        el,
+        { clipPath: 'inset(0% 4% 0% 4% round 2.5rem 2.5rem 0rem 0rem)' },
+        { clipPath: 'inset(0% 0% 0% 0% round 0rem 0rem 0rem 0rem)', ease: 'power2.out', scrollTrigger: { ...st, onLeave: () => gsap.set(el, { clipPath: 'none' }), onEnterBack: () => gsap.set(el, { clipPath: '' }) } },
+    );
+    gsap.fromTo(el.querySelector('.container-site')!.children, { y: 48, opacity: 0.2 }, { y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1, scrollTrigger: { ...st, end: 'top 40%' } });
+    return () => ScrollTrigger.removeEventListener('refreshInit', setDwell);
+});
 </script>
 
 <template>
@@ -77,19 +109,17 @@ useGsap(page3, (reduced) => {
             <JourneyCounters :counters="content.journey.counters" />
         </div>
         <WhyAttend :audiences="content.audiences" :heading="content.headings.why" />
+        <HighlightsGrid :highlights="content.highlights" />
     </div>
-    <div class="on-light flow relative z-[1]">
-        <JourneyDirectory :directory="content.journey.directory" :steps="content.journey.steps" />
-    </div>
-    <HighlightsSection :highlights="content.highlights" :heading="content.headings.highlights" />
     <SpeakersSection :speakers="content.speakers" :heading="content.headings.speakers" />
     <AgendaPreview :agenda="content.agenda" :heading="content.headings.agenda" />
-    <AwardsSpotlight :awards="content.awards" />
-    <ExpoSponsor :exhibition="content.exhibition" :sponsorship="content.sponsorship" :headings="{ exhibition: content.headings.exhibition, sponsorship: content.headings.sponsorship }" />
-    <ForumSection :forum="content.forum" :heading="content.headings.forum" />
-    <StoriesSection :stories="content.stories" :heading="content.headings.stories" />
+    <div ref="awardsHold" class="relative z-0"><AwardsIntro /></div>
+    <!-- Page 5: exhibition & sponsorship, sliding over the held awards intro (as page 2 over the hero) -->
+    <div ref="page5" class="relative z-[2] [background:var(--grad-site)_fixed]"><ExpoIntro /></div>
+    <ForumIntro />
+    <StoriesIntro />
     <PartnersWall :partners="content.partners" :heading="content.headings.partners" />
     <NewsList :news="content.news" :heading="content.headings.news" />
     <MediaGallery :media="content.media" :heading="content.headings.media" />
-    <FinalCta :final-cta="content.finalCta" />
+    <GetInvolved />
 </template>

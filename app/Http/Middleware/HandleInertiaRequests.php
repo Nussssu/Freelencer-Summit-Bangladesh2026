@@ -48,7 +48,10 @@ class HandleInertiaRequests extends Middleware
                 'url' => rtrim(config('app.url'), '/'),
             ],
             'seo' => fn () => Seo::overrides($request->route()?->uri()),
-            'flash' => ['success' => fn () => $request->session()->get('success')],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'submitted' => fn () => $request->session()->get('submitted'),
+            ],
         ];
     }
 }

@@ -2,20 +2,20 @@
 import { useI18n } from 'vue-i18n';
 import type { Tier } from '@/types/inner';
 
-// Sponsorship package card; benefits come from the database and stay marked provisional until final.
-defineProps<{ tier: Tier; rank: number; featured?: boolean }>();
+// Sponsorship package card: tinted, the tier name in Host Grotesk, ticked benefits; marked provisional until final.
+withDefaults(defineProps<{ tier: Tier; rank: number; featured?: boolean; tone?: string }>(), { tone: 'tone-teal' });
 const { t } = useI18n();
 </script>
 
 <template>
-    <article class="card flex h-full flex-col p-6" :class="featured && 'border-green'">
+    <article class="in-card is-washed in-pad h-full" :class="[tone, featured && 'ring-2 ring-[var(--tint)]']">
         <div class="flex items-center justify-between gap-3">
-            <span class="t-label text-ink-2">{{ String(rank).padStart(2, '0') }}</span>
-            <span v-if="tier.provisional" class="t-label text-ink-2">{{ t('common.provisional') }}</span>
+            <span class="in-num text-3xl!">{{ String(rank).padStart(2, '0') }}</span>
+            <span v-if="tier.provisional" class="in-pill">{{ t('common.provisional') }}</span>
         </div>
-        <h3 class="mt-4 font-display text-4xl font-black uppercase" :class="featured && 'text-green'">{{ tier.name }}</h3>
-        <ul v-if="tier.benefits.length" class="mt-5 space-y-2 border-t border-line-light pt-5">
-            <li v-for="b in tier.benefits" :key="b" class="flex gap-3"><span class="mt-2.5 size-1.5 shrink-0 bg-green" aria-hidden="true" />{{ b }}</li>
+        <h3 class="in-h3 mt-5 text-2xl!">{{ tier.name }}</h3>
+        <ul v-if="tier.benefits.length" class="in-ticks mt-5 border-t border-night/8 pt-5 text-ink-2">
+            <li v-for="b in tier.benefits" :key="b">{{ b }}</li>
         </ul>
         <div v-if="$slots.default" class="mt-auto pt-6"><slot /></div>
     </article>

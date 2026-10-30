@@ -8,11 +8,11 @@ onMounted(() => box.value?.focus());
 </script>
 
 <template>
-    <div ref="box" tabindex="-1" role="status" class="card p-6 outline-none md:p-10">
+    <div ref="box" tabindex="-1" role="status" class="in-form outline-none">
         <span class="grid size-12 place-items-center rounded-full bg-green text-paper" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
         </span>
-        <h2 class="mt-6 font-display text-4xl font-black uppercase">{{ title }}</h2>
+        <h2 class="in-h2 mt-6">{{ title }}</h2>
         <p class="mt-6 text-ink-2">{{ referenceLabel }}</p>
         <p class="mt-1 font-mono text-2xl font-semibold tracking-wider text-green">{{ reference }}</p>
         <p v-if="body" class="mt-6 max-w-xl text-lg">{{ body }}</p>

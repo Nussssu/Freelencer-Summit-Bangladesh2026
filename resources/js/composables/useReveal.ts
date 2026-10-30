@@ -1,5 +1,5 @@
 import { type Ref } from 'vue';
-import { EASE, STAGGER, ScrollTrigger, gsap, useGsap } from './motion';
+import { EASE, STAGGER, ScrollTrigger, gsap, reveal, useGsap } from './motion';
 
 /**
  * One reveal system for every section. Inside `root`:
@@ -14,7 +14,7 @@ export function useReveal(root: Ref<HTMLElement | null | undefined>) {
         const el = root.value;
         if (!el || reduced) return;
         const once = (target: Element, play: () => void) =>
-            ScrollTrigger.create({ trigger: target, start: 'top 88%', once: true, onEnter: play });
+            ScrollTrigger.create({ trigger: target, start: 'top 88%', once: true, onEnter: () => reveal(play) });
 
         el.querySelectorAll<HTMLElement>('[data-reveal="lines"]').forEach((block) => {
             const words = [...block.querySelectorAll<HTMLElement>('.line-inner')];

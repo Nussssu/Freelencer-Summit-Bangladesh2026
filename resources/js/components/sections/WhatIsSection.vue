@@ -49,15 +49,11 @@ useGsap(root, (reduced) => {
 
         <div class="container-site w-full">
             <div class="max-w-[52rem]">
-                <p class="flex items-center gap-4 font-medium tracking-[0.25em] text-[0.8125rem] text-night uppercase" data-reveal="fade">
-                    <span class="h-px w-11 bg-gold" aria-hidden="true" />{{ about.eyebrow }}
-                </p>
-                <h2 id="whatis-title" class="whatis-h2 mt-6" data-reveal="lines" :aria-label="about.headline">
+                <h2 id="whatis-title" class="whatis-h2" data-reveal="lines" :aria-label="about.headline">
                     <span v-for="(l, i) in lines" :key="i" class="line-mask block" aria-hidden="true">
                         <span class="line-inner block" :class="l.em && 'whatis-teal'">{{ l.text }}</span>
                     </span>
                 </h2>
-                <p class="whatis-intro mt-6 max-w-[36rem] text-lg leading-relaxed text-ink-2" data-reveal="fade">{{ about.intro }}</p>
 
                 <ul class="whatis-points mt-10 grid gap-5 sm:flex sm:gap-0">
                     <li v-for="p in about.points" :key="p.title" class="flex items-center gap-4 sm:pr-6 sm:[&:not(:first-child)]:border-l sm:[&:not(:first-child)]:border-line-light sm:[&:not(:first-child)]:pl-6" data-reveal="fade">
@@ -200,10 +196,6 @@ useGsap(root, (reduced) => {
     .whatis-h2 {
         margin-top: 2.5svh;
         font-size: clamp(2.25rem, min(4.4vw, 7svh), 4.5rem);
-    }
-    .whatis-intro {
-        margin-top: 2.5svh;
-        font-size: clamp(0.875rem, 2svh, 1.25rem);
     }
     .whatis-points,
     .whatis-actions {

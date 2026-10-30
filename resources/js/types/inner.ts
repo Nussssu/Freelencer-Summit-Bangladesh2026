@@ -21,10 +21,10 @@ export interface InnerPage {
     description: string;
     path: string;
     crumbs: Crumb[];
-    hero: { eyebrow: string; title: string; emphasis: string; intro: string; actions: { label: string; href: string; tone: CtaTone }[] };
+    hero: { eyebrow?: string; title: string; emphasis?: string; intro?: string | null; image?: string | null; actions?: { label: string; href: string; tone: CtaTone }[] };
 }
 export interface SectionHeading {
-    eyebrow: string;
+    eyebrow?: string;
     title: string;
     emphasis: string | null;
     intro: string | null;

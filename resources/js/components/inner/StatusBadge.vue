@@ -17,5 +17,5 @@ const cls = computed(() => tone[props.status] ?? 'border-green text-green');
 </script>
 
 <template>
-    <span class="t-label inline-flex items-center border px-2 py-1 text-[0.6875rem] text-night" :class="cls">{{ label }}</span>
+    <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold text-night" :class="cls">{{ label }}</span>
 </template>

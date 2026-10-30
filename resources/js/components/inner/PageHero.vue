@@ -6,57 +6,62 @@ import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
 import type { Crumb } from '@/types/inner';
 import Breadcrumbs from './Breadcrumbs.vue';
-import Photo from './Photo.vue';
+import Glyph from './Glyph.vue';
 
 /**
- * Compact inner-page hero. tone dark: night ground; tone light: paper ground (data-header tells SiteHeader to go solid at the top).
- * text: plain band · photo: photograph under a night gradient (dark only) · facts: adds the date / venue / city strip.
+ * Inner-page opener in the landing's language: the site blend shows through, breadcrumbs, a Host Grotesk headline
+ * with the emphasis in teal, one line of intro and the actions, all inside the first screen. An optional rounded
+ * photo (or the `aside` slot) sits on the right; variant "facts" adds date / venue / city as tinted cards.
+ * `eyebrow` and `tone` are accepted for older callers and ignored (the landing dropped eyebrows).
  */
 const props = withDefaults(
-    defineProps<{ title: string; emphasis?: string; eyebrow?: string; intro?: string; crumbs?: Crumb[]; variant?: 'text' | 'photo' | 'facts'; tone?: 'dark' | 'light'; image?: string | null; imagePosition?: string }>(),
-    { variant: 'text', tone: 'dark', crumbs: () => [], image: null, imagePosition: 'center' },
+    defineProps<{ title: string; emphasis?: string; eyebrow?: string; intro?: string | null; crumbs?: Crumb[]; variant?: 'text' | 'photo' | 'facts'; tone?: 'dark' | 'light'; image?: string | null; imagePosition?: string }>(),
+    { variant: 'text', tone: 'light', crumbs: () => [], image: null, imagePosition: 'center', intro: null },
 );
+const slots = defineSlots<{ actions?: () => unknown; aside?: () => unknown; below?: () => unknown }>();
 const { t } = useI18n();
 const { summit } = useShared();
 const root = ref<HTMLElement>();
 useReveal(root);
 
 const facts = computed(() => [
-    { label: t('inner.tbc.date'), value: summit.value.dateConfirmed ? new Date(summit.value.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }) : t('inner.tbc.lateNov', { edition: summit.value.edition }), tbc: !summit.value.dateConfirmed },
-    { label: t('inner.tbc.venue'), value: summit.value.venue ?? t('inner.tbc.toBeConfirmed'), tbc: !summit.value.venue },
-    { label: t('inner.tbc.city'), value: summit.value.city, tbc: false },
+    { icon: 'calendar' as const, tone: 'tone-teal', label: t('inner.tbc.date'), value: summit.value.dateConfirmed ? new Date(summit.value.startsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Dhaka' }) : t('inner.tbc.lateNov', { edition: summit.value.edition }) },
+    { icon: 'building' as const, tone: 'tone-sun', label: t('inner.tbc.venue'), value: summit.value.venue || t('inner.tbc.toBeConfirmed') },
+    { icon: 'pin' as const, tone: 'tone-sky', label: t('inner.tbc.city'), value: summit.value.city },
 ]);
-const photo = computed(() => props.variant === 'photo' || (props.variant === 'facts' && !!props.image));
+const side = computed(() => !!props.image || !!slots.aside);
 </script>
 
 <template>
-    <section ref="root" class="relative isolate overflow-hidden" :class="[tone === 'light' ? 'on-light light-tokens' : 'grain bg-night text-paper', photo && 'min-h-[30rem] md:min-h-[36rem]']" :data-header="tone === 'light' ? 'light' : undefined">
-        <template v-if="photo">
-            <Photo :src="image" eager :position="imagePosition" class="absolute! inset-0 -z-20" />
-            <div class="absolute inset-0 -z-10 bg-gradient-to-r from-night via-night/80 to-night/30" aria-hidden="true" />
-        </template>
-        <!-- shortcut: xl offset hard-codes the 2-row header (153px) because app.css's @layer base override of --header-h loses to the unlayered :root; drop it once that is fixed (frozen file). -->
-        <div class="container-site flex flex-col pt-[calc(var(--header-h)+2.5rem)] pb-12 md:pb-16 xl:pt-[calc(153px+2.5rem)]" :class="photo && 'min-h-[inherit] justify-end'">
-            <Breadcrumbs v-if="crumbs.length" :items="crumbs" class="opacity-80" />
-            <!-- lg: heading left, intro + actions bottom-aligned right, so the action stays in the first screen -->
-            <div class="mt-8 grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-x-6">
-                <div class="lg:col-span-7">
-                    <p v-if="eyebrow" class="t-label mb-3 text-gold" data-reveal="fade">{{ eyebrow }}</p>
-                    <SplitHeading :text="title" :emphasis="emphasis" emphasis-class="text-gold" as="h1" class="t-h2-xl" />
-                </div>
-                <div class="lg:col-span-5 lg:pb-2">
-                    <p v-if="intro" class="max-w-2xl text-lg opacity-85" data-reveal="fade">{{ intro }}</p>
+    <section ref="root" class="in-hero relative isolate overflow-hidden" data-header="light">
+        <span class="in-pool -top-40 -right-40 h-[34rem] w-[34rem]" aria-hidden="true" />
+        <span class="in-pool -bottom-48 -left-56 h-[30rem] w-[30rem]" aria-hidden="true" />
+        <!-- shortcut: xl offset hard-codes the 2-row header (153px); see the note in docs/inner-design-kit.md (frozen app.css). -->
+        <div class="container-site pt-[calc(var(--header-h)+1.75rem)] pb-[clamp(2.25rem,4.5vw,3.75rem)] xl:pt-[calc(153px+2rem)]">
+            <Breadcrumbs v-if="crumbs.length" :items="crumbs" />
+            <div class="mt-6 grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12">
+                <div :class="side ? 'lg:col-span-7' : 'lg:col-span-10'">
+                    <SplitHeading :text="title" :emphasis="emphasis" emphasis-class="text-green" as="h1" class="in-h1" />
+                    <p v-if="intro" class="in-lead mt-5 max-w-2xl" data-reveal="fade">{{ intro }}</p>
                     <div v-if="$slots.actions" class="mt-8 flex flex-wrap gap-3" data-reveal="fade"><slot name="actions" /></div>
                 </div>
+                <div v-if="image" class="lg:col-span-5" data-reveal="clip">
+                    <div class="in-media is-round aspect-[16/10] shadow-[0_30px_60px_-34px_rgb(7_20_17/0.45)] lg:aspect-[4/3]">
+                        <img :src="image" alt="" fetchpriority="high" :style="{ objectPosition: imagePosition }" />
+                    </div>
+                </div>
+                <div v-else-if="$slots.aside" class="lg:col-span-5"><slot name="aside" /></div>
             </div>
-        </div>
-        <div v-if="variant === 'facts'" class="border-t border-line-dark backdrop-blur-sm" :class="tone === 'light' ? 'bg-snow/70' : 'bg-night/70'">
-            <dl class="container-site grid grid-cols-1 sm:grid-cols-3">
-                <div v-for="f in facts" :key="f.label" class="border-line-dark py-5 sm:border-r sm:px-6 sm:first:pl-0 sm:last:border-r-0">
-                    <dt class="t-label opacity-60">{{ f.label }}</dt>
-                    <dd class="mt-1 text-lg font-semibold" :class="f.tbc && 'opacity-80'">{{ f.value }}</dd>
+            <dl v-if="variant === 'facts'" class="mt-8 grid gap-3 sm:grid-cols-3 lg:mt-10">
+                <div v-for="f in facts" :key="f.label" class="in-card is-washed flex-row! items-center gap-4 p-4" :class="f.tone" data-reveal="fade">
+                    <span class="in-disc w-12!"><Glyph :name="f.icon" /></span>
+                    <div class="min-w-0">
+                        <dt class="in-meta">{{ f.label }}</dt>
+                        <dd class="mt-0.5 font-bold text-night">{{ f.value }}</dd>
+                    </div>
                 </div>
             </dl>
+            <slot name="below" />
         </div>
     </section>
 </template>

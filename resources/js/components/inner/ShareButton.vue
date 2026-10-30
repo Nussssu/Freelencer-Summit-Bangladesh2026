@@ -22,11 +22,11 @@ async function share() {
 
 <template>
     <span class="inline-flex items-center">
-        <button type="button" class="btn btn-outline [clip-path:none]" @click="share">
+        <button type="button" class="in-btn is-ghost" @click="share">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7" /></svg>
             {{ t('inner.share.action') }}
         </button>
         <span class="sr-only" aria-live="polite">{{ copied ? t('inner.share.copied') : '' }}</span>
-        <span v-if="copied" class="t-label ml-3 text-green" aria-hidden="true">{{ t('inner.share.copied') }}</span>
+        <span v-if="copied" class="ml-3 text-sm font-semibold text-green" aria-hidden="true">{{ t('inner.share.copied') }}</span>
     </span>
 </template>

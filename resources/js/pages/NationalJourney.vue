@@ -50,7 +50,7 @@ useReveal(root);
     </div>
 
     <CtaBand :title="content.headings.cta.title" :emphasis="content.headings.cta.emphasis ?? undefined" :text="content.headings.cta.intro ?? undefined">
-        <CtaLink href="/register">{{ page.hero.actions[0].label }}</CtaLink>
+        <CtaLink href="/register">{{ page.hero.actions?.[0]?.label ?? 'Register for Summit' }}</CtaLink>
         <CtaLink :href="content.journey.steps[0].href" tone="outline">{{ content.journey.steps[0].tag }}</CtaLink>
     </CtaBand>
 </template>

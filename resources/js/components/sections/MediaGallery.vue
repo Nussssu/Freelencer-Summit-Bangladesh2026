@@ -38,8 +38,7 @@ const step = (d: number) => current.value !== null && (current.value = (current.
         <div class="container-site">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p class="t-label text-green">{{ t('sections.media') }}</p>
-                    <SplitHeading id="md-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
+                    <SplitHeading id="md-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2" />
                 </div>
                 <Link href="/media" class="link-u t-label inline-flex min-h-11 items-center gap-2">{{ t('sections.allMedia') }} <Icon name="arrow" :size="16" /></Link>
             </div>

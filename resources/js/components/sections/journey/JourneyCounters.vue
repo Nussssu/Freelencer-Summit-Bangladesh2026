@@ -9,7 +9,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-    <div class="container-site pt-[var(--section-y)]">
+    <div class="container-site pt-10 md:pt-12">
         <div class="border-b border-line-light pb-4">
             <h3 class="t-label text-green">{{ t('sections.counters') }}</h3>
         </div>

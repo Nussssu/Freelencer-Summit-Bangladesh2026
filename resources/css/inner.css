@@ -1,0 +1,420 @@
+/*
+ * Inner pages in the landing's language (Awards / Expo / Forum / Get involved sections): Host Grotesk 800 headings
+ * with a teal emphasis, the fixed site blend showing through, rounded tinted cards, round outline arrows and the
+ * teal pill CTA. Every class is prefixed `in-` so nothing here can reach the landing.
+ */
+@layer components {
+
+
+/* Type */
+.in-h1 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-size: clamp(2.375rem, 5.4vw, 4.75rem);
+    color: var(--night);
+    text-wrap: balance;
+}
+.in-h2 {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    font-size: clamp(2rem, 4.2vw, 3.75rem);
+    color: var(--night);
+}
+.in-h3 {
+    font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--night);
+}
+.in-lead {
+    font-size: clamp(1.0625rem, 1.35vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--ink-2);
+}
+.in-body {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+}
+.in-meta {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-2);
+}
+html[lang='bn'] :is(.in-h1, .in-h2) {
+    letter-spacing: 0;
+    line-height: 1.15;
+}
+
+/* Rhythm: the same gap the landing uses between blocks */
+.in-section {
+    position: relative;
+    padding-block: var(--section-gap);
+}
+.in-section + .in-section {
+    padding-top: 0;
+}
+.in-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+
+/* Tones (the Get involved palette): --tint ink, --disc icon ground, --wash card ground */
+.tone-teal {
+    --tint: var(--green);
+    --disc: rgb(8 127 140 / 0.12);
+    --wash: linear-gradient(180deg, #eef7f8, #f6fbfb);
+}
+.tone-sky {
+    --tint: #1a8fb8;
+    --disc: #dcf0f8;
+    --wash: linear-gradient(180deg, #f1f8fc, #f7fbfd);
+}
+.tone-sun {
+    --tint: #c98a10;
+    --disc: #fdecc4;
+    --wash: linear-gradient(180deg, #fff7e8, #fffaf2);
+}
+.tone-mint {
+    --tint: #169a86;
+    --disc: #d6f2ea;
+    --wash: linear-gradient(180deg, #f1faf7, #f8fcfb);
+}
+.tone-violet {
+    --tint: #7046d8;
+    --disc: #e9e1fb;
+    --wash: linear-gradient(180deg, #f5f1fd, #f9f7fe);
+}
+.tone-rose {
+    --tint: #d0384e;
+    --disc: #fbdfe3;
+    --wash: linear-gradient(180deg, #fdf1f3, #fef8f9);
+}
+.tone-blue {
+    --tint: var(--bacco);
+    --disc: #e1eaf7;
+    --wash: linear-gradient(180deg, #f1f5fb, #f8fafd);
+}
+
+/* Cards */
+.in-card {
+    --tint: var(--green);
+    --disc: rgb(8 127 140 / 0.12);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid rgb(7 20 17 / 0.06);
+    border-radius: 1.25rem;
+    background: rgb(255 255 255 / 0.72);
+    box-shadow: 0 18px 40px -30px rgb(7 20 17 / 0.3);
+    transition:
+        transform var(--dur-hover) var(--ease-hover),
+        box-shadow var(--dur-hover) var(--ease-hover),
+        background-color var(--dur-hover) var(--ease-hover);
+}
+.in-card.is-washed {
+    background: var(--wash, rgb(255 255 255 / 0.72));
+}
+.in-card.is-solid {
+    background: var(--white);
+}
+.in-card.is-link:hover,
+.in-card.is-link:focus-within {
+    transform: translateY(-5px);
+    box-shadow: 0 28px 54px -28px rgb(7 20 17 / 0.38);
+}
+.in-pad {
+    padding: clamp(1.25rem, 2.2vw, 1.875rem);
+}
+.in-media {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 1.25rem 1.25rem 0 0;
+    background: linear-gradient(160deg, var(--mist), var(--paper-2));
+}
+.in-media.is-round {
+    border-radius: 1.25rem;
+}
+.in-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale 0.9s var(--ease-out);
+}
+.in-card.is-link:hover .in-media img {
+    scale: 1.05;
+}
+
+/* Icon disc, arrow circle, number */
+.in-disc {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 3.5rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--disc);
+    color: var(--tint);
+}
+.in-disc svg {
+    width: 46%;
+    height: 46%;
+}
+.in-arrow {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 3rem;
+    aspect-ratio: 1;
+    border: 1.5px solid var(--tint, var(--green));
+    border-radius: 50%;
+    color: var(--tint, var(--green));
+    transition:
+        background-color var(--dur-hover) var(--ease-hover),
+        color var(--dur-hover) var(--ease-hover);
+}
+.in-arrow svg {
+    transition: transform var(--dur-hover) var(--ease-hover);
+}
+.in-card.is-link:hover .in-arrow {
+    background: var(--tint, var(--green));
+    color: var(--white);
+}
+.in-card.is-link:hover .in-arrow svg {
+    transform: translateX(3px);
+}
+.in-num {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(2rem, 3vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--tint, var(--green));
+}
+
+/* Buttons: teal pill (the landing's award CTA), soft outline, and plain arrow link */
+.in-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    min-height: 3.25rem;
+    padding: 0.875rem 1.5rem;
+    border: 1.5px solid var(--green);
+    border-radius: 0.5rem;
+    background: var(--green);
+    color: var(--white);
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 14px 30px -16px rgb(8 127 140 / 0.8);
+    transition:
+        background-color var(--dur-hover) var(--ease-hover),
+        border-color var(--dur-hover) var(--ease-hover),
+        color var(--dur-hover) var(--ease-hover),
+        transform var(--dur-hover) var(--ease-hover);
+}
+.in-btn:hover {
+    background: var(--delta);
+    border-color: var(--delta);
+    transform: translateY(-2px);
+}
+.in-btn svg {
+    transition: transform var(--dur-hover) var(--ease-hover);
+}
+.in-btn:hover svg {
+    transform: translateX(3px);
+}
+.in-btn.is-gold {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: var(--night);
+    box-shadow: 0 14px 30px -18px rgb(201 138 16 / 0.8);
+}
+.in-btn.is-gold:hover {
+    border-color: #d9a630;
+    background: #d9a630;
+}
+.in-btn.is-ghost {
+    background: rgb(255 255 255 / 0.6);
+    color: var(--night);
+    border-color: rgb(7 20 17 / 0.16);
+    box-shadow: none;
+}
+.in-btn.is-ghost:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--white);
+}
+.in-btn:disabled,
+.in-btn[aria-disabled='true'] {
+    opacity: 0.55;
+    pointer-events: none;
+}
+.in-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    font-weight: 600;
+    color: var(--green);
+}
+.in-link svg {
+    transition: transform var(--dur-hover) var(--ease-hover);
+}
+.in-link:hover svg {
+    transform: translateX(3px);
+}
+
+/* Pills, chips and tags */
+.in-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 999px;
+    background: var(--disc, rgb(8 127 140 / 0.1));
+    color: var(--tint, var(--green));
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.in-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.5rem 1.125rem;
+    border: 1px solid rgb(7 20 17 / 0.12);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.7);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--night);
+    white-space: nowrap;
+    transition:
+        background-color var(--dur-hover) var(--ease-hover),
+        border-color var(--dur-hover) var(--ease-hover),
+        color var(--dur-hover) var(--ease-hover);
+}
+.in-chip:hover {
+    border-color: var(--green);
+}
+.in-chip[aria-pressed='true'],
+.in-chip.is-on {
+    border-color: var(--green);
+    background: var(--green);
+    color: var(--white);
+}
+
+/* Bullet list with teal ticks */
+.in-ticks > li {
+    position: relative;
+    padding-left: 1.75rem;
+}
+.in-ticks > li + li {
+    margin-top: 0.625rem;
+}
+.in-ticks > li::before {
+    content: '';
+    position: absolute;
+    top: 0.3em;
+    left: 0;
+    width: 1.125rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23087f8c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4L18 8'/%3E%3C/svg%3E")
+            center / 70% no-repeat,
+        rgb(8 127 140 / 0.12);
+}
+
+/* Soft decorative pools, as behind the landing's sections */
+.in-pool {
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgb(214 234 240 / 0.85), transparent);
+}
+
+/* Forms inside a white rounded panel */
+.in-form {
+    border: 1px solid rgb(7 20 17 / 0.06);
+    border-radius: 1.25rem;
+    background: var(--white);
+    box-shadow: 0 24px 60px -36px rgb(7 20 17 / 0.35);
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+.in-form fieldset + fieldset {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line-light);
+}
+.in-form legend.in-group {
+    float: left;
+    width: 100%;
+    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--night);
+}
+.in-form legend.in-group + * {
+    clear: both;
+}
+
+/* Prose (policies, articles) */
+.in-prose {
+    max-width: 46rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--ink-2);
+}
+.in-prose > * + * {
+    margin-top: 1.1em;
+}
+.in-prose h2 {
+    margin-top: 2em;
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--night);
+}
+.in-prose h3 {
+    margin-top: 1.6em;
+    font-size: 1.1875rem;
+    font-weight: 700;
+    color: var(--night);
+}
+.in-prose ul {
+    padding-left: 1.25rem;
+    list-style: disc;
+}
+.in-prose a {
+    color: var(--green);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .in-card,
+    .in-media img,
+    .in-btn,
+    .in-arrow,
+    .in-arrow svg,
+    .in-link svg {
+        transition: none;
+    }
+}
+}

@@ -10,7 +10,7 @@ const id = useId();
 
 <template>
     <div data-field="consent">
-        <label :for="id" class="flex cursor-pointer gap-3 rounded-md border bg-snow p-4" :class="error ? 'border-red' : 'border-night/15'">
+        <label :for="id" class="flex cursor-pointer gap-3 rounded-xl border bg-snow p-4" :class="error ? 'border-red' : 'border-night/15'">
             <input :id="id" v-model="model" type="checkbox" name="consent" required :aria-invalid="!!error" :aria-describedby="error ? `${id}-err` : undefined" class="mt-1 size-5 shrink-0 accent-[var(--green)]" />
             <span>{{ consent.text }} <span class="text-red-ink" aria-hidden="true">*</span></span>
         </label>

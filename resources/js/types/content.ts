@@ -52,7 +52,7 @@ export interface SharedProps {
     summit: Summit;
     site: SiteData;
     seo: { title?: string; description?: string; keywords?: string; image?: string } | null;
-    flash: { success: string | null };
+    flash: { success: string | null; submitted?: { form: string; reference: string } | null };
     errors: Record<string, string>;
     [key: string]: unknown;
 }

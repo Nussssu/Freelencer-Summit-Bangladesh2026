@@ -130,7 +130,7 @@ useGsap(root, (reduced) => {
         <div data-hero-foot class="container-site relative z-20 grid grid-cols-1 items-end gap-6 pb-24 md:grid-cols-2 md:pb-10 lg:grid-cols-3">
             <div data-hero-meta class="flex flex-col gap-2 md:mb-12">
                 <span class="t-label flex items-center gap-2 text-paper"><Icon name="calendar" :size="14" class="text-gold" />{{ date }}</span>
-                <span class="t-label flex items-center gap-2 text-paper/80"><span class="h-px w-3.5 bg-gold" aria-hidden="true" />{{ place }}</span>
+                <span class="t-label flex items-center gap-2 text-paper/80">{{ place }}</span>
                 <span v-if="!summit.dateConfirmed" class="text-xs text-muted">{{ t('header.tbc') }}</span>
             </div>
             <Countdown data-hero-countdown :target="summit.startsAt" class="w-full max-w-md justify-self-center md:col-span-2 md:row-start-2 lg:col-span-1 lg:col-start-2 lg:row-start-1" />

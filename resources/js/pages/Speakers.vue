@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import CtaBand from '@/components/inner/CtaBand.vue';
 import EmptyState from '@/components/inner/EmptyState.vue';
 import FilterChips from '@/components/inner/FilterChips.vue';
-import PageHero from '@/components/inner/PageHero.vue';
+import InnerHero from '@/components/inner/InnerHero.vue';
+import TintCard from '@/components/inner/TintCard.vue';
+import GetInvolved from '@/components/sections/GetInvolved.vue';
 import PersonCard from '@/components/inner/PersonCard.vue';
 import SearchField from '@/components/inner/SearchField.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
-import CtaLink from '@/components/ui/CtaLink.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { InnerPage, SpeakersContent } from '@/types/inner';
 
@@ -30,7 +30,7 @@ const filters = computed(() =>
     [
         { label: t('inner.list.role'), model: role, options: opts(props.content.speakers.map((s) => s.role)) },
         { label: t('inner.list.country'), model: country, options: opts(props.content.speakers.map((s) => s.country)) },
-        { label: props.content.headings.categories.eyebrow, model: expertise, options: opts(props.content.speakers.flatMap((s) => s.expertise)) },
+        { label: 'Expertise', model: expertise, options: opts(props.content.speakers.flatMap((s) => s.expertise)) },
     ].filter((f) => f.options.length > 1),
 );
 const people = computed(() => {
@@ -44,61 +44,51 @@ const people = computed(() => {
     );
 });
 const filtered = computed(() => !!(q.value || role.value || country.value || expertise.value));
+const tones = ['tone-teal', 'tone-sun', 'tone-sky', 'tone-violet', 'tone-mint', 'tone-rose'];
+const catIcons = ['globe', 'cap', 'star', 'rocket', 'flag', 'store'] as const;
 const clear = () => (q.value = role.value = country.value = expertise.value = '');
 </script>
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <PageHero :eyebrow="page.hero.eyebrow" :title="page.hero.title" :emphasis="page.hero.emphasis" :intro="page.hero.intro" tone="light" :crumbs="page.crumbs">
-        <template #actions>
-            <CtaLink v-for="a in page.hero.actions" :key="a.href" :href="a.href" :tone="a.tone">{{ a.label }}</CtaLink>
-        </template>
-    </PageHero>
+    <InnerHero :page="page" />
 
-    <div ref="root" class="on-light">
-        <section class="section bg-snow" aria-labelledby="sp-directory">
+    <div ref="root">
+        <section class="in-section pt-0!" aria-labelledby="sp-directory">
             <div class="container-site">
-                <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+                <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
                     <div class="lg:col-span-7"><SectionHead id="sp-directory" :heading="content.headings.directory" /></div>
-                    <SearchField v-model="q" class="lg:col-span-5" />
+                    <SearchField v-model="q" class="lg:col-span-5 lg:mb-11" placeholder="Search by name or organisation" />
                 </div>
-
-                <div v-if="filters.length" class="mt-10 grid gap-6 border-y border-line-light py-6 lg:grid-cols-[8rem_1fr]">
+                <div v-if="filters.length" class="in-card grid gap-4 p-4 md:p-5 lg:grid-cols-[7rem_1fr] lg:items-center">
                     <template v-for="f in filters" :key="f.label">
-                        <p class="t-label pt-3 text-ink-2" aria-hidden="true">{{ f.label }}</p>
-                        <FilterChips v-model="f.model.value" :options="f.options" :label="f.label" />
+                        <p class="in-meta" aria-hidden="true">{{ f.label }}</p>
+                        <FilterChips v-model="f.model.value" :options="f.options" :label="f.label" class="min-w-0 overflow-x-auto" />
                     </template>
                 </div>
-
-                <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
-                    <p class="t-label text-ink-2" aria-live="polite">{{ t('inner.list.results', people.length) }}</p>
-                    <button v-if="filtered" type="button" class="link-u t-label min-h-11 text-green" @click="clear">{{ t('inner.list.clear') }}</button>
+                <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
+                    <p class="in-meta" aria-live="polite">{{ t('inner.list.results', people.length) }}</p>
+                    <button v-if="filtered" type="button" class="in-link min-h-0! text-sm" @click="clear">{{ t('inner.list.clear') }}</button>
                 </div>
-
-                <ul v-if="people.length" class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <ul v-if="people.length" class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
                     <li v-for="p in people" :key="p.slug" data-reveal="fade"><PersonCard :person="p" heading-level="h3" /></li>
                 </ul>
-                <EmptyState v-else class="mt-4" level="h3" :body="t('inner.list.noMatch')">
-                    <button type="button" class="btn btn-outline [clip-path:none]" @click="clear">{{ t('inner.list.clear') }}</button>
+                <EmptyState v-else class="mt-4" level="h3" icon="target" :body="t('inner.list.noMatch')">
+                    <button type="button" class="in-btn is-ghost" @click="clear">{{ t('inner.list.clear') }}</button>
                 </EmptyState>
             </div>
         </section>
 
         <!-- Who speaks (brief §13 speaker categories) -->
-        <section class="section" aria-labelledby="sp-categories">
-            <div class="container-site grid gap-10 lg:grid-cols-12">
-                <div class="lg:col-span-5"><SectionHead id="sp-categories" :heading="content.headings.categories" /></div>
-                <ul class="grid gap-x-6 sm:grid-cols-2 lg:col-span-7">
-                    <li v-for="(c, i) in content.categories" :key="c" class="flex items-center gap-4 border-b border-line-light py-5" data-reveal="fade">
-                        <span class="t-label text-green">{{ String(i + 1).padStart(2, '0') }}</span>
-                        <span class="font-display text-2xl leading-none font-black uppercase">{{ c }}</span>
-                    </li>
+        <section class="in-section" aria-labelledby="sp-categories">
+            <div class="container-site">
+                <SectionHead id="sp-categories" :heading="content.headings.categories" />
+                <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <li v-for="(c, i) in content.categories" :key="c" data-reveal="fade"><TintCard :title="c" :icon="catIcons[i % 6]" :tone="tones[i % 6]" layout="row" /></li>
                 </ul>
             </div>
         </section>
     </div>
 
-    <CtaBand :title="content.headings.cta.title" :emphasis="content.headings.cta.emphasis ?? undefined" :text="content.headings.cta.intro ?? undefined">
-        <CtaLink v-for="a in page.hero.actions" :key="a.href" :href="a.href" :tone="a.tone">{{ a.label }}</CtaLink>
-    </CtaBand>
+    <GetInvolved />
 </template>

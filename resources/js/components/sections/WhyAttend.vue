@@ -23,16 +23,12 @@ const lines = computed(() => {
 <template>
     <section ref="root" data-section="5" aria-labelledby="why-title" class="why on-light flow section relative z-[1]">
         <div class="container-site">
-            <p class="flex items-center gap-4 text-[0.8125rem] font-medium tracking-[0.25em] uppercase" data-reveal="fade">
-                <span class="h-px w-11 bg-gold" aria-hidden="true" />{{ t('sections.why') }}?
-            </p>
-            <h2 id="why-title" class="why-h2 mt-5" data-reveal="lines" :aria-label="heading.title">
+            <h2 id="why-title" class="why-h2" data-reveal="lines" :aria-label="heading.title">
                 <!-- Word masks, as SplitHeading (Built with partners): words rise in, one stagger step per line -->
                 <span v-for="(l, i) in lines" :key="i" class="why-line" aria-hidden="true">
                     <template v-for="(w, j) in l.text.split(' ')" :key="j"><span class="line-mask"><span class="line-inner" :class="l.em && 'text-green'">{{ w }}</span></span>{{ ' ' }}</template>
                 </span>
             </h2>
-            <p class="why-lead mt-4 max-w-2xl text-lg leading-snug text-ink-2" data-reveal="fade">{{ t('sections.whyLead') }}</p>
 
             <ul class="why-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
                 <li v-for="(a, i) in audiences" :key="a.title" data-reveal="fade">
@@ -160,10 +156,6 @@ const lines = computed(() => {
     .why-h2 {
         margin-top: 2svh;
         font-size: clamp(2rem, min(5vw, 7svh), 5rem);
-    }
-    .why-lead {
-        margin-top: 1.2svh;
-        font-size: clamp(0.9375rem, 2.1svh, 1.25rem);
     }
     .why-grid {
         margin-top: 3svh;

@@ -6,5 +6,5 @@ const { t } = useI18n();
 </script>
 
 <template>
-    <span class="t-label inline-flex bg-gold px-2 py-1 text-[0.625rem] text-night">{{ t('inner.sample') }}</span>
+    <span class="inline-flex rounded-full bg-gold px-2.5 py-0.5 text-xs font-semibold text-night">{{ t('inner.sample') }}</span>
 </template>

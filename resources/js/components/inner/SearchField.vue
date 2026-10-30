@@ -12,7 +12,7 @@ const id = useId();
 
 <template>
     <div>
-        <label :for="id" class="t-label text-ink-2">{{ label ?? t('inner.list.search') }}</label>
+        <label :for="id" class="in-meta">{{ label ?? t('inner.list.search') }}</label>
         <div class="relative mt-1.5">
             <Icon name="search" :size="18" class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-ink-2" />
             <input
@@ -21,7 +21,7 @@ const id = useId();
                 type="search"
                 :placeholder="placeholder"
                 autocomplete="off"
-                class="block min-h-11 w-full rounded-md border border-night/15 bg-snow py-2.5 pr-3.5 pl-11 text-night transition-[border-color,box-shadow] duration-200 outline-none hover:border-night/30 focus:border-green focus:ring-3 focus:ring-green/15"
+                class="block min-h-11 w-full rounded-lg border border-night/15 bg-snow py-2.5 pr-3.5 pl-11 text-night transition-[border-color,box-shadow] duration-200 outline-none hover:border-night/30 focus:border-green focus:ring-3 focus:ring-green/15"
             />
         </div>
     </div>
