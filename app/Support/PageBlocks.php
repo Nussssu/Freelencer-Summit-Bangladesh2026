@@ -25,6 +25,9 @@ class PageBlocks
         if ($slug === '/') {
             return app(HomeContent::class)->all();
         }
+        if (str_contains($slug, '{')) {
+            return null;
+        }
         $page = InnerPageContent::PAGES[$slug] ?? null;
         if (! $page) {
             return null;
@@ -32,7 +35,7 @@ class PageBlocks
 
         [$class, $method] = $page['content'] ?? [InnerPageContent::class, lcfirst($page['component'])];
 
-        return app()->call([app($class), $method]);
+        return rescue(fn () => app()->call([app($class), $method]), report: false);
     }
 
     /** @return array<string, mixed> block key => coded value, for the editor and the seeder */
