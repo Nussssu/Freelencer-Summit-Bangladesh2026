@@ -26,9 +26,11 @@ class AuditLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Access';
+    protected static string|UnitEnum|null $navigationGroup = 'Access Control';
 
-    protected static ?string $navigationLabel = 'Audit logs';
+    protected static ?string $navigationLabel = 'Audit log';
+
+    protected static ?int $navigationSort = 3;
 
     public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response
     {

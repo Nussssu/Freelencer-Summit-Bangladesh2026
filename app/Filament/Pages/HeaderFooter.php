@@ -32,7 +32,7 @@ class HeaderFooter extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleGroup;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = 'Configuration';
 
     protected static ?int $navigationSort = 1; // directly above Settings
 

@@ -43,7 +43,13 @@
     .fs-visit:hover { background: #1e293b; }
     .fs-visit:focus-visible { outline: 2px solid var(--fs-navy); outline-offset: 2px; }
 
-    .fs-logout { padding: .75rem 1rem 1rem; border-top: 1px solid rgba(248, 250, 252, .12); }
+    .fs-view-website { padding: .75rem 1rem 0; border-top: 1px solid rgba(248, 250, 252, .12); }
+    .fs-view-website a { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; padding: .625rem 1rem;
+        border-radius: .5rem; background: rgba(248, 250, 252, .08); color: var(--fs-white); font-weight: 600; font-size: .875rem; border: 1px solid rgba(248, 250, 252, .12); transition: background-color .15s; }
+    .fs-view-website a:hover { background: rgba(248, 250, 252, .16); }
+    .fs-view-website a:focus-visible { outline: 2px solid var(--fs-white); outline-offset: 2px; }
+
+    .fs-logout { padding: .5rem 1rem 1rem; }
     .fs-logout button { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; padding: .625rem 1rem;
         border-radius: .5rem; background: var(--fs-red-ink); color: var(--fs-white); font-weight: 600; font-size: .875rem; }
     .fs-logout button:hover { background: #8f0f22; }

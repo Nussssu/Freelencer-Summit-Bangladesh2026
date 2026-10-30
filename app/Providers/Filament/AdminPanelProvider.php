@@ -36,9 +36,18 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#087f8c'), // site teal (--green)
             ])
-            ->navigationGroups(['Content', 'Catalogue', 'Leads', 'Settings', 'Access'])
+            ->navigationGroups([
+                'Overview',
+                'Leads & CRM',
+                'Messages',
+                'Catalogue',
+                'Content Management',
+                'Configuration',
+                'Access Control',
+            ])
             ->sidebarWidth('16rem') // default 20rem
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.hooks.theme'))
+            ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn () => view('filament.hooks.sidebar-view-website'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn () => view('filament.hooks.sidebar-logout'))
             ->renderHook(PanelsRenderHook::SIDEBAR_LOGO_AFTER, fn () => view('filament.hooks.brand-caption'))
             ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn () => view('filament.hooks.visit-website'))

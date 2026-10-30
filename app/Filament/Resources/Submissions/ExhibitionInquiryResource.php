@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use UnitEnum;
 
 class ExhibitionInquiryResource extends SubmissionResource
 {
@@ -20,13 +21,15 @@ class ExhibitionInquiryResource extends SubmissionResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Messages';
+
     protected static ?string $navigationLabel = 'Exhibition Inquiries';
 
     protected static ?string $pluralModelLabel = 'Exhibition Inquiries';
 
     protected static ?string $recordTitleAttribute = 'company_name';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $modelLabel = 'exhibition inquiry';
 

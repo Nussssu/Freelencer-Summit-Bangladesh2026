@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class SummitRegistrationResource extends SubmissionResource
 {
@@ -25,6 +26,8 @@ class SummitRegistrationResource extends SubmissionResource
     protected static ?string $model = SummitRegistration::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
     protected static ?string $navigationLabel = 'Registrations';
 

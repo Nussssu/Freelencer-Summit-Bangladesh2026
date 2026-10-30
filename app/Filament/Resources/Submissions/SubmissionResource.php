@@ -25,7 +25,7 @@ abstract class SubmissionResource extends Resource
 {
     use ChecksModulePermission { getAuthorizationResponse as modulePermission; }
 
-    protected static string|UnitEnum|null $navigationGroup = 'Leads';
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
     /** Submissions only come from the public forms. */
     public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response

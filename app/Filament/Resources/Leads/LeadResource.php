@@ -25,9 +25,11 @@ class LeadResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInboxStack;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Leads';
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
     protected static ?string $navigationLabel = 'All leads';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
 

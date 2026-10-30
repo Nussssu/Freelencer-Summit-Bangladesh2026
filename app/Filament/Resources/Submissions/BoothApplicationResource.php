@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use UnitEnum;
 
 class BoothApplicationResource extends SubmissionResource
 {
@@ -21,13 +22,15 @@ class BoothApplicationResource extends SubmissionResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
 
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
+
     protected static ?string $navigationLabel = 'Applications';
 
     protected static ?string $pluralModelLabel = 'Applications';
 
     protected static ?string $recordTitleAttribute = 'organisation';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $modelLabel = 'booth application';
 

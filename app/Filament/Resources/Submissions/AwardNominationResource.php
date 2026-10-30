@@ -18,6 +18,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AwardNominationResource extends SubmissionResource
 {
@@ -26,6 +27,8 @@ class AwardNominationResource extends SubmissionResource
     protected static ?string $model = AwardApplication::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTrophy;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
     protected static ?string $navigationLabel = 'Nominations';
 
