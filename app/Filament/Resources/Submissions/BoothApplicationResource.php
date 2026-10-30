@@ -25,6 +25,8 @@ class BoothApplicationResource extends SubmissionResource
 
     protected static ?string $pluralModelLabel = 'Applications';
 
+    protected static ?string $recordTitleAttribute = 'organisation';
+
     protected static ?int $navigationSort = 5;
 
     protected static ?string $modelLabel = 'booth application';

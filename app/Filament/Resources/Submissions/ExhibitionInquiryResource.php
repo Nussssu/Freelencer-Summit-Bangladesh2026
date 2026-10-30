@@ -24,6 +24,8 @@ class ExhibitionInquiryResource extends SubmissionResource
 
     protected static ?string $pluralModelLabel = 'Exhibition Inquiries';
 
+    protected static ?string $recordTitleAttribute = 'company_name';
+
     protected static ?int $navigationSort = 4;
 
     protected static ?string $modelLabel = 'exhibition inquiry';

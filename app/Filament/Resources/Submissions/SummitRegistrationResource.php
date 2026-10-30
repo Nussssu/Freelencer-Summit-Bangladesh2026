@@ -30,6 +30,8 @@ class SummitRegistrationResource extends SubmissionResource
 
     protected static ?string $pluralModelLabel = 'Registrations';
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?int $navigationSort = 2;
 
     protected static function columns(): array

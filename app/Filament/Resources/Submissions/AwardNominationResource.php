@@ -31,6 +31,8 @@ class AwardNominationResource extends SubmissionResource
 
     protected static ?string $pluralModelLabel = 'Nominations';
 
+    protected static ?string $recordTitleAttribute = 'nominee_name';
+
     protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'nomination';

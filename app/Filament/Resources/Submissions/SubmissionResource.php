@@ -33,6 +33,12 @@ abstract class SubmissionResource extends Resource
         return in_array($action, ['create', 'replicate'], true) ? Response::deny() : static::modulePermission($action, $record);
     }
 
+    /** Global search hits open the table filtered to the record (these resources have no record pages). */
+    public static function getGlobalSearchResultUrl(Model $record): ?string
+    {
+        return static::getUrl('index', ['search' => $record->getAttribute(static::$recordTitleAttribute)]);
+    }
+
     /** @return list<Column> */
     abstract protected static function columns(): array;
 

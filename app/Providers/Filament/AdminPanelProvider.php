@@ -11,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -40,6 +41,10 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('16rem') // default 20rem
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.hooks.theme'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn () => view('filament.hooks.sidebar-logout'))
+            ->renderHook(PanelsRenderHook::SIDEBAR_LOGO_AFTER, fn () => view('filament.hooks.brand-caption'))
+            ->renderHook(PanelsRenderHook::GLOBAL_SEARCH_AFTER, fn () => view('filament.hooks.visit-website'))
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->maxContentWidth(Width::Full) // tables and dashboard use the whole content area
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
