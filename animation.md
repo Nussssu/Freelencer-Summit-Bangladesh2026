@@ -45,3 +45,7 @@
 - Skeleton shimmer
 - Delta Flow 3D stage (not mounted)
 - Journey SVG map (not mounted)
+- Journey progress meter fill
+- Journey photo reel wipe
+- Map–timeline sync (spine fill, step ping, hover-to-stage)
+- Division card lift & rule reveal

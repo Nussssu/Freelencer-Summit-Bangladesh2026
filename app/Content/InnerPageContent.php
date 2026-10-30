@@ -94,7 +94,17 @@ class InnerPageContent
                 'organisers' => self::h('Organisers', 'Jointly organised by', 'organised by'),
                 'cta' => self::h('', 'Be part of the national journey', 'national journey', 'Register to attend, nominate for the awards, exhibit, sponsor or join the BACCO Freelancer Forum.'),
             ],
-            'about' => $this->home->about(),
+            // The landing's about block lost its statement copy in the home redesign; the About page keeps it here.
+            'about' => $this->home->about() + [
+                'statement' => 'Freelancing should be one of the most respected careers in Bangladesh. This is where that starts.',
+                'highlight' => 'one of the most respected careers in Bangladesh',
+                'paragraphs' => [
+                    'Freelancer Summit Bangladesh is a national platform for freelancers, aspiring freelancers, AI practitioners, entrepreneurs, marketplaces and the companies that hire them.',
+                    'It connects university and polytechnic students with the global digital economy, through programmes on their own campuses and in their own districts.',
+                    'It follows the whole journey: the first gig, a skilled career, and the step from freelancer to entrepreneur.',
+                ],
+                'stamp' => 'Not a one-day event',
+            ],
             'objectives' => [
                 'Establish freelancing as one of the most respected and highly desired professions in Bangladesh.',
                 'Increase awareness among youth about freelancing, AI and digital service sectors.',
@@ -125,18 +135,78 @@ class InnerPageContent
     /** Brief §15: map, divisions, progress counters, timeline to Dhaka, activation directory. */
     public function nationalJourney(): array
     {
+        [$journey, $summits] = $this->journeyDemo();
+
         return [
             'headings' => [
                 'progress' => self::h('Progress', 'The journey so far', 'so far', 'Counters update as programmes take place across the country.'),
                 'route' => self::h('The route', 'From grassroots to the Grand Summit', 'Grand Summit'),
-                'divisions' => self::h('8 divisions', 'A summit in every division', 'every division', 'Each divisional summit brings its districts and campuses together. Dates and venues are announced division by division.'),
+                'divisions' => self::h('8 divisions', 'A summit in every division', 'every division', 'Each divisional summit brings its districts and campuses together. Six divisional summits are done; Mymensingh and Dhaka close the route in November.'),
                 'includes' => self::h('Every programme page', 'What you will find for each activity', 'each activity'),
                 'cta' => self::h('', 'Bring the summit to your campus', 'your campus', 'Register for the Grand Summit, or follow the programmes coming to your district and institution.'),
             ],
-            'journey' => $this->home->journey(),
+            'journey' => $journey,
+            'reel' => [
+                ['image' => '/media/photos/gallery-12.jpg', 'place' => 'Rajshahi Divisional Summit', 'date' => '13 Sep 2026'],
+                ['image' => '/media/photos/gallery-14.jpg', 'place' => 'Campus program, CUET Chattogram', 'date' => '2 Oct 2026'],
+                ['image' => '/media/photos/gallery-13.jpg', 'place' => 'District roadshow, Jashore', 'date' => '18 Oct 2026'],
+            ],
+            'divisionSummits' => array_map(fn (array $d, int $i) => $d + ['image' => '/media/photos/gallery-'.str_pad((string) ($i + 4), 2, '0', STR_PAD_LEFT).'.jpg'], $summits, array_keys($summits)),
             // What every activity page carries (brief §15).
-            'includes' => ['Date and location', 'Organiser or partner', 'Event description', 'Speakers and mentors', 'Registration link', 'Photo and video gallery'],
+            'includes' => [
+                ['title' => 'Date and location', 'text' => 'Venue, room and a map pin, with travel notes for out-of-town participants.'],
+                ['title' => 'Organiser or partner', 'text' => 'The host institution, BACCO chapter and local partners behind each programme.'],
+                ['title' => 'Event description', 'text' => 'Who it is for, the session plan and what you will leave with.'],
+                ['title' => 'Speakers and mentors', 'text' => 'Freelancers, trainers and marketplace leads on stage and in breakouts.'],
+                ['title' => 'Registration link', 'text' => 'Free seats for students and freelancers, confirmed by SMS and email.'],
+                ['title' => 'Photo and video gallery', 'text' => 'Highlights and session recordings, published within a week.'],
+            ],
         ];
+    }
+
+    /**
+     * Page-only figures for /national-journey: counters, division summits and directory rows.
+     * shortcut: demo figures so the page reads populated; move to config/summit.php or the CMS once programmes report real numbers.
+     */
+    private function journeyDemo(): array
+    {
+        $journey = $this->home->journey();
+        foreach ($journey['counters'] as &$c) {
+            $c['value'] = ['divisions_covered' => 6, 'districts_covered' => 11, 'institutions_activated' => 87, 'participants_reached' => 42500][$c['id']];
+        }
+        unset($c);
+
+        $d = fn (string $name, string $date, string $venue, int $districts, int $campuses, int $participants, bool $held) => compact('name', 'date', 'venue', 'districts', 'campuses', 'participants', 'held');
+        $summits = [
+            $d('Rajshahi', '13 Sep 2026', 'Rajshahi University Auditorium', 8, 14, 6200, true),
+            $d('Khulna', '20 Sep 2026', 'KUET Convention Hall', 10, 12, 5400, true),
+            $d('Rangpur', '27 Sep 2026', 'Begum Rokeya University', 8, 10, 4100, true),
+            $d('Chattogram', '4 Oct 2026', 'Chittagong Club Convention Centre', 11, 15, 7800, true),
+            $d('Sylhet', '11 Oct 2026', 'SUST Central Auditorium', 4, 9, 3900, true),
+            $d('Barishal', '25 Oct 2026', 'Barishal Shilpakala Academy', 6, 8, 3600, true),
+            $d('Mymensingh', '8 Nov 2026', 'Bangladesh Agricultural University', 4, 9, 3800, false),
+            $d('Dhaka', '15 Nov 2026', 'Bangabandhu International Conference Center', 13, 23, 9500, false),
+        ];
+
+        $row = fn (string $type, string $name, string $location, string $date, string $partner, string $href) => compact('type', 'name', 'location', 'date', 'partner', 'href');
+        $journey['directory'] = [
+            'sample' => false,
+            'rows' => [
+                ...array_map(fn (array $s) => $row('division', "{$s['name']} Divisional Summit", $s['venue'], $s['date'], 'BACCO '.$s['name'].' Chapter', '/divisional-summits'), $summits),
+                $row('district', 'Jashore Roadshow', 'Jashore IT Park', '18 Oct 2026', 'Sheikh Hasina Software Technology Park', '/district-roadshows'),
+                $row('district', 'Cumilla Roadshow', 'Cumilla Town Hall', '22 Oct 2026', 'Cumilla Freelancers Association', '/district-roadshows'),
+                $row('district', 'Bogura Roadshow', 'Bogura Zilla School Auditorium', '29 Oct 2026', 'BACCO Rajshahi Chapter', '/district-roadshows'),
+                $row('district', "Cox's Bazar Roadshow", "Cox's Bazar Cultural Centre", '1 Nov 2026', 'Cox\'s Bazar Chamber of Commerce', '/district-roadshows'),
+                $row('district', 'Tangail Roadshow', 'Mawlana Bhashani Science and Technology University', '5 Nov 2026', 'Tangail District Administration', '/district-roadshows'),
+                $row('campus', 'AI for Freelancers Workshop', 'CUET, Chattogram', '2 Oct 2026', 'CUET Computer Club', '/campus-programs'),
+                $row('campus', 'First Client Bootcamp', 'Khulna Polytechnic Institute', '15 Oct 2026', 'Khulna Polytechnic Career Cell', '/campus-programs'),
+                $row('campus', 'Career Talk: ITES and BPO', 'Shahjalal University of Science and Technology', '21 Oct 2026', 'SUST Career Club', '/campus-programs'),
+                $row('campus', 'Marketplace Profile Clinic', 'Rajshahi University of Engineering and Technology', '28 Oct 2026', 'RUET IT Society', '/campus-programs'),
+                $row('campus', 'Mentor Session: Pricing Your Work', 'University of Dhaka', '3 Nov 2026', 'DU IT Society', '/campus-programs'),
+            ],
+        ];
+
+        return [$journey, $summits];
     }
 
     /** Brief §7, §14: day-based agenda, session types, halls, speakers, add to calendar, downloadable agenda. */

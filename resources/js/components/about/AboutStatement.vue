@@ -5,13 +5,12 @@ import RollingNumber from '@/components/ui/RollingNumber.vue';
 import { gsap, useGsap } from '@/composables/motion';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
-import type { About } from '@/types/content';
-import type { SectionHeading } from '@/types/inner';
+import type { AboutContent, SectionHeading } from '@/types/inner';
 import AboutHead from './AboutHead.vue';
 
 // "More than an event": the landing's editorial statement (scroll-scrubbed gold marker, rotated stamp), then a calm
 // count-up of the confirmed scale from config (divisions, districts, campuses). No other numbers.
-const props = defineProps<{ heading: SectionHeading; about: About }>();
+const props = defineProps<{ heading: SectionHeading; about: AboutContent['about'] }>();
 const { t } = useI18n();
 const { summit } = useShared();
 const root = ref<HTMLElement>();

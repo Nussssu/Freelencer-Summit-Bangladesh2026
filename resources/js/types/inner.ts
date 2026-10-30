@@ -33,7 +33,7 @@ type Headings<K extends string> = Record<K, SectionHeading>;
 
 export interface AboutContent {
     headings: Headings<'why' | 'objectives' | 'phases' | 'audiences' | 'highlights' | 'organisers' | 'cta'>;
-    about: About;
+    about: About & { statement: string; highlight: string; paragraphs: string[]; stamp: string };
     objectives: string[];
     phases: { title: string; coverage: string; href: string; activities: string[] }[];
     audiences: Audience[];
@@ -42,7 +42,9 @@ export interface AboutContent {
 export interface JourneyContent {
     headings: Headings<'progress' | 'route' | 'divisions' | 'includes' | 'cta'>;
     journey: Journey;
-    includes: string[];
+    reel: { image: string; place: string; date: string }[];
+    divisionSummits: { name: string; date: string; venue: string; districts: number; campuses: number; participants: number; held: boolean; image: string }[];
+    includes: { title: string; text: string }[];
 }
 export interface AgendaContent {
     headings: Headings<'programme' | 'formats' | 'downloads' | 'cta'>;
