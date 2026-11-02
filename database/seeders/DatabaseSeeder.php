@@ -11,7 +11,8 @@ class DatabaseSeeder extends Seeder
         $this->call([StructureSeeder::class, CmsSeeder::class]);
 
         if (app()->environment('local')) {
-            $this->call([DemoSeeder::class, LeadDemoSeeder::class]);
+            // CampaignNewsSeeder is real (brief-based) content: on production, run it once with --class when wanted.
+            $this->call([DemoSeeder::class, LeadDemoSeeder::class, CampaignNewsSeeder::class]);
         }
     }
 }

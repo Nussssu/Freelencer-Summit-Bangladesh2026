@@ -59,7 +59,7 @@ class SiteTest extends TestCase
 
     public function test_inner_pages_carry_brief_sections(): void
     {
-        $this->get('/about')->assertInertia(fn (Assert $p) => $p->has('content.objectives', 9)->has('content.phases', 4)->has('content.audiences', 9));
+        $this->get('/about')->assertInertia(fn (Assert $p) => $p->has('content.pillars', 2)->has('content.goals', 4)->has('content.overview.stats', 4));
         $this->get('/national-journey')->assertInertia(fn (Assert $p) => $p->has('content.journey.divisions', 8)->has('content.journey.counters', 4)->has('content.journey.steps', 4));
         $this->get('/agenda')->assertInertia(fn (Assert $p) => $p->has('content.agenda.types', 11)->where('content.agenda.sessions.0.ics', '/agenda/sessions/0.ics')->has('content.downloads', 2));
         $this->get('/speakers')->assertInertia(fn (Assert $p) => $p->where('content.speakers.0.href', '/speaker/'.app(HomeContent::class)->speakers()[0]['slug'])->where('content.speakers.0.sample', false));

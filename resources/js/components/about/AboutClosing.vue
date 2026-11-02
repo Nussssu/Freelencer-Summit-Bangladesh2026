@@ -2,45 +2,47 @@
 import { computed, ref } from 'vue';
 import CtaLink from '@/components/ui/CtaLink.vue';
 import SplitHeading from '@/components/ui/SplitHeading.vue';
-import { useMagnetic } from '@/composables/useMagnetic';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
-import type { SectionHeading } from '@/types/inner';
+import type { InnerPage, SectionHeading } from '@/types/inner';
 
-// A calmer echo of the landing's final CTA: big green line + stitch, one magnetic primary (Register), the other four
-// journeys grouped beneath as quiet outline buttons. Soft-green ground like the kit's CtaBand.
-defineProps<{ heading: SectionHeading }>();
+// Deep teal rounded band: two-line display heading with the last word in gold, Register (gold) and the page's
+// secondary hero action (outline) on the right.
+const props = defineProps<{ heading: SectionHeading; page: InnerPage }>();
 const { site } = useShared();
 const root = ref<HTMLElement>();
-const primaryWrap = ref<HTMLElement>();
 useReveal(root);
-useMagnetic(primaryWrap);
 
-const primary = computed(() => site.value.ctas.primary.find((c) => c.id === 'register') ?? site.value.ctas.primary[0]);
-const others = computed(() => site.value.ctas.primary.filter((c) => c.id !== primary.value.id));
+const register = computed(() => site.value.ctas.primary.find((c) => c.id === 'register') ?? site.value.ctas.primary[0]);
+const secondary = computed(() => props.page.hero.actions?.find((a) => a.tone !== 'gold'));
 </script>
 
 <template>
-    <section ref="root" class="soft-green on-light light-tokens relative overflow-hidden py-24 md:py-32" aria-labelledby="ab-cta">
-        <div class="container-site">
-            <SplitHeading
-                id="ab-cta"
-                :text="heading.title"
-                :emphasis="heading.emphasis ?? undefined"
-                emphasis-class="text-night"
-                class="max-w-5xl font-display text-[clamp(3rem,8vw,7rem)] leading-[0.88] font-black text-green uppercase [text-wrap:balance]"
-            />
-            <div class="stitch mt-8 h-2 max-w-md" data-reveal="stitch" aria-hidden="true" />
-            <p v-if="heading.intro" class="mt-8 max-w-[56ch] text-lg leading-relaxed" data-reveal="fade">{{ heading.intro }}</p>
-
-            <div class="mt-12" data-reveal="fade">
-                <span ref="primaryWrap" class="inline-block">
-                    <CtaLink :href="primary.href" class="!px-8 !py-5 text-base">{{ primary.label }}</CtaLink>
-                </span>
+    <section ref="root" class="px-4 pb-16 md:px-6 md:pb-24" aria-labelledby="ab-cta">
+        <div class="band relative mx-auto max-w-[90rem] overflow-hidden rounded-2xl px-6 py-12 text-paper md:px-12 md:py-14">
+            <div class="relative grid items-center gap-10 lg:grid-cols-12">
+                <div class="lg:col-span-7">
+                    <SplitHeading
+                        id="ab-cta"
+                        :text="heading.title"
+                        :emphasis="heading.emphasis ?? undefined"
+                        emphasis-class="text-gold"
+                        class="max-w-[16ch] font-display text-[clamp(2.5rem,4.6vw,3.75rem)] leading-[0.95] font-black uppercase"
+                    />
+                </div>
+                <div class="flex flex-wrap gap-4 lg:col-span-5 lg:justify-end" data-reveal="fade">
+                    <CtaLink :href="register.href" class="!px-7 !py-4">{{ register.label }}</CtaLink>
+                    <CtaLink v-if="secondary" :href="secondary.href" tone="outline" class="!px-7 !py-4">{{ secondary.label }}</CtaLink>
+                </div>
             </div>
-            <ul class="mt-8 flex flex-col gap-2 border-t border-night/15 pt-8 sm:flex-row sm:flex-wrap" data-reveal="fade">
-                <li v-for="c in others" :key="c.id"><CtaLink :href="c.href" tone="outline" class="w-full sm:w-auto">{{ c.label }}</CtaLink></li>
-            </ul>
         </div>
     </section>
 </template>
+
+<style scoped>
+.band {
+    background:
+        radial-gradient(60% 120% at 100% 0%, rgb(8 127 140 / 0.55), transparent 70%),
+        linear-gradient(120deg, #06454c, #0a5f69);
+}
+</style>

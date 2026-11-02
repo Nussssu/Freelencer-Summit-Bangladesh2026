@@ -1,38 +1,40 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
-import type { SectionHeading } from '@/types/inner';
-import AboutHead from './AboutHead.vue';
+import type { AboutContent, SectionHeading } from '@/types/inner';
+import SplitHeading from '@/components/ui/SplitHeading.vue';
 
-// Organisers as two substantial panels: large logo field (wordmark until logos are supplied), role, full name.
-defineProps<{ heading: SectionHeading }>();
+// Organisers under a centred display heading (same size as News & Updates) as two white cards: logo field, hairline,
+// short name over a one-line description.
+// Logos and names come from Settings (site.organisers); the description from the page content, falling back to the name.
+const props = defineProps<{ heading: SectionHeading; organisers: AboutContent['organisers'] }>();
 const { site } = useShared();
 const root = ref<HTMLElement>();
 useReveal(root);
+
+const cards = computed(() => site.value.organisers.map((o) => ({ ...o, text: props.organisers.find((c) => c.short === o.short)?.text ?? o.name })));
 </script>
 
 <template>
-    <section ref="root" class="section" aria-labelledby="ab-organisers">
-        <div class="container-site">
-            <AboutHead id="ab-organisers" :heading="heading" />
-            <ul class="mt-14 grid gap-6 md:grid-cols-2">
-                <li
-                    v-for="o in site.organisers"
-                    :key="o.short"
-                    class="group flex flex-col bg-snow shadow-[0_24px_48px_-28px_rgb(8_58_64/0.35)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1"
-                    data-reveal="fade"
-                >
-                    <div class="grid h-48 place-items-center border-b border-line-light bg-paper md:h-56">
-                        <img v-if="o.logo" :src="o.logo" :alt="o.name" class="max-h-28 w-auto" loading="lazy" />
-                        <span v-else class="font-display text-7xl font-black tracking-[-0.01em] text-bacco transition-colors duration-500 group-hover:text-green md:text-8xl" aria-hidden="true" translate="no">{{ o.short }}</span>
+    <section ref="root" class="container-site" aria-labelledby="ab-organisers">
+        <div class="border-t border-line-light pt-16 pb-16 md:pt-24 md:pb-24">
+            <SplitHeading
+                id="ab-organisers"
+                :text="heading.title"
+                :emphasis="heading.emphasis ?? undefined"
+                emphasis-class="text-green"
+                class="text-center font-display text-[clamp(2.75rem,6vw,5rem)] leading-[0.92] font-black text-night uppercase"
+            />
+            <ul class="mt-12 grid md:mt-16 gap-6 md:grid-cols-2">
+                <li v-for="o in cards" :key="o.short" class="flex items-center rounded-xl bg-snow py-7 shadow-[0_18px_40px_-30px_rgb(7_20_17/0.35)]" data-reveal="fade">
+                    <div class="grid w-36 shrink-0 place-items-center self-stretch border-r border-line-light px-5 sm:w-48 sm:px-8">
+                        <img v-if="o.logo" :src="o.logo" :alt="o.name" class="max-h-14 w-auto" loading="lazy" />
+                        <span v-else class="font-display text-4xl font-black text-bacco" translate="no">{{ o.short }}</span>
                     </div>
-                    <div class="flex items-start justify-between gap-6 p-6 md:p-8">
-                        <div>
-                            <p class="text-sm font-semibold text-green">{{ o.role }}</p>
-                            <h3 class="mt-2 text-xl leading-snug font-semibold md:text-2xl">{{ o.name }}</h3>
-                        </div>
-                        <span class="t-label shrink-0 border border-line-light px-2 py-1 text-ink-2" translate="no">{{ o.short }}</span>
+                    <div class="px-6 sm:px-8">
+                        <h3 class="text-xl font-bold text-night" translate="no">{{ o.short }}</h3>
+                        <p class="mt-1 max-w-[34ch] text-base leading-snug text-ink-2">{{ o.text }}</p>
                     </div>
                 </li>
             </ul>

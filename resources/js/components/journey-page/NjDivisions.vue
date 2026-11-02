@@ -16,7 +16,7 @@ const fmt = (n: number) => n.toLocaleString('en-US');
 </script>
 
 <template>
-    <section ref="root" class="section bg-snow" aria-labelledby="nj-divisions">
+    <section ref="root" class="section" aria-labelledby="nj-divisions">
         <div class="container-site">
             <SectionHead id="nj-divisions" :heading="heading" />
             <ul class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

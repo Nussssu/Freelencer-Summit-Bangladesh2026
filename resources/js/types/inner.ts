@@ -1,5 +1,5 @@
 // Prop shapes for inner pages. Mirrors app/Queries/* (PHP is the source of truth).
-import type { About, Agenda, Audience, Awards, CtaTone, Highlight, Journey, Session } from './content';
+import type { Agenda, Awards, CtaTone, Journey, Session } from './content';
 
 export interface Crumb {
     label: string;
@@ -32,12 +32,13 @@ export interface SectionHeading {
 type Headings<K extends string> = Record<K, SectionHeading>;
 
 export interface AboutContent {
-    headings: Headings<'why' | 'objectives' | 'phases' | 'audiences' | 'highlights' | 'organisers' | 'cta'>;
-    about: About & { statement: string; highlight: string; paragraphs: string[]; stamp: string };
-    objectives: string[];
-    phases: { title: string; coverage: string; href: string; activities: string[] }[];
-    audiences: Audience[];
-    highlights: Highlight[];
+    headings: Headings<'overview' | 'pillars' | 'goals' | 'organisers' | 'news' | 'cta'>;
+    intro: { title: string; emphasis: string | null; paragraphs: string[] };
+    overview: { stats: { icon: string; value: string; label: string }[] };
+    pillars: { icon: string; title: string; text: string; image: string | null }[];
+    goals: { icon: string; title: string }[];
+    organisers: { short: string; text: string }[];
+    latestNews: { title: string; text: string | null; href: string; tag: string; image: string }[];
 }
 export interface JourneyContent {
     headings: Headings<'progress' | 'route' | 'divisions' | 'includes' | 'cta'>;

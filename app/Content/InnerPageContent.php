@@ -3,7 +3,9 @@
 namespace App\Content;
 
 use App\Enums\DownloadKind;
+use App\Models\NewsPost;
 use App\Queries\ContentQuery;
+use App\Queries\NewsQuery;
 
 /**
  * Hero copy and body sections for the built main-navigation pages. Title/description for SEO stay in PageContent.
@@ -12,7 +14,7 @@ use App\Queries\ContentQuery;
  */
 class InnerPageContent
 {
-    public function __construct(private HomeContent $home) {}
+    public function __construct(private HomeContent $home, private NewsQuery $news) {}
 
     /** Section heading: eyebrow label, title (emphasis is a substring of it), optional one-line intro. */
     private static function h(string $eyebrow, string $title, ?string $emphasis = null, ?string $intro = null): array
@@ -27,21 +29,23 @@ class InnerPageContent
     public const PAGES = [
         '/about' => [
             'component' => 'About',
-            'title' => 'A national platform for freelancers',
-            'emphasis' => 'freelancers',
-            'intro' => 'A national campaign, not a single-day event. Organised by BACCO with DoICT, it builds momentum across Bangladesh and culminates in the Grand Summit in Dhaka.',
-            'image' => '/media/photos/about-summit.jpg',
+            'title' => 'About Summit',
+            'emphasis' => 'Summit',
+            // shortcut: Unsplash+ preview (watermarked); replace with the licensed download before launch.
+            'image' => '/media/photos/about-hero.jpg',
+            // The title-only hero shows no action; the ghost one closes the page beside Register.
             'actions' => [
-                ['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'],
-                ['label' => 'Explore the national journey', 'href' => '/national-journey', 'tone' => 'ghost'],
+                ['label' => 'Explore the Summit', 'href' => '/grand-summit', 'tone' => 'gold'],
+                ['label' => 'Get Involved', 'href' => '/contact', 'tone' => 'ghost'],
             ],
         ],
         '/national-journey' => [
             'component' => 'NationalJourney',
-            'title' => 'Eight divisions, one road to Dhaka',
-            'emphasis' => 'one road to Dhaka',
+            // Title-only hero like About Summit (shared NewsHero); intro and actions stay for the closing band below.
+            'title' => 'National Journey',
+            'emphasis' => 'Journey',
             'intro' => 'Campus programs, district roadshows and divisional summits across all 8 divisions build the campaign that leads to the Grand Summit in Dhaka.',
-            'image' => '/media/photos/gallery-04.jpg',
+            'image' => '/media/photos/journey-hero.jpg',
             'actions' => [
                 ['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'],
                 ['label' => 'Find a district roadshow', 'href' => '/district-roadshows', 'tone' => 'ghost'],
@@ -199,10 +203,10 @@ class InnerPageContent
         ],
         '/news' => [
             'component' => 'News', 'content' => [Pages\MediaPages::class, 'news'],
-            'title' => 'News and campaign updates',
-            'emphasis' => 'campaign updates',
+            'title' => 'Latest News',
+            'emphasis' => 'News',
             'intro' => 'Announcements, roadshow updates, speaker announcements, press releases and media coverage.',
-            'image' => '/media/photos/gallery-05.jpg',
+            'image' => '/media/photos/highlight-networking.jpg',
             'actions' => [['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'], ['label' => 'Media gallery', 'href' => '/media', 'tone' => 'ghost']],
         ],
         '/news/{slug}' => ['component' => 'Article', 'content' => [Pages\MediaPages::class, 'article'], 'title' => 'News'],
@@ -233,57 +237,82 @@ class InnerPageContent
         '/terms' => ['component' => 'Legal', 'content' => [Pages\MediaPages::class, 'terms'], 'title' => 'Terms of use', 'emphasis' => 'use', 'intro' => 'The terms for using this website and its registration forms.', 'image' => '/media/photos/gallery-14.jpg'],
     ];
 
-    /** Brief §1–4: positioning, strategic objectives, implementation journey, audiences, organisers. */
+    /**
+     * Brief §1–4 in the client's About mock-up: overview, purpose and vision, key objectives, the national journey,
+     * organisers. Block keys are new (not the old why/objectives/phases), so stale CMS blocks cannot reach this shape.
+     */
     public function about(): array
     {
-        $journey = $this->home->journey();
-
         return [
             'headings' => [
-                'why' => self::h('Why it exists', 'More than an event', 'event'),
-                'objectives' => self::h('Strategic objectives', 'What the summit sets out to do', 'sets out to do'),
-                'phases' => self::h('How it works', 'One campaign, four strands', 'four strands', 'Activity builds across the country all year and comes together at the Grand Summit in Dhaka.'),
-                'audiences' => self::h('Who it is for', 'Something for every step of the journey', 'every step'),
-                'highlights' => self::h('At the Grand Summit', 'What happens in Dhaka', 'Dhaka'),
-                'organisers' => self::h('Organisers', 'Jointly organised by', 'organised by'),
-                'cta' => self::h('', 'Be part of the national journey', 'national journey', 'Register to attend, nominate for the awards, exhibit, sponsor or join the BACCO Freelancer Forum.'),
+                'overview' => self::h('', 'The summit at a glance'),
+                'pillars' => self::h('', 'Purpose & Vision', 'Vision'),
+                'goals' => self::h('', 'Key Objectives', 'Objectives'),
+                'organisers' => self::h('', 'Organized by', 'by'),
+                'news' => self::h('', 'News & Updates', 'Updates'),
+                'cta' => self::h('', 'Be part of Bangladesh’s freelance future.', 'future.'),
             ],
-            // The landing's about block lost its statement copy in the home redesign; the About page keeps it here.
-            'about' => $this->home->about() + [
-                'statement' => 'Freelancing should be one of the most respected careers in Bangladesh. This is where that starts.',
-                'highlight' => 'one of the most respected careers in Bangladesh',
+            // Brief §1 positioning, laid out like the reference About page (bposummit.org.bd/about-us): name, then prose.
+            'intro' => [
+                'title' => 'Freelancer Summit Bangladesh 2026',
+                'emphasis' => 'Bangladesh 2026',
                 'paragraphs' => [
-                    'Freelancer Summit Bangladesh is a national platform for freelancers, aspiring freelancers, AI practitioners, entrepreneurs, marketplaces and the companies that hire them.',
-                    'It connects university and polytechnic students with the global digital economy, through programmes on their own campuses and in their own districts.',
-                    'It follows the whole journey: the first gig, a skilled career, and the step from freelancer to entrepreneur.',
+                    'Freelancer Summit Bangladesh 2026 is envisioned as the largest national platform dedicated to freelancers, aspiring freelancers, digital professionals, AI practitioners, entrepreneurs, students, marketplaces, technology companies and the wider digital economy ecosystem of Bangladesh.',
+                    'The initiative will not be a single-day event only. It will operate as a national campaign that builds momentum through activities across Bangladesh and culminates in the Grand Freelancer Summit in Dhaka in late November 2026.',
                 ],
-                'stamp' => 'Not a one-day event',
             ],
-            'objectives' => [
-                'Establish freelancing as one of the most respected and highly desired professions in Bangladesh.',
-                'Increase awareness among youth about freelancing, AI and digital service sectors.',
-                'Create a continuous national platform for developing internationally competitive skilled human resources.',
-                'Connect university and polytechnic students with the global digital economy.',
-                'Increase Bangladesh\'s connectivity with international marketplaces, technology institutions and global experts.',
-                'Build a national ecosystem for new freelancers, skilled freelancers and freelancer-to-entrepreneur journeys.',
-                'Increase youth interest in ITES, BPO and AI-based digital services.',
-                'Facilitate Freelancer ID and BACCO Freelancer Forum membership registration.',
-                'Bring international speakers, trainers, successful entrepreneurs and global marketplace representatives into the ecosystem.',
+            // Figures as given in the client's About mock-up; a leading number rolls up on the page, the rest stays text.
+            'overview' => [
+                'stats' => [
+                    ['icon' => 'people', 'value' => '2,500+', 'label' => 'Attendees'],
+                    ['icon' => 'mic', 'value' => '50+', 'label' => 'Speakers'],
+                    ['icon' => 'layers', 'value' => '20+', 'label' => 'Sessions & Workshops'],
+                    ['icon' => 'network', 'value' => 'Global', 'label' => 'Industry & Platform Presence'],
+                ],
             ],
-            // Brief §4 implementation table; coverage counts come from config like the landing.
-            'phases' => [
-                ['title' => 'District Programs', 'coverage' => $journey['steps'][1]['title'], 'href' => '/district-roadshows',
-                    'activities' => ['Freelancer roadshows', 'Career awareness', 'Skill development', 'New freelancer campaign', 'Success stories, AI showcase and marketplace sessions']],
-                ['title' => 'Campus Programs', 'coverage' => $journey['steps'][0]['title'], 'href' => '/campus-programs',
-                    'activities' => ['Seminars', 'Workshops', 'Career talks', 'AI awareness', 'Mentor sessions']],
-                ['title' => 'Grand Dhaka Summit', 'coverage' => 'Dhaka', 'href' => '/grand-summit',
-                    'activities' => ['Main summit and keynotes', 'Freelancer Awards', 'Seminars and workshops', 'Exhibition', 'Networking']],
-                ['title' => 'Digital Campaign', 'coverage' => 'Nationwide', 'href' => '/news',
-                    'activities' => ['Media and social campaign', 'Campus ambassadors', 'Success stories', 'News and updates']],
+            // shortcut: photos cut from the client's Purpose & Vision mock-up (low resolution); replace with the originals.
+            'pillars' => [
+                ['icon' => 'target', 'title' => 'Our Purpose', 'text' => 'Empowering freelancers through skill development, professional connections, and meaningful opportunities.', 'image' => '/media/photos/about-purpose.jpg'],
+                ['icon' => 'eye', 'title' => 'Our Vision', 'text' => 'Building a globally competitive and inclusive freelancing ecosystem for Bangladesh.', 'image' => '/media/photos/about-vision.jpg'],
             ],
-            'audiences' => $this->home->audiences(),
-            'highlights' => $this->home->highlights(),
+            'goals' => [
+                ['icon' => 'laptop', 'title' => 'Advance Digital Skills'],
+                ['icon' => 'people', 'title' => 'Create Opportunities'],
+                ['icon' => 'layers', 'title' => 'Strengthen the Ecosystem'],
+                ['icon' => 'chart', 'title' => 'Connect to Global Markets'],
+            ],
+            // Logos and names stay in Settings (site.organisers); this is the one-line description per organiser.
+            'organisers' => [
+                ['short' => 'BACCO', 'text' => 'Bangladesh Association of Contact Center & Outsourcing'],
+                ['short' => 'DoICT', 'text' => 'Department of ICT, Government of Bangladesh'],
+            ],
+            'latestNews' => $this->latestNews(),
         ];
+    }
+
+    /** Real event photo per news category, for posts published without a cover. */
+    private const NEWS_PHOTOS = [
+        'announcement' => '/media/photos/gallery-10.jpg',
+        'roadshow' => '/media/photos/gallery-13.jpg',
+        'speakers' => '/media/photos/highlight-career.jpg',
+        'press' => '/media/photos/gallery-12.jpg',
+        'in-the-media' => '/media/photos/highlight-networking.jpg',
+    ];
+
+    /**
+     * About marquee cards: the newest real posts (title, excerpt, date), each opening its article page. Demo rows
+     * (is_sample) never show here; with nothing published the section stays hidden.
+     */
+    private function latestNews(): array
+    {
+        return NewsPost::where('is_sample', false)->whereNotNull('published_at')->where('published_at', '<=', now())->latest('published_at')->limit(8)->get()
+            ->map(fn (NewsPost $p) => [
+                'title' => $p->title,
+                'text' => $p->excerpt,
+                'href' => "/news/{$p->slug}",
+                'tag' => $p->published_at->timezone('Asia/Dhaka')->format('d/m/Y'),
+                'image' => $p->cover_image ?? self::NEWS_PHOTOS[$p->category->value],
+            ])->all();
     }
 
     /** Brief §15: map, divisions, progress counters, timeline to Dhaka, activation directory. */

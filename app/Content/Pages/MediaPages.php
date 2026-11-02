@@ -54,7 +54,7 @@ class MediaPages
         return [
             'filters' => ['category' => $category],
             'categories' => NewsCategory::options(),
-            'posts' => fn () => $this->news->list($category ?: null, 9),
+            'posts' => fn () => $this->news->list($category ?: null, 12),
             'empty' => ['title' => 'News coming soon', 'body' => 'Official announcements, roadshow updates and speaker announcements are published here first.'],
             'upcoming' => array_map(fn ($n) => ['category' => $n['category'], 'title' => $n['title']], $this->home->news()),
         ];

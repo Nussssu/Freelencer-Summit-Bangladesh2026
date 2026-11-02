@@ -4,16 +4,21 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import JourneyMapStages from '@/components/sections/journey/JourneyMapStages.vue';
 import Icon from '@/components/ui/Icon.vue';
-import { gsap, reducedMotion } from '@/composables/motion';
+import { ScrollTrigger, gsap, reducedMotion } from '@/composables/motion';
 import { useReveal } from '@/composables/useReveal';
 import type { JourneyStep } from '@/types/content';
 import type { SectionHeading } from '@/types/inner';
 
-// Map and timeline as one instrument: the map plays campuses → districts → divisions → Dhaka once in view, and the
-// timeline lights the matching step and fills its spine. Hover, focus or click a step to send the map to that stage.
-defineProps<{ heading: SectionHeading; steps: JourneyStep[]; beaconLabel: string }>();
+// Map and a compact step list (title + link) as one instrument that fits a single screen. On desktop the whole block
+// pins under the header while scrolling advances the map one stage at a time, up to the Grand Summit, then lets go;
+// scrolling back steps it back. On small screens and under reduced motion the map plays campuses → districts →
+// divisions → Dhaka once in view instead. Click a step to go to its stage (hover and focus too, off desktop).
+const props = defineProps<{ heading: SectionHeading; steps: JourneyStep[]; beaconLabel: string }>();
 const root = ref<HTMLElement>();
+const frame = ref<HTMLElement>();
 const map = ref<InstanceType<typeof JourneyMapStages>>();
+const scrollMode = ref(false);
+let pin: ScrollTrigger | undefined;
 useReveal(root);
 
 // Stage centres on JourneyMapStages' 0–4 scale, and where each stage hands over to the next.
@@ -38,28 +43,59 @@ const play = (to: number, duration: number) => {
     tween = gsap.to(p, { v: to, duration, ease: duration > 3 ? 'none' : 'power2.inOut', onUpdate: apply });
 };
 const goTo = (i: number) => play(AT[i], 0.9);
+// While pinned, a click scrolls to the middle of that step's stretch, so the scroll position and the map agree.
+const pick = (i: number) => {
+    if (!scrollMode.value || !pin) return goTo(i);
+    window.scrollTo({ top: pin.start + ((i + 0.5) / props.steps.length) * (pin.end - pin.start), behavior: 'smooth' });
+};
 
-let io: IntersectionObserver | undefined;
+let mm: gsap.MatchMedia | undefined;
 onMounted(() => {
-    io = new IntersectionObserver(
-        ([e]) => {
-            if (!e.isIntersecting) return;
-            io?.disconnect();
-            play(4, 8);
-        },
-        { threshold: 0.35 },
-    );
-    io.observe(root.value!);
+    mm = gsap.matchMedia();
+    mm.add({ scroll: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)' }, (ctx) => {
+        if (ctx.conditions?.scroll) {
+            scrollMode.value = true;
+            // Pinned just under the fixed header; about half a screen of scroll per stage.
+            const head = () => document.querySelector('header')?.offsetHeight ?? 0;
+            let shown = -1;
+            pin = ScrollTrigger.create({
+                trigger: frame.value,
+                start: () => `top top+=${head() + 24}`,
+                end: () => `+=${innerHeight * 0.45 * props.steps.length}`,
+                pin: true,
+                anticipatePin: 1,
+                onUpdate: (t) => {
+                    const i = Math.min(props.steps.length - 1, Math.floor(t.progress * props.steps.length));
+                    if (i !== shown) goTo((shown = i));
+                },
+            });
+            return () => {
+                pin?.kill();
+                pin = undefined;
+                scrollMode.value = false;
+            };
+        }
+        const io = new IntersectionObserver(
+            ([e]) => {
+                if (!e.isIntersecting) return;
+                io.disconnect();
+                play(4, 8);
+            },
+            { threshold: 0.35 },
+        );
+        io.observe(root.value!);
+        return () => io.disconnect();
+    });
 });
 onBeforeUnmount(() => {
-    io?.disconnect();
+    mm?.revert();
     tween?.kill();
 });
 </script>
 
 <template>
-    <section ref="root" class="section overflow-hidden bg-paper" aria-labelledby="nj-route">
-        <div class="container-site grid gap-12 lg:grid-cols-12 lg:items-center">
+    <section ref="root" class="section overflow-x-clip" aria-labelledby="nj-route">
+        <div ref="frame" class="container-site grid gap-12 lg:grid-cols-12 lg:items-center">
             <div class="relative lg:col-span-7">
                 <!-- Soft halo behind Dhaka so the converging lines have somewhere to land -->
                 <div class="pointer-events-none absolute top-[38%] left-[44%] size-[55%] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(234_185_75/0.22),transparent)]" aria-hidden="true" />
@@ -79,20 +115,18 @@ onBeforeUnmount(() => {
                     <li
                         v-for="(st, i) in steps"
                         :key="st.title"
-                        class="relative cursor-pointer pb-7 pl-10 transition-opacity duration-500 last:pb-0"
+                        class="relative cursor-pointer pb-6 pl-10 transition-opacity duration-500 last:pb-0"
                         :class="active === -1 || active === i ? 'opacity-100' : 'opacity-55 hover:opacity-100'"
                         data-reveal="fade"
-                        @mouseenter="goTo(i)"
-                        @focusin="goTo(i)"
-                        @click="goTo(i)"
+                        @mouseenter="!scrollMode && goTo(i)"
+                        @focusin="!scrollMode && goTo(i)"
+                        @click="pick(i)"
                     >
                         <span class="absolute top-1 left-0 grid size-[15px] place-items-center" aria-hidden="true">
                             <span v-if="active === i" class="nj-ping absolute inset-0 rounded-full" :class="i === steps.length - 1 ? 'bg-red/40' : 'bg-green/40'" />
                             <span class="relative size-[15px] rounded-full border-[3px] border-paper transition-colors duration-500" :class="active >= i ? (i === steps.length - 1 ? 'bg-red' : 'bg-green') : 'bg-line-light'" />
                         </span>
-                        <p class="t-label text-ink-2">Stage {{ i + 1 }} of {{ steps.length }}</p>
-                        <h3 class="mt-2 font-display text-[clamp(1.75rem,2.6vw,2.25rem)] leading-none font-black uppercase transition-colors duration-500" :class="active === i && 'text-green'">{{ st.title }}</h3>
-                        <p class="mt-2 max-w-md text-ink-2">{{ st.text }}</p>
+                        <h3 class="font-display text-[clamp(1.75rem,2.6vw,2.25rem)] leading-none font-black uppercase transition-colors duration-500" :class="active === i && 'text-green'">{{ st.title }}</h3>
                         <Link :href="st.href" class="link-u t-label mt-2 inline-flex min-h-11 items-center gap-2 text-green" @click.stop>{{ st.tag }} <Icon name="arrow" :size="14" /></Link>
                     </li>
                 </ol>

@@ -14,7 +14,7 @@ useReveal(root);
 </script>
 
 <template>
-    <section ref="root" class="section bg-snow" aria-labelledby="nj-progress">
+    <section ref="root" class="section" aria-labelledby="nj-progress">
         <div class="container-site">
             <SectionHead id="nj-progress" :heading="heading" />
 
@@ -24,7 +24,7 @@ useReveal(root);
                         {{ c.label }}<span v-if="c.of" class="text-ink-2/70"> of {{ c.of }}</span>
                     </dt>
                     <dd class="order-1">
-                        <span class="t-stat block text-[clamp(2.25rem,5vw,4.75rem)]"><RollingNumber :value="c.value" :suffix="c.of ? '' : '+'" /></span>
+                        <span class="block text-[clamp(1.75rem,2.6vw,2.25rem)] leading-none font-extrabold tracking-[-0.02em] tabular-nums"><RollingNumber :value="c.value" :suffix="c.of ? '' : '+'" /></span>
                         <!-- Meter against the campaign target; participants have no ceiling, so it shows a full bar -->
                         <span class="mt-5 block h-[3px] bg-line-light" aria-hidden="true">
                             <span class="block h-full bg-gradient-to-r from-green to-gold" :style="{ width: c.of ? `${Math.min(100, (c.value / c.of) * 100)}%` : '100%' }" data-reveal="stitch" />

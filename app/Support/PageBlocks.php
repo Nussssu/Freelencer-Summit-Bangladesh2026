@@ -14,7 +14,7 @@ use App\Models\Page;
 class PageBlocks
 {
     /** Keys filled by code or the database (downloads, enquiry form fields, calendar links), never by the CMS. */
-    public const CODE_ONLY = ['downloads', 'enquiryFields', 'baccoStats', 'ics'];
+    public const CODE_ONLY = ['downloads', 'enquiryFields', 'baccoStats', 'ics', 'latestNews'];
 
     /** Blocks rebuilt by code on that page: /agenda adds per-session calendar links to the landing agenda. */
     private const LOCKED = ['/agenda' => ['agenda']];
