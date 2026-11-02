@@ -41,7 +41,7 @@ class BusinessPages
             'headings' => [
                 'why' => self::h('Why sponsor the summit', 'sponsor'),
                 'tiers' => self::h('Sponsorship tiers', 'tiers'),
-                'enquiry' => self::h('Send a sponsorship enquiry', 'enquiry'),
+                'enquiry' => self::h('Sponsorship Enquiry', 'Enquiry'),
             ],
             'why' => [
                 ['icon' => 'map', 'tone' => 'tone-teal', 'title' => 'National reach', 'text' => 'Visibility across campus programs, district roadshows and divisional summits in all 8 divisions.'],
@@ -57,7 +57,7 @@ class BusinessPages
                 'budgets' => self::options(SubmissionController::BUDGETS),
                 'consent' => $this->consent(),
             ],
-            'aside' => ['Prospectus emailed to you', 'Optional call-back from the partnerships team', 'Reference number for your enquiry'],
+            'enquiryIntro' => "Partner with Freelancer Summit Bangladesh 2026 and position your brand at the center of Bangladesh's growing freelance economy.",
         ];
     }
 
@@ -118,8 +118,7 @@ class BusinessPages
             'sectors' => self::options(SubmissionController::SECTORS),
             'booths' => self::options(SubmissionController::BOOTHS),
             'consent' => $this->consent(),
-            'steps' => ['Organisation', 'Contact', 'Your booth'],
-            'aside' => ['Booth allocation once the floor plan is final', 'Status: Available, Reserved, Confirmed', 'Reference number and confirmation email'],
+            'steps' => ['Organization Details', 'Booth & Requirements', 'Review & Submit'],
         ];
     }
 
@@ -153,18 +152,16 @@ class BusinessPages
 
     public function forumRegister(): array
     {
-        $f = $this->home->forum();
-
         return [
             'districts' => $this->districts(),
             'experience' => self::options(SubmissionController::EXPERIENCE),
             'availability' => self::options(SubmissionController::AVAILABILITY),
             'skills' => self::options(SubmissionController::SKILLS),
             'platforms' => self::options(SubmissionController::PLATFORMS),
+            'nationalities' => self::options(SubmissionController::NATIONALITIES),
+            'profileTypes' => self::options(SubmissionController::PROFILE_TYPES),
             'consent' => $this->consent(),
-            'steps' => ['About you', 'Your work'],
-            'eligibility' => $f['eligibility'],
-            'aside' => ['Only officially required details', 'NID only if BACCO makes it mandatory', 'Status emailed to you'],
+            'steps' => ['Personal Profile', 'Freelancing Details', 'Review & Submit'],
         ];
     }
 

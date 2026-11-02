@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Line icons for the tinted discs on inner-page cards (same stroke style as the landing's Get involved icons).
 export type GlyphName =
-    | 'user-plus' | 'star' | 'handshake' | 'store' | 'people' | 'calendar' | 'pin' | 'mic' | 'ticket' | 'trophy' | 'doc' | 'pen' | 'map'
+    | 'user-plus' | 'user' | 'star' | 'handshake' | 'store' | 'people' | 'calendar' | 'pin' | 'mic' | 'ticket' | 'trophy' | 'doc' | 'pen' | 'map'
     | 'globe' | 'cap' | 'building' | 'briefcase' | 'rocket' | 'bulb' | 'chart' | 'chat' | 'mail' | 'phone' | 'shield' | 'check' | 'clock'
     | 'image' | 'play' | 'news' | 'layers' | 'ai' | 'target' | 'megaphone' | 'download' | 'link' | 'flag' | 'route' | 'id' | 'grid' | 'heart' | 'search';
 defineProps<{ name: GlyphName }>();
@@ -10,6 +10,7 @@ defineProps<{ name: GlyphName }>();
 <template>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <template v-if="name === 'user-plus'"><circle cx="10" cy="8" r="3.5" /><path d="M3.5 20a6.5 6.5 0 0 1 13 0M18.5 6v5M16 8.5h5" /></template>
+        <template v-else-if="name === 'user'"><circle cx="12" cy="8" r="3.75" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></template>
         <template v-else-if="name === 'star'"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.5Z" /></template>
         <template v-else-if="name === 'handshake'"><path d="m11 17 2 2a1.4 1.4 0 0 0 2-2M13 15l2.5 2.5a1.4 1.4 0 0 0 2-2l-3-3M10 12.5l3.4-3.4a1.9 1.9 0 0 1 2.7 0L21 14M3 14l4.5-4.5a2 2 0 0 1 2.4-.3L12 10.5M3 9.5 6 6.5M21 9.5l-3-3M9 16l2 2a1.4 1.4 0 0 1-2 2l-2-2a1.4 1.4 0 0 1 2-2Z" /></template>
         <template v-else-if="name === 'store'"><path d="M4 9h16l-1.5-4.5h-13L4 9ZM4 9v1.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0V9M5.5 13v6.5h13V13M9.5 19.5V16h5v3.5" /></template>

@@ -8,6 +8,7 @@ enum AttendeeType: string
     use HasOptions;
 
     case Freelancer = 'freelancer';
+    case Professional = 'professional';
     case AspiringFreelancer = 'aspiring-freelancer';
     case Student = 'student';
     case Entrepreneur = 'entrepreneur';

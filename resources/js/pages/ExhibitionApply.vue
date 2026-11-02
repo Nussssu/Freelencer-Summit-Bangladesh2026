@@ -1,81 +1,142 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ConsentField from '@/components/forms/ConsentField.vue';
+import ErrorSummary from '@/components/forms/ErrorSummary.vue';
+import Field from '@/components/forms/Field.vue';
+import FormNav from '@/components/forms/FormNav.vue';
+import FormPage from '@/components/forms/FormPage.vue';
+import FormSteps from '@/components/forms/FormSteps.vue';
 import FormSuccess from '@/components/forms/FormSuccess.vue';
+import { iconInputClass } from '@/components/forms/input';
 import RadioCards from '@/components/forms/RadioCards.vue';
-import SelectField from '@/components/forms/SelectField.vue';
-import StepShell from '@/components/forms/StepShell.vue';
 import TextareaField from '@/components/forms/TextareaField.vue';
-import TextField from '@/components/forms/TextField.vue';
 import { useFormDraft } from '@/components/forms/useFormDraft';
-import FormLayout from '@/components/inner/FormLayout.vue';
+import Glyph from '@/components/inner/Glyph.vue';
+import type { GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
-import InnerHero from '@/components/inner/InnerHero.vue';
 import { useSubmitted } from '@/components/inner/useSubmitted';
 import SeoHead from '@/components/layout/SeoHead.vue';
-import { useReveal } from '@/composables/useReveal';
+import Icon from '@/components/ui/Icon.vue';
 import type { Consent, InnerPage, Option } from '@/types/inner';
 
-// Brief §11 booth application (EXH reference): organisation, sector, booth, contact, products, branding needs.
-defineProps<{ page: InnerPage; content: { sectors: Option[]; booths: Option[]; consent: Consent; steps: string[]; aside: string[] } }>();
+// Brief §11 booth application (EXH reference), laid out like the client mock-up (FormPage): organisation and contact,
+// then booth, products and needs, then a review with consent. Each step is validated here first; the server validates all.
+const props = defineProps<{ page: InnerPage; content: { sectors: Option[]; booths: Option[]; consent: Consent; steps: string[] } }>();
 const { t } = useI18n();
-const root = ref<HTMLElement>();
-useReveal(root);
 
 const step = ref(0);
 const form = useForm({ organisation: '', sector: '', contact_person: '', designation: '', email: '', mobile: '', booth_requirement: '', products: '', branding_needs: '', requirements: '', consent: false, hp_company: '' });
 const draft = useFormDraft('exhibit', form, ['consent', 'hp_company']);
 const { reference, reveal } = useSubmitted('exhibit');
+
+const points: { icon: GlyphName; text: string }[] = [
+    { icon: 'store', text: 'Showcase Your Brand' },
+    { icon: 'people', text: 'Connect with Talent & Business' },
+    { icon: 'chart', text: 'Generate New Opportunities' },
+];
+const heads = ['Provide your organization information for exhibition registration.', 'Tell us the space you need and what you will show.', 'Check the details, then confirm and submit.'];
+
+type TextKey = 'organisation' | 'contact_person' | 'designation' | 'email' | 'mobile';
+const contact: { key: TextKey; label: string; icon: GlyphName; placeholder: string; type?: string; autocomplete: string }[] = [
+    { key: 'contact_person', label: 'Contact Person', icon: 'user', placeholder: "Enter contact person's name", autocomplete: 'name' },
+    { key: 'designation', label: 'Designation', icon: 'briefcase', placeholder: 'Enter your designation', autocomplete: 'organization-title' },
+    { key: 'email', label: 'Email Address', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
+    { key: 'mobile', label: 'Mobile Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
+];
+
 const groups: Record<number, Record<string, string>> = {
-    0: { organisation: 'Enter your organisation.', sector: 'Choose a sector.' },
-    1: { contact_person: 'Enter a contact person.', email: 'Enter an email.', mobile: 'Enter a mobile number.' },
+    0: { organisation: 'Enter your organization or company name.', sector: 'Choose your industry or sector.', contact_person: 'Enter a contact person.', designation: 'Enter a designation.', email: 'Enter an email address.', mobile: 'Enter a mobile number.' },
+    1: { products: 'Describe the products or services you will show.' },
 };
 function next() {
     form.clearErrors();
     Object.entries(groups[step.value] ?? {}).forEach(([k, msg]) => !String(form[k as keyof typeof form] ?? '').trim() && form.setError(k as 'organisation', msg));
     if (!Object.keys(form.errors).length) step.value++;
 }
+const last = computed(() => step.value === props.content.steps.length - 1);
 const submit = () =>
     form.post('/exhibition/apply', {
         preserveScroll: true,
         onSuccess: () => (draft.clear(), form.reset(), (step.value = 0), reveal()),
-        onError: (e) => (step.value = Object.keys(groups).map(Number).find((n) => Object.keys(groups[n]).some((k) => k in e)) ?? 2),
+        onError: (e) => (step.value = Object.keys(groups).map(Number).find((n) => Object.keys(groups[n]).some((k) => k in e)) ?? 1),
     });
+
+const saved = ref('');
+const saveDraft = () => (saved.value = draft.save() ? 'Draft saved on this device.' : 'Your browser blocked saving a draft.');
+const label = (options: Option[], value: string) => options.find((o) => o.value === value)?.label ?? '-';
 </script>
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <InnerHero :page="page" />
 
-    <div ref="root">
-        <FormLayout :points="content.aside" icon="store" tone="tone-violet">
-            <FormSuccess v-if="reference" title="Application received" :reference="reference" reference-label="Your reference number" body="We will confirm your booth and send the next steps by email once the floor plan is final.">
-                <InBtn href="/exhibition">Back to the exhibition</InBtn>
-                <InBtn href="/sponsorship-opportunity" tone="ghost">Sponsorship options</InBtn>
-            </FormSuccess>
-            <div v-else class="in-form">
-                <StepShell v-model:step="step" :form="form" :steps="content.steps" submit-label="Submit application" @next="next" @submit="submit">
-                    <div v-show="step === 0" class="grid gap-5">
-                        <TextField v-model="form.organisation" label="Organisation" name="organisation" required autocomplete="organization" :error="form.errors.organisation" />
-                        <SelectField v-model="form.sector" label="Sector" name="sector" :options="content.sectors" required :error="form.errors.sector" />
-                    </div>
-                    <div v-show="step === 1" class="grid gap-5 sm:grid-cols-2">
-                        <TextField v-model="form.contact_person" label="Contact person" name="contact_person" required autocomplete="name" :error="form.errors.contact_person" />
-                        <TextField v-model="form.designation" label="Designation" name="designation" :error="form.errors.designation" />
-                        <TextField v-model="form.email" label="Email" name="email" type="email" required :error="form.errors.email" />
-                        <TextField v-model="form.mobile" label="Mobile number" name="mobile" type="mobile" required :help="t('inner.form.mobileHelp')" :error="form.errors.mobile" />
-                    </div>
-                    <div v-show="step === 2" class="grid gap-6">
-                        <RadioCards v-model="form.booth_requirement" label="Booth requirement" name="booth_requirement" :options="content.booths" :error="form.errors.booth_requirement" columns="sm:grid-cols-2" />
-                        <TextareaField v-model="form.products" label="Products or services you will show" name="products" :max="2000" :rows="4" required :error="form.errors.products" />
-                        <TextareaField v-model="form.branding_needs" label="Branding needs" name="branding_needs" :max="2000" :rows="3" :error="form.errors.branding_needs" />
-                        <TextareaField v-model="form.requirements" label="Other requirements" name="requirements" :max="2000" :rows="3" help="Power, internet, furniture, screens or anything else." :error="form.errors.requirements" />
-                        <ConsentField v-model="form.consent" :consent="content.consent" :error="form.errors.consent" />
-                    </div>
-                </StepShell>
+    <FormPage eyebrow="Exhibition" :title="page.hero.title" :emphasis="page.hero.emphasis" :intro="page.hero.intro" :points="points" center label="Exhibition registration form">
+        <FormSuccess v-if="reference" title="Application received" :reference="reference" reference-label="Your reference number" body="We will confirm your booth and send the next steps by email once the floor plan is final.">
+            <InBtn href="/exhibition">Back to the exhibition</InBtn>
+            <InBtn href="/sponsorship-opportunity" tone="ghost">Sponsorship options</InBtn>
+        </FormSuccess>
+
+        <form v-else novalidate @submit.prevent="last ? submit() : next()">
+            <FormSteps v-model="step" :steps="content.steps" />
+
+            <h2 class="mt-8 text-2xl font-bold text-night md:text-[1.75rem]">{{ step + 1 }}. {{ content.steps[step] }}</h2>
+            <p class="mt-1 text-ink-2 md:text-lg">{{ heads[step] }}</p>
+
+            <ErrorSummary :errors="form.errors" class="mt-6" />
+            <!-- Honeypot: humans never see or fill it (App\Http\Middleware\Honeypot). -->
+            <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+                <label>{{ t('inner.form.honeypot') }} <input v-model="form.hp_company" type="text" name="hp_company" tabindex="-1" autocomplete="off" /></label>
             </div>
-        </FormLayout>
-    </div>
+
+            <!-- 1. Organization details -->
+            <div v-show="step === 0" class="mt-7 grid gap-x-9 gap-y-6 border-b border-line-light pb-9 sm:grid-cols-2">
+                <Field v-slot="{ id, describedby, invalid }" label="Organization / Company Name" name="organisation" required :error="form.errors.organisation">
+                    <div class="relative">
+                        <Glyph name="building" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                        <input :id="id" v-model.trim="form.organisation" type="text" name="organisation" autocomplete="organization" placeholder="Enter your organization or company name" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                    </div>
+                </Field>
+                <Field v-slot="{ id, describedby, invalid }" label="Industry / Sector" name="sector" required :error="form.errors.sector">
+                    <div class="relative">
+                        <Glyph name="layers" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                        <select :id="id" v-model="form.sector" name="sector" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.sector && 'text-ink-2/80']">
+                            <option value="">Select your industry or sector</option>
+                            <option v-for="o in content.sectors" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
+                        </select>
+                        <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
+                    </div>
+                </Field>
+                <Field v-for="f in contact" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
+                    <div class="relative">
+                        <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" :placeholder="f.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                    </div>
+                </Field>
+            </div>
+
+            <!-- 2. Booth and requirements -->
+            <div v-show="step === 1" class="mt-7 grid gap-7">
+                <RadioCards v-model="form.booth_requirement" label="Booth requirement" name="booth_requirement" :options="content.booths" :error="form.errors.booth_requirement" columns="sm:grid-cols-2" />
+                <TextareaField v-model="form.products" label="Products or services you will show" name="products" :max="2000" :rows="4" required :error="form.errors.products" />
+                <TextareaField v-model="form.branding_needs" label="Branding needs" name="branding_needs" :max="2000" :rows="3" :error="form.errors.branding_needs" />
+                <TextareaField v-model="form.requirements" label="Other requirements" name="requirements" :max="2000" :rows="3" help="Power, internet, furniture, screens or anything else." :error="form.errors.requirements" />
+            </div>
+
+            <!-- 3. Review and submit -->
+            <div v-show="step === 2" class="mt-7 grid gap-6">
+                <dl class="grid gap-4 rounded-2xl bg-[#eef7f8] p-5 sm:grid-cols-2 md:p-6">
+                    <div><dt class="text-sm text-ink-2">Organization</dt><dd class="font-bold">{{ form.organisation || '-' }}</dd></div>
+                    <div><dt class="text-sm text-ink-2">Industry / sector</dt><dd class="font-bold">{{ label(content.sectors, form.sector) }}</dd></div>
+                    <div><dt class="text-sm text-ink-2">Contact person</dt><dd class="font-bold">{{ [form.contact_person, form.designation].filter(Boolean).join(', ') || '-' }}</dd></div>
+                    <div><dt class="text-sm text-ink-2">Email and mobile</dt><dd class="font-bold break-words">{{ [form.email, form.mobile].filter(Boolean).join(' · ') || '-' }}</dd></div>
+                    <div><dt class="text-sm text-ink-2">Booth</dt><dd class="font-bold">{{ label(content.booths, form.booth_requirement) }}</dd></div>
+                    <div class="sm:col-span-2"><dt class="text-sm text-ink-2">Products or services</dt><dd class="font-bold whitespace-pre-line">{{ form.products || '-' }}</dd></div>
+                </dl>
+                <ConsentField v-model="form.consent" :consent="content.consent" :error="form.errors.consent" />
+            </div>
+
+            <FormNav :back="step > 0" :label="last ? 'Submit Application' : `Next: ${content.steps[step + 1]}`" :processing="form.processing" :saved="saved" @back="step--" @save="saveDraft" />
+        </form>
+    </FormPage>
 </template>

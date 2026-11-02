@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import NjDivisions from '@/components/journey-page/NjDivisions.vue';
+import NjFinder from '@/components/journey-page/NjFinder.vue';
 import NjProgress from '@/components/journey-page/NjProgress.vue';
 import NjRoute from '@/components/journey-page/NjRoute.vue';
 import CtaBand from '@/components/inner/CtaBand.vue';
-import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import NewsHero from '@/components/news/NewsHero.vue';
-import JourneyDirectory from '@/components/sections/journey/JourneyDirectory.vue';
 import CtaLink from '@/components/ui/CtaLink.vue';
-import { useReveal } from '@/composables/useReveal';
 import type { InnerPage, JourneyContent } from '@/types/inner';
 
-// Brief §15: progress counters, map + timeline from grassroots to Dhaka, 8 division summits, activation directory.
+// Brief §15: progress counters, map + timeline from grassroots to Dhaka, 8 division summits, programme finder.
 defineProps<{ page: InnerPage; content: JourneyContent }>();
-const root = ref<HTMLElement>();
-useReveal(root);
 </script>
 
 <template>
@@ -26,25 +21,8 @@ useReveal(root);
         <NjProgress :heading="content.headings.progress" :counters="content.journey.counters" :reel="content.reel" />
         <NjRoute :heading="content.headings.route" :steps="content.journey.steps" :beacon-label="content.journey.beaconLabel" />
         <NjDivisions :heading="content.headings.divisions" :summits="content.divisionSummits" :href="content.journey.steps[2].href" />
-
-        <section class="border-t border-line-light">
-            <JourneyDirectory :directory="content.journey.directory" :steps="content.journey.steps" />
-        </section>
-
-        <!-- What each activity page carries (brief §15) -->
-        <section ref="root" class="section" aria-labelledby="nj-includes">
-            <div class="container-site grid gap-12 lg:grid-cols-12">
-                <div class="lg:col-span-4"><SectionHead id="nj-includes" :heading="content.headings.includes" class="lg:sticky lg:top-[calc(var(--header-h)+2rem)]" /></div>
-                <dl class="grid border-t border-line-light sm:grid-cols-2 lg:col-span-8">
-                    <div v-for="x in content.includes" :key="x.title" class="border-b border-line-light py-7 sm:odd:border-r sm:odd:pr-8 sm:even:pl-8" data-reveal="fade">
-                        <dt class="flex items-center gap-3 text-xl font-bold"><span class="h-px w-5 bg-gold" aria-hidden="true" />{{ x.title }}</dt>
-                        <dd class="mt-2 max-w-sm text-ink-2">{{ x.text }}</dd>
-                    </div>
-                </dl>
-            </div>
-        </section>
-
-        <CtaBand :title="content.headings.cta.title" :emphasis="content.headings.cta.emphasis ?? undefined" :text="content.headings.cta.intro ?? undefined">
+        <NjFinder :heading="content.headings.finder" :directory="content.journey.directory" />
+        <CtaBand class="nj-cta" :title="content.headings.cta.title" :emphasis="content.headings.cta.emphasis ?? undefined" :text="content.headings.cta.intro ?? undefined">
             <CtaLink href="/register">{{ page.hero.actions?.[0]?.label ?? 'Register for Summit' }}</CtaLink>
             <CtaLink :href="content.journey.steps[0].href" tone="outline">{{ content.journey.steps[0].tag }}</CtaLink>
         </CtaBand>
@@ -77,5 +55,38 @@ useReveal(root);
     line-height: 1;
     letter-spacing: -0.02em;
     font-size: clamp(2rem, 3.6vw, 3.25rem);
+}
+/* The closing band in the About page's colours (AboutClosing): deep teal gradient, paper text, gold emphasis. */
+.nj-cta :deep(.in-card) {
+    background:
+        radial-gradient(60% 120% at 100% 0%, rgb(8 127 140 / 0.55), transparent 70%),
+        linear-gradient(120deg, #06454c, #0a5f69);
+    border-color: transparent;
+    color: var(--paper);
+}
+/* Same width as the About band: up to 90rem, 16px gutters (24px from md). */
+.nj-cta :deep(.container-site) {
+    max-width: 90rem;
+    padding-inline: 1rem;
+}
+@media (min-width: 768px) {
+    .nj-cta :deep(.container-site) {
+        padding-inline: 1.5rem;
+    }
+}
+.nj-cta :deep(.in-h2) {
+    color: var(--paper);
+}
+.nj-cta :deep(.in-pool) {
+    display: none;
+}
+.nj-cta :deep(.text-green) {
+    color: var(--gold);
+}
+.nj-cta :deep(.in-lead) {
+    color: rgb(242 236 223 / 0.8);
+}
+.nj-cta :deep(.btn-outline) {
+    --btn-hover: rgb(242 236 223 / 0.12);
 }
 </style>

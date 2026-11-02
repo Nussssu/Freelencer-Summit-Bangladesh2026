@@ -109,6 +109,7 @@ export interface DirectoryRow {
     date: string | null;
     partner: string | null;
     href: string;
+    image?: string | null;
 }
 export interface Journey {
     headline: string;

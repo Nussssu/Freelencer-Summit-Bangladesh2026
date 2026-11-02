@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Submissions;
 
 use App\Enums\AwardStatus;
 use App\Filament\Resources\Submissions\Pages\ListAwardNominations;
+use App\Http\Controllers\SubmissionController;
 use App\Models\AwardApplication;
 use BackedEnum;
 use Filament\Forms\Components\Select;
@@ -78,6 +79,9 @@ class AwardNominationResource extends SubmissionResource
                 TextInput::make('nominee_email')->label('Email')->email()->required()->maxLength(255),
                 TextInput::make('nominee_phone')->label('Phone')->tel()->required()->maxLength(32),
                 Select::make('district_id')->label('District')->relationship('district', 'name')->searchable()->preload(),
+                TextInput::make('headline')->label('Professional title')->maxLength(160),
+                Select::make('experience')->label('Freelancing experience')->options(SubmissionController::AWARD_EXPERIENCE)->native(false),
+                Textarea::make('bio')->label('Short bio')->rows(3)->maxLength(300)->columnSpanFull(),
                 Textarea::make('achievements')->rows(4)->columnSpanFull(),
             ]),
         ]);
@@ -91,6 +95,9 @@ class AwardNominationResource extends SubmissionResource
                 TextEntry::make('nominee_name')->label('Name'), TextEntry::make('nominee_email')->label('Email')->copyable(),
                 TextEntry::make('nominee_phone')->label('Phone')->copyable(), TextEntry::make('district.name')->label('District')->placeholder('—'),
                 TextEntry::make('category.name')->label('Category'), TextEntry::make('status')->formatStateUsing(fn (AwardStatus $state) => $state->label())->badge(),
+                TextEntry::make('headline')->label('Professional title')->placeholder('—'),
+                TextEntry::make('experience')->label('Freelancing experience')->formatStateUsing(fn (string $state) => SubmissionController::AWARD_EXPERIENCE[$state] ?? $state)->placeholder('—'),
+                TextEntry::make('bio')->label('Short bio')->placeholder('—')->columnSpanFull(),
                 TextEntry::make('self_nominated')->label('Nominated by')->formatStateUsing(fn (bool $state, AwardApplication $record) => $state ? 'Self' : trim("{$record->nominator_name} · {$record->nominator_email} · {$record->nominator_phone}", ' ·')),
             ]),
             Section::make('Evidence')->columnSpanFull()->schema([

@@ -15,6 +15,6 @@ class ForumApplication extends Model
 
     protected function casts(): array
     {
-        return ['phone' => 'encrypted', 'skills' => 'array', 'marketplace_profiles' => 'array'];
+        return ['phone' => 'encrypted', 'nid' => 'encrypted', 'skills' => 'array', 'marketplace_profiles' => 'array'];
     }
 }

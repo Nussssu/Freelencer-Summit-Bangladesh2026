@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Validator;
 it('keeps the brief lists verbatim in enums', function () {
     expect(SessionType::cases())->toHaveCount(11)
         ->and(array_column(SessionType::options(), 'label'))->toBe(['Keynote', 'Seminar', 'Workshop', 'Career Talk', 'Panel', 'AI Awareness', 'Success Story', 'Marketplace Session', 'Freelancer-to-Entrepreneur', 'Award Session', 'Networking'])
-        ->and(AttendeeType::cases())->toHaveCount(11)
+        ->and(AttendeeType::cases())->toHaveCount(12)
         ->and(AttendeeType::Company->label())->toBe('Company or buyer')
         ->and(AwardStatus::Rejected->label())->toBe('Rejected / Incomplete')
         ->and(ProgramType::options()[0])->toBe(['value' => 'divisional-summit', 'label' => 'Divisional summit']);

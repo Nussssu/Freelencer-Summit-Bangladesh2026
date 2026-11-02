@@ -15,6 +15,8 @@ enum Interest: string
     case Networking = 'networking';
     case Exhibition = 'exhibition';
     case Awards = 'awards';
+    case Remote = 'remote';
+    case Other = 'other';
 
-    const LABELS = ['ai' => 'AI', 'skills' => 'Skills and training'];
+    const LABELS = ['ai' => 'AI', 'skills' => 'Skills and training', 'remote' => 'Remote work and global opportunities'];
 }

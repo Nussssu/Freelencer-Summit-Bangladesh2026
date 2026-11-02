@@ -41,11 +41,10 @@ export interface AboutContent {
     latestNews: { title: string; text: string | null; href: string; tag: string; image: string }[];
 }
 export interface JourneyContent {
-    headings: Headings<'progress' | 'route' | 'divisions' | 'includes' | 'cta'>;
+    headings: Headings<'progress' | 'route' | 'divisions' | 'finder' | 'cta'>;
     journey: Journey;
     reel: { image: string; place: string; date: string }[];
     divisionSummits: { name: string; date: string; venue: string; districts: number; campuses: number; participants: number; held: boolean; image: string }[];
-    includes: { title: string; text: string }[];
 }
 export interface AgendaContent {
     headings: Headings<'programme' | 'formats' | 'downloads' | 'cta'>;

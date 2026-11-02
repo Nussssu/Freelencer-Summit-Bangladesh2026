@@ -7,17 +7,17 @@ import SeoHead from '@/components/layout/SeoHead.vue';
 import NewsCard from '@/components/news/NewsCard.vue';
 import NewsHero from '@/components/news/NewsHero.vue';
 import { useReveal } from '@/composables/useReveal';
-import type { ArticleCard, InnerPage, Option, Paginated } from '@/types/inner';
+import type { ArticleCard, InnerPage, Paginated } from '@/types/inner';
 
 // Brief §16 news, laid out like the reference "all news" page: a short title hero, then one long grid of cards,
 // newest first (four across on desktop). Pages only appear when there are more posts than one page holds.
 const props = defineProps<{
     page: InnerPage;
-    content: { filters: { category: string }; categories: Option[]; posts: Paginated<ArticleCard>; empty: { title: string; body: string }; upcoming: { category: string; title: string }[] };
+    content: { posts: Paginated<ArticleCard>; empty: { title: string; body: string } };
 }>();
 const root = ref<HTMLElement>();
 useReveal(root);
-const { go } = useDirectory({ ...props.content.filters }, { only: ['content'], debounce: [], anchor: '#news' });
+const { go } = useDirectory({}, { only: ['content'], debounce: [], anchor: '#news' });
 
 const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Dhaka' }) : 'TBA');
 const photo = (a: ArticleCard) => a.image ?? `/media/photos/gallery-0${(a.slug.length % 9) + 1}.jpg`;

@@ -3,12 +3,13 @@ import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ConsentField from '@/components/forms/ConsentField.vue';
+import ErrorSummary from '@/components/forms/ErrorSummary.vue';
+import Field from '@/components/forms/Field.vue';
+import FormPage from '@/components/forms/FormPage.vue';
 import FormSuccess from '@/components/forms/FormSuccess.vue';
-import SelectField from '@/components/forms/SelectField.vue';
-import StepShell from '@/components/forms/StepShell.vue';
-import TextareaField from '@/components/forms/TextareaField.vue';
-import TextField from '@/components/forms/TextField.vue';
+import { iconInputClass } from '@/components/forms/input';
 import DownloadCard from '@/components/inner/DownloadCard.vue';
+import Glyph from '@/components/inner/Glyph.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import InnerHero from '@/components/inner/InnerHero.vue';
@@ -17,6 +18,7 @@ import TierCard from '@/components/inner/TierCard.vue';
 import TintCard from '@/components/inner/TintCard.vue';
 import { useSubmitted } from '@/components/inner/useSubmitted';
 import SeoHead from '@/components/layout/SeoHead.vue';
+import Icon from '@/components/ui/Icon.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { Consent, DownloadItem, InnerPage, Option, SectionHeading, Tier } from '@/types/inner';
 
@@ -30,7 +32,7 @@ defineProps<{
         tiersNote: string;
         prospectus: DownloadItem;
         form: { interests: Option[]; budgets: Option[]; consent: Consent };
-        aside: string[];
+        enquiryIntro: string;
     };
 }>();
 const { t } = useI18n();
@@ -40,6 +42,21 @@ useReveal(root);
 const form = useForm({ company: '', contact_person: '', designation: '', email: '', mobile: '', interest: '', budget: '', requirements: '', message: '', callback_requested: false, consent: false, hp_company: '' });
 const { reference, reveal } = useSubmitted('sponsor', '#enquiry');
 const submit = () => form.post('/sponsorship-opportunity', { preserveScroll: true, onSuccess: () => (form.reset(), reveal()) });
+
+// The enquiry block follows the client mock-up (FormPage in section mode): icon inputs in pairs, then the message.
+const points: { icon: GlyphName; text: string }[] = [
+    { icon: 'handshake', text: 'High-Visibility Brand Exposure' },
+    { icon: 'people', text: 'Engage a Diverse Talent Community' },
+    { icon: 'chart', text: 'Build Long-Term Impact' },
+];
+type TextKey = 'company' | 'contact_person' | 'designation' | 'mobile' | 'email';
+const fields: { key: TextKey; label: string; icon: GlyphName; placeholder: string; type?: string; autocomplete: string }[] = [
+    { key: 'company', label: 'Company / Organization Name', icon: 'building', placeholder: 'Enter your company or organization name', autocomplete: 'organization' },
+    { key: 'contact_person', label: 'Contact Person', icon: 'user', placeholder: "Enter contact person's name", autocomplete: 'name' },
+    { key: 'designation', label: 'Designation', icon: 'briefcase', placeholder: 'Enter your designation', autocomplete: 'organization-title' },
+    { key: 'mobile', label: 'Phone Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
+    { key: 'email', label: 'Email Address', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
+];
 </script>
 
 <template>
@@ -69,48 +86,91 @@ const submit = () => form.post('/sponsorship-opportunity', { preserveScroll: tru
             </div>
         </section>
 
-        <section id="enquiry" class="in-section scroll-mt-[calc(var(--header-h)+1rem)]">
-            <div class="container-site grid gap-8 lg:grid-cols-12 lg:gap-12">
-                <div class="lg:col-span-4">
-                    <SectionHead :heading="content.headings.enquiry" />
-                    <ul class="in-ticks text-ink-2">
-                        <li v-for="a in content.aside" :key="a">{{ a }}</li>
-                    </ul>
+        <FormPage
+            id="enquiry"
+            class="scroll-mt-[calc(var(--header-h)+1rem)]"
+            section
+            heading-id="sp-enquiry"
+            eyebrow="Sponsorship"
+            :title="content.headings.enquiry.title"
+            :emphasis="content.headings.enquiry.emphasis"
+            :intro="content.enquiryIntro"
+            :points="points"
+            center
+            label="Sponsorship enquiry form"
+        >
+            <FormSuccess v-if="reference" title="Enquiry received" :reference="reference" reference-label="Your reference number" body="The partnerships team will contact you with the prospectus and next steps.">
+                <InBtn href="/sponsors" tone="ghost">See current sponsors</InBtn>
+            </FormSuccess>
+            <form v-else novalidate @submit.prevent="submit">
+                <h3 class="text-2xl font-bold text-night md:text-[1.75rem]">Send Your Sponsorship Enquiry</h3>
+                <p class="mt-1 text-ink-2 md:text-lg">Share your interest and our partnership team will get back to you soon.</p>
+
+                <ErrorSummary :errors="form.errors" class="mt-6" />
+                <!-- Honeypot: humans never see or fill it (App\Http\Middleware\Honeypot). -->
+                <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+                    <label>{{ t('inner.form.honeypot') }} <input v-model="form.hp_company" type="text" name="hp_company" tabindex="-1" autocomplete="off" /></label>
                 </div>
-                <div class="lg:col-span-8">
-                    <FormSuccess v-if="reference" title="Enquiry received" :reference="reference" reference-label="Your reference number" body="The partnerships team will contact you with the prospectus and next steps.">
-                        <InBtn href="/sponsors" tone="ghost">See current sponsors</InBtn>
-                    </FormSuccess>
-                    <div v-else class="in-form">
-                        <StepShell :form="form" submit-label="Send enquiry" @submit="submit">
-                            <fieldset>
-                                <legend class="in-group">Your organisation</legend>
-                                <div class="grid gap-5 sm:grid-cols-2">
-                                    <TextField v-model="form.company" label="Company" name="company" required autocomplete="organization" :error="form.errors.company" class="sm:col-span-2" />
-                                    <TextField v-model="form.contact_person" label="Contact person" name="contact_person" required autocomplete="name" :error="form.errors.contact_person" />
-                                    <TextField v-model="form.designation" label="Designation" name="designation" :error="form.errors.designation" />
-                                    <TextField v-model="form.email" label="Email" name="email" type="email" required :error="form.errors.email" />
-                                    <TextField v-model="form.mobile" label="Phone" name="mobile" type="mobile" required :help="t('inner.form.mobileHelp')" :error="form.errors.mobile" />
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="in-group">Your interest</legend>
-                                <div class="grid gap-5 sm:grid-cols-2">
-                                    <SelectField v-model="form.interest" label="Sponsorship interest" name="interest" :options="content.form.interests" required :error="form.errors.interest" />
-                                    <SelectField v-model="form.budget" label="Budget range" name="budget" :options="content.form.budgets" :error="form.errors.budget" />
-                                    <TextareaField v-model="form.requirements" label="Requirements" name="requirements" :max="2000" :rows="3" :error="form.errors.requirements" class="sm:col-span-2" />
-                                    <TextareaField v-model="form.message" label="Message" name="message" :max="2000" :rows="3" :error="form.errors.message" class="sm:col-span-2" />
-                                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-night/15 bg-snow p-4 sm:col-span-2">
-                                        <input v-model="form.callback_requested" type="checkbox" name="callback_requested" class="size-5 shrink-0 accent-[var(--green)]" />
-                                        <span>Please call me back to discuss</span>
-                                    </label>
-                                    <ConsentField v-model="form.consent" :consent="content.form.consent" :error="form.errors.consent" class="sm:col-span-2" />
-                                </div>
-                            </fieldset>
-                        </StepShell>
-                    </div>
+
+                <div class="mt-7 grid gap-x-9 gap-y-6 sm:grid-cols-2">
+                    <Field v-for="f in fields" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
+                        <div class="relative">
+                            <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" :placeholder="f.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        </div>
+                    </Field>
+                    <Field v-slot="{ id, describedby, invalid }" label="Sponsorship Interest" name="interest" required :error="form.errors.interest">
+                        <div class="relative">
+                            <Glyph name="layers" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                            <select :id="id" v-model="form.interest" name="interest" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.interest && 'text-ink-2/80']">
+                                <option value="">Select sponsorship package / area</option>
+                                <option v-for="o in content.form.interests" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
+                            </select>
+                            <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
+                        </div>
+                    </Field>
+                    <Field v-slot="{ id, describedby, invalid }" label="Estimated Budget / Range" name="budget" :error="form.errors.budget">
+                        <div class="relative">
+                            <Glyph name="ticket" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                            <select :id="id" v-model="form.budget" name="budget" :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.budget && 'text-ink-2/80']">
+                                <option value="">Select your budget range</option>
+                                <option v-for="o in content.form.budgets" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
+                            </select>
+                            <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
+                        </div>
+                    </Field>
+                    <Field v-slot="{ id, describedby, invalid }" label="Specific Requirements" name="requirements" :error="form.errors.requirements">
+                        <div class="relative">
+                            <Glyph name="grid" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                            <input :id="id" v-model.trim="form.requirements" type="text" name="requirements" maxlength="255" placeholder="e.g. branding, speaking opportunity, activation, etc." :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        </div>
+                    </Field>
+                    <Field v-slot="{ id, describedby, invalid }" label="Additional Message" name="message" :error="form.errors.message" class="sm:col-span-2">
+                        <div class="relative">
+                            <Glyph name="chat" class="pointer-events-none absolute top-4 left-4 size-5 text-ink-2" />
+                            <textarea :id="id" v-model="form.message" name="message" rows="3" maxlength="500" placeholder="Write your message or any additional details" :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'min-h-24 py-3']" />
+                        </div>
+                        <p class="mt-1.5 text-right text-sm text-ink-2 tabular-nums">{{ form.message.length }} / 500</p>
+                    </Field>
                 </div>
-            </div>
-        </section>
+
+                <div class="mt-4 grid gap-3">
+                    <label class="flex cursor-pointer items-center gap-3 text-night">
+                        <input v-model="form.callback_requested" type="checkbox" name="callback_requested" class="size-5 shrink-0 accent-[var(--green)]" />
+                        Please call me back to discuss
+                    </label>
+                    <ConsentField v-model="form.consent" :consent="content.form.consent" :error="form.errors.consent" />
+                </div>
+
+                <button
+                    type="submit"
+                    class="mx-auto mt-9 flex min-h-14 w-full max-w-[50rem] items-center justify-center gap-3 rounded-xl bg-gradient-to-b from-[#f2bd3e] to-[#e3a92e] px-6 text-lg font-bold text-night shadow-[0_14px_30px_-16px_rgb(180_120_20/0.7)] transition-[filter,transform] duration-300 hover:brightness-105 active:translate-y-px disabled:opacity-70 md:text-xl"
+                    :disabled="form.processing"
+                >
+                    {{ form.processing ? t('inner.form.sending') : 'Submit Sponsorship Enquiry' }}
+                    <svg width="18" height="18" viewBox="0 0 14 14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11 11 3M5 3h6v6" /></svg>
+                </button>
+            </form>
+        </FormPage>
     </div>
 </template>

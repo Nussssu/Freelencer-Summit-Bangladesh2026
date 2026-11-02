@@ -4,8 +4,8 @@ import Icon from '@/components/ui/Icon.vue';
 import SampleRibbon from '@/components/inner/SampleRibbon.vue';
 
 // One news card in the reference press-release shape: photo on top, an off-white body rising over it with a raised
-// left tab and an S-curve down to the right, teal tag (date or topic), uppercase title, optional short description
-// and the gold "View more" pill. The whole card is the link. Width comes from the parent (grid cell or marquee slot);
+// left tab and an S-curve down to the right, gold tag (date or topic), uppercase title, optional short description
+// and the teal "View more" pill. The whole card is the link. Width comes from the parent (grid cell or marquee slot);
 // attributes such as aria-hidden / tabindex fall through to the link.
 withDefaults(defineProps<{ title: string; href: string; tag: string; image: string; text?: string | null; sample?: boolean; lines?: 2 | 3 }>(), { text: null, sample: false, lines: 2 });
 </script>
@@ -24,10 +24,10 @@ withDefaults(defineProps<{ title: string; href: string; tag: string; image: stri
             <path d="M0 56V26Q0 0 26 0H232C262 0 266 34 300 34H400V56Z" class="fill-[var(--card-body)]" />
         </svg>
         <div class="body relative -mt-11 flex flex-1 flex-col px-6 pb-7 text-left md:px-7">
-            <span class="self-start rounded-full bg-green px-4 py-1.5 text-sm font-bold text-snow tabular-nums">{{ tag }}</span>
+            <span class="self-start rounded-full bg-gold px-4 py-1.5 text-sm font-bold text-night tabular-nums">{{ tag }}</span>
             <h3 class="mt-5 text-base leading-snug font-medium tracking-[0.02em] text-night uppercase md:text-lg" :class="lines === 3 ? 'line-clamp-3' : 'line-clamp-2'">{{ title }}</h3>
             <p v-if="text" class="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-2">{{ text }}</p>
-            <span class="mt-auto inline-flex min-h-11 items-center gap-3 self-start rounded-full bg-gold px-6 text-sm font-bold tracking-[0.02em] text-night uppercase transition-colors duration-300 group-hover:bg-[#e0aa38]" :class="text ? 'mt-6' : 'mt-5'">
+            <span class="mt-auto inline-flex min-h-11 items-center gap-3 self-start rounded-full bg-green px-6 text-sm font-bold tracking-[0.02em] text-snow uppercase transition-colors duration-300 group-hover:bg-[#066a75]" :class="text ? 'mt-6' : 'mt-5'">
                 View more <Icon name="arrow" :size="16" class="transition-transform duration-300 group-hover:translate-x-1" />
             </span>
         </div>

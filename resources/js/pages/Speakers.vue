@@ -3,13 +3,13 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import EmptyState from '@/components/inner/EmptyState.vue';
 import FilterChips from '@/components/inner/FilterChips.vue';
-import InnerHero from '@/components/inner/InnerHero.vue';
 import TintCard from '@/components/inner/TintCard.vue';
 import GetInvolved from '@/components/sections/GetInvolved.vue';
 import PersonCard from '@/components/inner/PersonCard.vue';
 import SearchField from '@/components/inner/SearchField.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
+import NewsHero from '@/components/news/NewsHero.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { InnerPage, SpeakersContent } from '@/types/inner';
 
@@ -51,10 +51,10 @@ const clear = () => (q.value = role.value = country.value = expertise.value = ''
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <InnerHero :page="page" />
+    <NewsHero id="speakers-title" showcase focus="60% 30%" :title="page.hero.title" :emphasis="page.hero.emphasis" :image="page.hero.image ?? undefined" />
 
     <div ref="root">
-        <section class="in-section pt-0!" aria-labelledby="sp-directory">
+        <section class="in-section" aria-labelledby="sp-directory">
             <div class="container-site">
                 <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
                     <div class="lg:col-span-7"><SectionHead id="sp-directory" :heading="content.headings.directory" /></div>

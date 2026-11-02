@@ -3,12 +3,10 @@
 namespace App\Content\Pages;
 
 use App\Content\HomeContent;
-use App\Enums\NewsCategory;
 use App\Models\SuccessStory;
 use App\Queries\ContentQuery;
 use App\Queries\NewsQuery;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /** Brief §16: success stories, news, articles, media gallery, and the legal pages. */
@@ -46,17 +44,12 @@ class MediaPages
         ];
     }
 
-    public function news(Request $request): array
+    /** One grid of every published post, newest first; there is no category filter, so old ?category= links show it all. */
+    public function news(): array
     {
-        $category = (string) $request->query('category', '');
-        $category = in_array($category, NewsCategory::values(), true) ? $category : '';
-
         return [
-            'filters' => ['category' => $category],
-            'categories' => NewsCategory::options(),
-            'posts' => fn () => $this->news->list($category ?: null, 12),
+            'posts' => fn () => $this->news->list(null, 12),
             'empty' => ['title' => 'News coming soon', 'body' => 'Official announcements, roadshow updates and speaker announcements are published here first.'],
-            'upcoming' => array_map(fn ($n) => ['category' => $n['category'], 'title' => $n['title']], $this->home->news()),
         ];
     }
 

@@ -88,10 +88,10 @@ class InnerPageContent
         ],
         '/agenda' => [
             'component' => 'Agenda',
-            'title' => 'Sessions for every career stage',
-            'emphasis' => 'every career stage',
+            'title' => 'Summit Agenda',
+            'emphasis' => 'Agenda',
             'intro' => 'Keynotes, panels, workshops, career talks, marketplace sessions and the Freelancer Awards. The agenda is published as sessions are confirmed.',
-            'image' => '/media/photos/highlight-workshops.jpg',
+            'image' => '/media/photos/agenda-hero.jpg',
             'actions' => [
                 ['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'],
                 ['label' => 'Meet the speakers', 'href' => '/speakers', 'tone' => 'ghost'],
@@ -99,10 +99,10 @@ class InnerPageContent
         ],
         '/speakers' => [
             'component' => 'Speakers',
-            'title' => 'Voices of the digital economy',
-            'emphasis' => 'digital economy',
+            'title' => 'Speakers & Experts',
+            'emphasis' => 'Experts',
             'intro' => 'International speakers, trainers, successful freelancers, entrepreneurs, policymakers and marketplace representatives, announced as they confirm.',
-            'image' => '/media/photos/gallery-02.jpg',
+            'image' => '/media/photos/speakers-hero.jpg',
             'actions' => [
                 ['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'],
                 ['label' => 'Explore the agenda', 'href' => '/agenda', 'tone' => 'ghost'],
@@ -111,10 +111,10 @@ class InnerPageContent
         '/speaker/{slug}' => ['component' => 'SpeakerProfile', 'content' => [Pages\PeoplePages::class, 'speaker'], 'title' => 'Speaker'],
         '/awards' => [
             'component' => 'Awards',
-            'title' => 'Celebrating freelance excellence',
-            'emphasis' => 'freelance excellence',
+            'title' => 'Freelancer Awards',
+            'emphasis' => 'Awards',
             'intro' => 'National awards for freelancers and freelancer-led businesses. Nomination is separate from summit registration.',
-            'image' => '/media/photos/highlight-awards.jpg',
+            'image' => '/media/photos/awards-hero.jpg',
             'actions' => [
                 ['label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'gold'],
                 ['label' => 'View award categories', 'href' => '/awards/categories', 'tone' => 'ghost'],
@@ -132,10 +132,11 @@ class InnerPageContent
         '/awards/nominate' => [
             'component' => 'AwardNominate', 'content' => [Pages\AwardPages::class, 'nominate'],
             'crumbs' => [['label' => 'Freelancer Awards', 'href' => '/awards'], ['label' => 'Nominate']],
-            'title' => 'Nominate for the Freelancer Awards',
-            'emphasis' => 'Freelancer Awards',
-            'intro' => 'Apply for yourself or nominate another freelancer. You get a reference number straight away and a confirmation email.',
-            'image' => '/media/photos/highlight-awards.jpg',
+            'title' => 'Award Nomination',
+            'emphasis' => 'Nomination',
+            'intro' => 'Nominate yourself or someone you know for the Freelancer Awards 2026.',
+            // shortcut: cut from the client's nomination mock-up (low resolution, soft-edged PNG); replace with the original.
+            'image' => '/media/photos/award-trophy.png',
         ],
         '/sponsors' => [
             'component' => 'Sponsors', 'content' => [Pages\BusinessPages::class, 'sponsors'],
@@ -165,9 +166,9 @@ class InnerPageContent
         '/exhibition/apply' => [
             'component' => 'ExhibitionApply', 'content' => [Pages\BusinessPages::class, 'exhibitionApply'],
             'crumbs' => [['label' => 'Exhibition', 'href' => '/exhibition'], ['label' => 'Apply']],
-            'title' => 'Apply for an exhibition booth',
-            'emphasis' => 'exhibition booth',
-            'intro' => 'Tell us about your organisation and what you need. Booths are allocated once the floor plan is final.',
+            'title' => 'Exhibition Registration',
+            'emphasis' => 'Registration',
+            'intro' => 'Apply for an exhibition space to showcase your organization, products and services at the Freelancer Summit Bangladesh 2026.',
             'image' => '/media/photos/involved-exhibit.jpg',
         ],
         '/forum' => [
@@ -181,16 +182,16 @@ class InnerPageContent
         '/forum/register' => [
             'component' => 'ForumRegister', 'content' => [Pages\BusinessPages::class, 'forumRegister'],
             'crumbs' => [['label' => 'BACCO Freelancer Forum', 'href' => '/forum'], ['label' => 'Join']],
-            'title' => 'Join the BACCO Freelancer Forum',
-            'emphasis' => 'Freelancer Forum',
-            'intro' => 'Apply for membership in a few minutes. Only the details BACCO officially needs are requested.',
+            'title' => 'Freelancer Forum Registration',
+            'emphasis' => 'Registration',
+            'intro' => 'Join the BACCO Freelancer Forum to be part of a national freelancer community, access opportunities, and grow together.',
             'image' => '/media/photos/involved-forum.jpg',
         ],
         '/register' => [
             'component' => 'Register', 'content' => [Pages\RegistrationPages::class, 'register'],
             'title' => 'Register for the Grand Summit',
-            'emphasis' => 'Grand Summit',
-            'intro' => 'Save your place in Dhaka. We email your reference number now and your e-ticket once the date and venue are confirmed.',
+            'emphasis' => 'Summit',
+            'intro' => "Be part of Bangladesh's largest freelance and digital talent summit.",
             'image' => '/media/photos/involved-register.jpg',
         ],
         '/success-stories' => [
@@ -325,8 +326,8 @@ class InnerPageContent
                 'progress' => self::h('Progress', 'The journey so far', 'so far', 'Counters update as programmes take place across the country.'),
                 'route' => self::h('The route', 'From grassroots to the Grand Summit', 'Grand Summit'),
                 'divisions' => self::h('8 divisions', 'A summit in every division', 'every division', 'Each divisional summit brings its districts and campuses together. Six divisional summits are done; Mymensingh and Dhaka close the route in November.'),
-                'includes' => self::h('Every programme page', 'What you will find for each activity', 'each activity'),
-                'cta' => self::h('', 'Bring the summit to your campus', 'your campus', 'Register for the Grand Summit, or follow the programmes coming to your district and institution.'),
+                'finder' => self::h('', 'Find a programme near you.', 'near you.'),
+                'cta' => self::h('', 'Bring the summit to your campus', 'your campus'),
             ],
             'journey' => $journey,
             'reel' => [
@@ -334,16 +335,7 @@ class InnerPageContent
                 ['image' => '/media/photos/gallery-14.jpg', 'place' => 'Campus program, CUET Chattogram', 'date' => '2 Oct 2026'],
                 ['image' => '/media/photos/gallery-13.jpg', 'place' => 'District roadshow, Jashore', 'date' => '18 Oct 2026'],
             ],
-            'divisionSummits' => array_map(fn (array $d, int $i) => $d + ['image' => '/media/photos/gallery-'.str_pad((string) ($i + 4), 2, '0', STR_PAD_LEFT).'.jpg'], $summits, array_keys($summits)),
-            // What every activity page carries (brief §15).
-            'includes' => [
-                ['title' => 'Date and location', 'text' => 'Venue, room and a map pin, with travel notes for out-of-town participants.'],
-                ['title' => 'Organiser or partner', 'text' => 'The host institution, BACCO chapter and local partners behind each programme.'],
-                ['title' => 'Event description', 'text' => 'Who it is for, the session plan and what you will leave with.'],
-                ['title' => 'Speakers and mentors', 'text' => 'Freelancers, trainers and marketplace leads on stage and in breakouts.'],
-                ['title' => 'Registration link', 'text' => 'Free seats for students and freelancers, confirmed by SMS and email.'],
-                ['title' => 'Photo and video gallery', 'text' => 'Highlights and session recordings, published within a week.'],
-            ],
+            'divisionSummits' => $summits,
         ];
     }
 
@@ -370,22 +362,26 @@ class InnerPageContent
             $d('Mymensingh', '8 Nov 2026', 'Bangladesh Agricultural University', 4, 9, 3800, false),
             $d('Dhaka', '15 Nov 2026', 'Bangabandhu International Conference Center', 13, 23, 9500, false),
         ];
+        $summits = array_map(fn (array $s, int $i) => $s + ['image' => '/media/photos/gallery-'.str_pad((string) ($i + 4), 2, '0', STR_PAD_LEFT).'.jpg'], $summits, array_keys($summits));
 
-        $row = fn (string $type, string $name, string $location, string $date, string $partner, string $href) => compact('type', 'name', 'location', 'date', 'partner', 'href');
+        // shortcut: Rajshahi to Sylhet are cut from the client's finder mock-up (low resolution); Barishal (Guthia Mosque),
+        // Mymensingh (BAU) and Dhaka (BICC) are Wikimedia Commons photos under CC BY / CC BY-SA, which need a credit line.
+        $landmark = fn (array $s) => '/media/photos/division-'.strtolower($s['name']).'.jpg';
+        $row = fn (string $type, string $name, string $location, string $date, string $partner, string $href, string $image) => compact('type', 'name', 'location', 'date', 'partner', 'href', 'image');
         $journey['directory'] = [
             'sample' => false,
             'rows' => [
-                ...array_map(fn (array $s) => $row('division', "{$s['name']} Divisional Summit", $s['venue'], $s['date'], 'BACCO '.$s['name'].' Chapter', '/divisional-summits'), $summits),
-                $row('district', 'Jashore Roadshow', 'Jashore IT Park', '18 Oct 2026', 'Sheikh Hasina Software Technology Park', '/district-roadshows'),
-                $row('district', 'Cumilla Roadshow', 'Cumilla Town Hall', '22 Oct 2026', 'Cumilla Freelancers Association', '/district-roadshows'),
-                $row('district', 'Bogura Roadshow', 'Bogura Zilla School Auditorium', '29 Oct 2026', 'BACCO Rajshahi Chapter', '/district-roadshows'),
-                $row('district', "Cox's Bazar Roadshow", "Cox's Bazar Cultural Centre", '1 Nov 2026', 'Cox\'s Bazar Chamber of Commerce', '/district-roadshows'),
-                $row('district', 'Tangail Roadshow', 'Mawlana Bhashani Science and Technology University', '5 Nov 2026', 'Tangail District Administration', '/district-roadshows'),
-                $row('campus', 'AI for Freelancers Workshop', 'CUET, Chattogram', '2 Oct 2026', 'CUET Computer Club', '/campus-programs'),
-                $row('campus', 'First Client Bootcamp', 'Khulna Polytechnic Institute', '15 Oct 2026', 'Khulna Polytechnic Career Cell', '/campus-programs'),
-                $row('campus', 'Career Talk: ITES and BPO', 'Shahjalal University of Science and Technology', '21 Oct 2026', 'SUST Career Club', '/campus-programs'),
-                $row('campus', 'Marketplace Profile Clinic', 'Rajshahi University of Engineering and Technology', '28 Oct 2026', 'RUET IT Society', '/campus-programs'),
-                $row('campus', 'Mentor Session: Pricing Your Work', 'University of Dhaka', '3 Nov 2026', 'DU IT Society', '/campus-programs'),
+                ...array_map(fn (array $s) => $row('division', "{$s['name']} Divisional Summit", $s['venue'], $s['date'], 'BACCO '.$s['name'].' Chapter', '/divisional-summits', $landmark($s)), $summits),
+                $row('district', 'Jashore Roadshow', 'Jashore IT Park', '18 Oct 2026', 'Sheikh Hasina Software Technology Park', '/district-roadshows', '/media/photos/gallery-13.jpg'),
+                $row('district', 'Cumilla Roadshow', 'Cumilla Town Hall', '22 Oct 2026', 'Cumilla Freelancers Association', '/district-roadshows', '/media/photos/gallery-01.jpg'),
+                $row('district', 'Bogura Roadshow', 'Bogura Zilla School Auditorium', '29 Oct 2026', 'BACCO Rajshahi Chapter', '/district-roadshows', '/media/photos/gallery-02.jpg'),
+                $row('district', "Cox's Bazar Roadshow", "Cox's Bazar Cultural Centre", '1 Nov 2026', "Cox's Bazar Chamber of Commerce", '/district-roadshows', '/media/photos/gallery-03.jpg'),
+                $row('district', 'Tangail Roadshow', 'Mawlana Bhashani Science and Technology University', '5 Nov 2026', 'Tangail District Administration', '/district-roadshows', '/media/photos/gallery-12.jpg'),
+                $row('campus', 'AI for Freelancers Workshop', 'CUET, Chattogram', '2 Oct 2026', 'CUET Computer Club', '/campus-programs', '/media/photos/gallery-14.jpg'),
+                $row('campus', 'First Client Bootcamp', 'Khulna Polytechnic Institute', '15 Oct 2026', 'Khulna Polytechnic Career Cell', '/campus-programs', '/media/photos/highlight-workshops.jpg'),
+                $row('campus', 'Career Talk: ITES and BPO', 'Shahjalal University of Science and Technology', '21 Oct 2026', 'SUST Career Club', '/campus-programs', '/media/photos/highlight-career.jpg'),
+                $row('campus', 'Marketplace Profile Clinic', 'Rajshahi University of Engineering and Technology', '28 Oct 2026', 'RUET IT Society', '/campus-programs', '/media/photos/highlight-ai.jpg'),
+                $row('campus', 'Mentor Session: Pricing Your Work', 'University of Dhaka', '3 Nov 2026', 'DU IT Society', '/campus-programs', '/media/photos/involved-register.jpg'),
             ],
         ];
 

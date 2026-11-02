@@ -7,10 +7,10 @@ import EmptyState from '@/components/inner/EmptyState.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import Glyph from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
-import InnerHero from '@/components/inner/InnerHero.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import TintCard from '@/components/inner/TintCard.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
+import NewsHero from '@/components/news/NewsHero.vue';
 import Accordion from '@/components/ui/Accordion.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { AwardsContent, InnerPage } from '@/types/inner';
@@ -28,11 +28,11 @@ const slug = (s: string) => s.toLowerCase().replace(/&/g, '').replace(/[^a-z0-9]
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <InnerHero :page="page" />
+    <NewsHero id="awards-title" showcase focus="72% 12%" :title="page.hero.title" :emphasis="page.hero.emphasis" :image="page.hero.image ?? undefined" />
 
     <div ref="root">
         <!-- Overview + key facts -->
-        <section class="in-section pt-0!">
+        <section class="in-section">
             <div class="container-site grid gap-8 lg:grid-cols-12 lg:items-center lg:gap-12">
                 <div class="lg:col-span-6">
                     <SectionHead :heading="content.headings.overview" />

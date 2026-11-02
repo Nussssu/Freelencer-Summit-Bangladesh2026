@@ -5,12 +5,12 @@ import DownloadCard from '@/components/inner/DownloadCard.vue';
 import EmptyState from '@/components/inner/EmptyState.vue';
 import FilterChips from '@/components/inner/FilterChips.vue';
 import InBtn from '@/components/inner/InBtn.vue';
-import InnerHero from '@/components/inner/InnerHero.vue';
 import TintCard from '@/components/inner/TintCard.vue';
 import GetInvolved from '@/components/sections/GetInvolved.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import TbcNotice from '@/components/inner/TbcNotice.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
+import NewsHero from '@/components/news/NewsHero.vue';
 import Icon from '@/components/ui/Icon.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { AgendaContent, InnerPage } from '@/types/inner';
@@ -43,7 +43,7 @@ const filters = computed(() => [
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <InnerHero :page="page" variant="facts" />
+    <NewsHero id="agenda-title" :title="page.hero.title" :emphasis="page.hero.emphasis" :image="page.hero.image ?? undefined" />
 
     <div ref="root">
         <!-- Programme: filters + session list -->

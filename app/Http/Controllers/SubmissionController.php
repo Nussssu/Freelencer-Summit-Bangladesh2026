@@ -49,6 +49,12 @@ class SubmissionController extends Controller
 
     public const PLATFORMS = ['upwork' => 'Upwork', 'fiverr' => 'Fiverr', 'freelancer' => 'Freelancer.com', 'linkedin' => 'LinkedIn', 'behance' => 'Behance', 'github' => 'GitHub', 'other' => 'Other'];
 
+    public const AWARD_EXPERIENCE = ['under-1' => 'Less than 1 year', '1-2' => '1–2 years', '3-5' => '3–5 years', '6-10' => '6–10 years', '10-plus' => 'More than 10 years'];
+
+    public const NATIONALITIES = ['bangladeshi' => 'Bangladeshi', 'other' => 'Other'];
+
+    public const PROFILE_TYPES = ['freelancer' => 'Freelancer', 'student' => 'Student', 'professional' => 'Professional', 'other' => 'Other'];
+
     public const SKILLS = ['design' => 'Design', 'development' => 'Web and app development', 'marketing' => 'Digital marketing', 'writing' => 'Writing and translation', 'video' => 'Video and animation', 'data' => 'Data and AI', 'support' => 'Virtual assistance and support', 'other' => 'Other'];
 
     public function register(Request $request, ReferenceQuery $ref): RedirectResponse
@@ -58,11 +64,11 @@ class SubmissionController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:160', Rule::unique('summit_registrations')->where('edition', $edition)->whereNull('deleted_at')],
             'mobile' => ['required', new BdMobile],
-            'organisation' => ['nullable', 'string', 'max:160'],
-            'designation' => ['nullable', 'string', 'max:120'],
+            'organisation' => ['required', 'string', 'max:160'],
+            'designation' => ['required', 'string', 'max:120'],
             'district' => ['required', 'exists:districts,slug'],
             'attendee_type' => ['required', Rule::in(AttendeeType::values())],
-            'interests' => ['array'],
+            'interests' => ['required', 'array', 'min:1'],
             'interests.*' => [Rule::in(Interest::values())],
             'consent' => ['accepted'],
         ], ['email.unique' => 'This email is already registered for the summit. Check your inbox for the confirmation.'], $this->names());
@@ -101,6 +107,9 @@ class SubmissionController extends Controller
             'nominee_email' => ['required', 'email', 'max:160'],
             'nominee_mobile' => ['required', new BdMobile],
             'district' => ['required', 'exists:districts,slug'],
+            'headline' => ['required', 'string', 'max:160'],
+            'experience' => ['required', Rule::in(array_keys(self::AWARD_EXPERIENCE))],
+            'bio' => ['required', 'string', 'max:300'],
             'achievements' => ['required', 'string', 'max:2000'],
             'portfolio' => ['array', 'max:5'],
             'portfolio.*.url' => ['nullable', 'url:http,https', 'max:255'],
@@ -128,6 +137,9 @@ class SubmissionController extends Controller
                 'nominee_email' => $data['nominee_email'],
                 'nominee_phone' => BdMobile::normalize($data['nominee_mobile']),
                 'district_id' => $ref->districtId($data['district']),
+                'headline' => $data['headline'],
+                'experience' => $data['experience'],
+                'bio' => $data['bio'],
                 'achievements' => $data['achievements'],
                 'portfolio_links' => $this->links($data['portfolio'] ?? []),
                 'marketplace_profiles' => $this->links($data['profiles'] ?? [], true),
@@ -152,13 +164,13 @@ class SubmissionController extends Controller
         $data = $request->validate([
             'company' => ['required', 'string', 'max:160'],
             'contact_person' => ['required', 'string', 'max:120'],
-            'designation' => ['nullable', 'string', 'max:120'],
+            'designation' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:160'],
             'mobile' => ['required', new BdMobile],
             'interest' => ['required', Rule::in([...$tiers, 'not-sure'])],
             'budget' => ['nullable', Rule::in(array_keys(self::BUDGETS))],
-            'requirements' => ['nullable', 'string', 'max:2000'],
-            'message' => ['nullable', 'string', 'max:2000'],
+            'requirements' => ['nullable', 'string', 'max:255'],
+            'message' => ['nullable', 'string', 'max:500'],
             'callback_requested' => ['boolean'],
             'consent' => ['accepted'],
         ], [], $this->names());
@@ -178,7 +190,7 @@ class SubmissionController extends Controller
             'sector' => ['required', Rule::in(array_keys(self::SECTORS))],
             'booth_requirement' => ['nullable', Rule::in(array_keys(self::BOOTHS))],
             'contact_person' => ['required', 'string', 'max:120'],
-            'designation' => ['nullable', 'string', 'max:120'],
+            'designation' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:160'],
             'mobile' => ['required', new BdMobile],
             'products' => ['required', 'string', 'max:2000'],
@@ -202,6 +214,9 @@ class SubmissionController extends Controller
             'email' => ['required', 'email', 'max:160', Rule::unique('forum_applications')->whereNull('deleted_at')],
             'mobile' => ['required', new BdMobile],
             'district' => ['required', 'exists:districts,slug'],
+            'nationality' => ['required', Rule::in(array_keys(self::NATIONALITIES))],
+            'nid' => ['nullable', 'regex:/^(\d{10}|\d{13}|\d{17})$/'],
+            'profile_type' => ['required', Rule::in(array_keys(self::PROFILE_TYPES))],
             'experience_level' => ['required', Rule::in(array_keys(self::EXPERIENCE))],
             'skills' => ['required', 'array', 'min:1'],
             'skills.*' => [Rule::in(array_keys(self::SKILLS))],
@@ -211,13 +226,16 @@ class SubmissionController extends Controller
             'profiles.*.platform' => ['nullable', Rule::in(array_keys(self::PLATFORMS))],
             'profiles.*.url' => ['nullable', 'url:http,https', 'max:255'],
             'consent' => ['accepted'],
-        ], ['email.unique' => 'An application with this email already exists. We will be in touch about its status.'], $this->names());
+        ], ['email.unique' => 'An application with this email already exists. We will be in touch about its status.', 'nid.regex' => 'Enter a 10, 13 or 17 digit NID number.'], $this->names());
 
         $row = ForumApplication::submit([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => BdMobile::normalize($data['mobile']),
             'district_id' => $ref->districtId($data['district']),
+            'nationality' => $data['nationality'],
+            'nid' => $data['nid'] ?? null,
+            'profile_type' => $data['profile_type'],
             'experience_level' => $data['experience_level'],
             'skills' => $data['skills'],
             'services' => $data['services'] ?? null,
@@ -315,6 +333,8 @@ class SubmissionController extends Controller
             'name' => 'full name', 'email' => 'email', 'mobile' => 'mobile number', 'district' => 'district', 'attendee_type' => 'attendee type',
             'nominee_name' => 'nominee name', 'nominee_email' => 'nominee email', 'nominee_mobile' => 'nominee mobile number',
             'nominator_name' => 'your name', 'nominator_email' => 'your email', 'nominator_mobile' => 'your mobile number',
+            'nationality' => 'nationality', 'nid' => 'NID number', 'profile_type' => 'profile type',
+            'headline' => 'professional title', 'experience' => 'years of freelancing experience', 'bio' => 'short bio',
             'achievements' => 'achievements', 'category' => 'award category', 'declaration' => 'declaration', 'consent' => 'consent',
             'company' => 'company', 'contact_person' => 'contact person', 'interest' => 'sponsorship interest', 'organisation' => 'organisation',
             'sector' => 'sector', 'products' => 'products or services', 'experience_level' => 'experience', 'skills' => 'skills',

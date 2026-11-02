@@ -17,18 +17,17 @@ class RegistrationPages
     {
         return [
             'districts' => $this->districts(),
-            'attendeeTypes' => AttendeeType::options(),
-            'interests' => Interest::options(),
+            // The registration mock-up's choices and wording; other enum values stay valid for the CMS and older records.
+            'attendeeTypes' => self::options([
+                AttendeeType::Freelancer->value => 'Freelancer', AttendeeType::Student->value => 'Student', AttendeeType::Professional->value => 'Professional',
+                AttendeeType::Entrepreneur->value => 'Entrepreneur', AttendeeType::Other->value => 'Other',
+            ]),
+            'interests' => self::options([
+                Interest::Marketplaces->value => 'Freelancing & Marketplace', Interest::Ai->value => 'AI & Future of Work', Interest::Skills->value => 'Skills & Career Development',
+                Interest::Entrepreneurship->value => 'Business & Entrepreneurship', Interest::Remote->value => 'Remote Work & Global Opportunities',
+                Interest::Networking->value => 'Networking & Collaboration', Interest::Other->value => 'Others',
+            ]),
             'consent' => $this->consent(),
-            'aside' => [
-                'points' => ['Free to attend', 'Reference number by email straight away', 'E-ticket with QR code once the venue is confirmed'],
-                'others' => [
-                    ['label' => 'Nominate for the awards', 'href' => '/awards/nominate'],
-                    ['label' => 'Exhibit at the summit', 'href' => '/exhibition/apply'],
-                    ['label' => 'Become a sponsor', 'href' => '/sponsorship-opportunity'],
-                    ['label' => 'Join the BACCO Freelancer Forum', 'href' => '/forum/register'],
-                ],
-            ],
         ];
     }
 

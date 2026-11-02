@@ -2,12 +2,14 @@
 import { ref } from 'vue';
 import Photo from '@/components/inner/Photo.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
+import Icon from '@/components/ui/Icon.vue';
 import RollingNumber from '@/components/ui/RollingNumber.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { Counter } from '@/types/content';
 import type { JourneyContent, SectionHeading } from '@/types/inner';
 
-// "The journey so far": odometer counters with a bronze meter against each target, then three recent stops as photo proof.
+// "The journey so far": odometer counters with a bronze meter against each target, then three recent stops as rounded photo cards
+// (place, then the date behind a divider).
 defineProps<{ heading: SectionHeading; counters: Counter[]; reel: JourneyContent['reel'] }>();
 const root = ref<HTMLElement>();
 useReveal(root);
@@ -35,13 +37,13 @@ useReveal(root);
 
             <ul class="mt-20 grid gap-5 md:grid-cols-3">
                 <li v-for="(r, i) in reel" :key="r.place" class="group" :class="i === 1 && 'md:translate-y-10'">
-                    <figure class="m-0">
+                    <figure class="m-0 overflow-hidden rounded-2xl border border-white/80 bg-paper shadow-[0_18px_40px_-28px_rgb(8_58_64/0.35)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1.5 group-hover:shadow-[0_28px_50px_-26px_rgb(8_58_64/0.45)]">
                         <div class="overflow-hidden" data-reveal="clip">
                             <Photo :src="r.image" :alt="r.place" class="aspect-[4/3] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]" />
                         </div>
-                        <figcaption class="mt-4 flex items-baseline justify-between gap-4 border-t border-line-light pt-3" data-reveal="fade">
-                            <span class="font-semibold">{{ r.place }}</span>
-                            <time class="shrink-0 text-sm text-ink-2">{{ r.date }}</time>
+                        <figcaption class="flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5" data-reveal="fade">
+                            <span class="text-lg leading-snug font-bold">{{ r.place }}</span>
+                            <span class="flex shrink-0 items-center gap-2 border-l border-line-light pl-4 text-sm text-ink-2 md:pl-6"><Icon name="calendar" :size="18" class="text-night" /><time>{{ r.date }}</time></span>
                         </figcaption>
                     </figure>
                 </li>

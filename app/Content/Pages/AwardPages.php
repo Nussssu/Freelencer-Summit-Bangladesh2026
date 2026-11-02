@@ -62,12 +62,8 @@ class AwardPages
             'platforms' => self::options(SubmissionController::PLATFORMS),
             'consent' => $this->consent(),
             'declaration' => 'I confirm the information in this nomination is accurate, and that the nominee agrees to be nominated and to be contacted by the organising team.',
-            'steps' => ['Category', 'Nominee', 'Evidence', 'Review'],
-            'aside' => [
-                'points' => ['Separate from summit registration', 'Reference number on submission', 'Confirmation email straight away', 'Status: Submitted, Under Review, Shortlisted, Winner'],
-                'help' => 'Questions about a nomination? Contact the awards team.',
-            ],
-            'eligibility' => $awards['eligibility'],
+            'experience' => self::options(SubmissionController::AWARD_EXPERIENCE),
+            'steps' => ['Applicant Profile', 'Award Category', 'Portfolio & Achievements', 'Supporting Documents', 'Review & Submit'],
         ];
     }
 }
