@@ -15,6 +15,7 @@ class PageContent
         '/divisional-summits/{slug}' => ['Divisional summit', 'A divisional summit of Freelancer Summit Bangladesh.', 'The divisional summit page'],
         '/district-roadshows/{slug}' => ['District roadshow', 'A district roadshow of Freelancer Summit Bangladesh.', 'The district roadshow page'],
         '/campus-programs/{slug}' => ['Campus program', 'A campus program of Freelancer Summit Bangladesh.', 'The campus program page'],
+        '/exhibition/exhibitors' => ['Exhibitors', 'Every exhibitor at Freelancer Summit Bangladesh, with their stand number.', 'The full exhibitor list'],
         '/exhibition/exhibitors/{slug}' => ['Exhibitor', 'An exhibitor at Freelancer Summit Bangladesh.', 'The exhibitor profile'],
         '/grand-summit' => ['Grand Summit', 'The Grand Freelancer Summit in Dhaka, late November.', 'Date, venue, map, countdown and the full event guide'],
         '/agenda' => ['Agenda', 'Sessions, halls and speakers for the Grand Summit.', 'A filterable agenda by day, session type and hall'],

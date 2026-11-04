@@ -2,8 +2,11 @@
 
 namespace App\Queries;
 
+use App\Enums\MediaKind;
+use App\Enums\ProgramStatus;
 use App\Enums\ProgramType;
 use App\Models\JourneyProgram;
+use App\Models\MediaItem;
 
 class ProgramQuery
 {
@@ -25,14 +28,24 @@ class ProgramQuery
 
     public function find(ProgramType $type, string $slug): ?array
     {
-        $p = JourneyProgram::with(['division', 'district', 'campus', 'media'])->where('type', $type)->where('slug', $slug)->first();
+        $p = JourneyProgram::with(['division', 'district', 'campus', 'media', 'speakers' => fn ($q) => $q->where('visible', true)])->where('type', $type)->where('slug', $slug)->first();
 
         return $p ? [
             ...$this->card($p),
             'description' => $p->description,
             'seoTitle' => $p->seo_title, 'seoDescription' => $p->seo_description,
+            'speakers' => $p->speakers->map(fn ($s) => ['slug' => $s->slug, 'name' => $s->name, 'designation' => $s->designation, 'organisation' => $s->organisation, 'role' => $s->role_label, 'photo' => $s->photo])->all(),
             'media' => $p->media->map(fn ($m) => ['kind' => $m->kind->value, 'src' => $m->src, 'youtubeId' => $m->youtube_id, 'caption' => $m->caption])->all(),
         ] : null;
+    }
+
+    /** Photos from completed programmes of one type, newest first (the directory's gallery strip). */
+    public function completedPhotos(ProgramType $type, int $limit = 8): array
+    {
+        return MediaItem::with('program')->where('kind', MediaKind::Photo)
+            ->whereHas('program', fn ($q) => $q->where('type', $type)->where('status', ProgramStatus::Completed))
+            ->latest('id')->limit($limit)->get()
+            ->map(fn ($m) => ['src' => $m->src, 'caption' => $m->caption, 'program' => $m->program->title, 'href' => self::PATHS[$type->value]."/{$m->program->slug}"])->all();
     }
 
     public function card(JourneyProgram $p): array

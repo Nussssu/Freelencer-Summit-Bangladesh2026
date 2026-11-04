@@ -1,38 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import AboutHero from '@/components/about/AboutHero.vue';
 import CtaBand from '@/components/inner/CtaBand.vue';
 import InBtn from '@/components/inner/InBtn.vue';
-import InnerHero from '@/components/inner/InnerHero.vue';
-import LogoWall from '@/components/inner/LogoWall.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
+import PartnersWall from '@/components/sections/PartnersWall.vue';
 import { useReveal } from '@/composables/useReveal';
+import type { Heading, Partners } from '@/types/content';
 import type { InnerPage, SectionHeading } from '@/types/inner';
 
-type Logo = { name: string; logo: string | null };
-// Partners: organisers, government/development, strategic and supporting partners (as the landing's trust strip), then sponsors.
-const props = defineProps<{
+// Partners: About-style photo hero, the two organisers (BACCO, DoICT), then the landing's partner wall as is, under
+// its own title, and the partnership call to action.
+defineProps<{
     page: InnerPage;
     content: {
-        headings: Record<'organisers' | 'groups' | 'sponsors' | 'become', SectionHeading>;
+        headings: Record<'organisers' | 'become', SectionHeading> & { wall: Heading };
         organisers: { short: string; name: string; role: string; logo: string | null }[];
-        groups: { label: string; partners: Logo[] }[];
-        tiers: { name: string; sponsors: Logo[] }[];
-        provisional: boolean;
-        note: string;
+        partners: Partners;
     };
 }>();
 const root = ref<HTMLElement>();
 useReveal(root);
-const groups = props.content.groups.map((g) => ({ name: g.label, sponsors: g.partners }));
 </script>
 
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
-    <InnerHero :page="page" />
+    <AboutHero :page="page" />
 
     <div ref="root">
-        <section class="in-section pt-0!">
+        <section class="in-section">
             <div class="container-site">
                 <SectionHead :heading="content.headings.organisers" />
                 <ul class="grid gap-5 md:grid-cols-2">
@@ -49,22 +46,9 @@ const groups = props.content.groups.map((g) => ({ name: g.label, sponsors: g.par
                 </ul>
             </div>
         </section>
-
-        <section class="in-section">
-            <div class="container-site">
-                <SectionHead :heading="content.headings.groups"><span v-if="content.provisional" class="in-pill">Provisional</span></SectionHead>
-                <LogoWall :tiers="groups" />
-            </div>
-        </section>
-
-        <section class="in-section">
-            <div class="container-site">
-                <SectionHead :heading="content.headings.sponsors"><InBtn href="/sponsors" tone="ghost">Sponsors page</InBtn></SectionHead>
-                <LogoWall :tiers="content.tiers" />
-                <p class="in-meta mt-5">{{ content.note }}</p>
-            </div>
-        </section>
     </div>
+
+    <PartnersWall :partners="content.partners" :heading="content.headings.wall" />
 
     <CtaBand :title="content.headings.become.title" :emphasis="content.headings.become.emphasis ?? undefined" text="Government, development, strategic and supporting partners help carry the campaign to every division.">
         <InBtn href="/sponsorship-opportunity" tone="gold">Become a Sponsor</InBtn>

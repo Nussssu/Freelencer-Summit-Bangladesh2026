@@ -4,19 +4,16 @@ import { Link } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { EASE, gsap, reveal, ScrollTrigger, useGsap } from '@/composables/motion';
 import { useReveal } from '@/composables/useReveal';
-import { useShared } from '@/composables/useShared';
 import { utm, withUtm } from '@/composables/useUtm';
 
 // After exhibition & sponsorship: eyebrow, forum name as a two-line headline, three benefits with tinted icons,
 // a teal "join" pill and an underlined registration link. Right: a community photo bleeding to the page edge that
 // wipes open from the right, with a gold curve and dots.
 const { t } = useI18n();
-const { site } = useShared();
 const root = ref<HTMLElement>();
 const photo = ref<HTMLElement>();
 useReveal(root);
 
-const register = computed(() => site.value.ctas.secondary.find((c) => c.id === 'forum')?.href ?? '/forum/register');
 const lines = computed(() => {
     const [first, ...rest] = t('sections.forum').split(' ');
     return rest.length ? [first, rest.join(' ')] : [first];
@@ -97,10 +94,6 @@ useGsap(root, (reduced) => {
                     <Link :href="withUtm('/forum', utm)" class="fm-join">
                         {{ t('sections.fmJoin') }}
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                    </Link>
-                    <Link :href="withUtm(register, utm)" class="fm-reg">
-                        {{ t('sections.fmRegister') }}
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                     </Link>
                 </div>
             </div>
@@ -220,23 +213,11 @@ useGsap(root, (reduced) => {
     background: var(--delta);
     transform: translateY(-2px);
 }
-.fm-join svg,
-.fm-reg svg {
+.fm-join svg {
     transition: transform var(--dur-hover) var(--ease-hover);
 }
-.fm-join:hover svg,
-.fm-reg:hover svg {
+.fm-join:hover svg {
     transform: translateX(4px);
-}
-.fm-reg {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 0.375rem;
-    border-bottom: 2px solid currentColor;
-    font-size: 1.125rem;
-    font-weight: 500;
-    color: var(--delta);
 }
 
 /* Photo and decoration */
@@ -307,8 +288,7 @@ useGsap(root, (reduced) => {
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .fm-join,
-    .fm-reg svg {
+    .fm-join {
         transition: none;
     }
 }

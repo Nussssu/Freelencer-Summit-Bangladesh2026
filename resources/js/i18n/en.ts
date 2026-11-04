@@ -68,7 +68,6 @@ const en = {
         awCta: 'View award categories',
         exTitle: 'Exhibition &',
         exEmphasis: 'Sponsorship',
-        exLearn: 'Learn more',
         fmEyebrow: 'Freelancer Summit',
         fmItems: {
             community: { title: 'Community', text: 'Connect with like-minded freelancers across Bangladesh.' },
@@ -76,7 +75,6 @@ const en = {
             opportunities: { title: 'Opportunities', text: 'Get access to collaborations, projects and global opportunities.' },
         },
         fmJoin: 'Join the forum',
-        fmRegister: 'Membership registration',
         stTitle: 'Real people',
         stEmphasis: 'Real impact',
         stAll: 'View all stories',
@@ -88,8 +86,8 @@ const en = {
             s3: { title: 'Creating Opportunities Through Freelancing', name: 'Sadia Noor', role: 'Digital Marketing Specialist' },
         },
         exCards: {
-            exhibit: { title: 'Exhibit at Summit', text: 'Showcase your products, services and innovations to a highly engaged audience.' },
-            sponsor: { title: 'Become a Sponsor', text: 'Gain high-visibility branding opportunities and connect with key stakeholders.' },
+            exhibit: { title: 'Exhibit at Summit', text: 'Showcase your products, services and innovations to a highly engaged audience.', cta: 'Exhibit' },
+            sponsor: { title: 'Become a Sponsor', text: 'Gain high-visibility branding opportunities and connect with key stakeholders.', cta: 'Sponsor' },
         },
         awCards: {
             categories: { title: 'Award Categories', text: 'Explore all categories and find the right fit for your achievements.' },

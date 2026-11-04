@@ -3,11 +3,9 @@
 namespace App\Content\Pages;
 
 use App\Content\HomeContent;
-use App\Enums\DownloadKind;
 use App\Enums\ProgramStatus;
 use App\Enums\ProgramType;
 use App\Models\Division;
-use App\Queries\ContentQuery;
 use App\Queries\ProgramQuery;
 use App\Queries\ReferenceQuery;
 use Illuminate\Http\Request;
@@ -20,7 +18,7 @@ class JourneyPages
 
     private const TYPES = [
         'divisional' => [ProgramType::DivisionalSummit, '/divisional-summits', 'Divisional Summits'],
-        'district' => [ProgramType::DistrictRoadshow, '/district-roadshows', 'District Summits'],
+        'district' => [ProgramType::DistrictRoadshow, '/district-roadshows', 'District Roadshows'],
         'campus' => [ProgramType::CampusProgram, '/campus-programs', 'Campus Programs'],
     ];
 
@@ -31,9 +29,37 @@ class JourneyPages
         return $this->list('divisional', $request);
     }
 
+    /** District Roadshows page: short intro, searchable directory (district and status filters), completed-event photos. */
     public function district(Request $request): array
     {
-        return $this->list('district', $request);
+        $type = ProgramType::DistrictRoadshow;
+        $filters = [
+            'q' => (string) $request->query('q', ''),
+            'district' => (string) $request->query('district', ''),
+            'status' => (string) $request->query('status', ''),
+        ];
+
+        return [
+            'filters' => $filters,
+            'programs' => fn () => $this->programs->list($type, $filters, 10),
+            'districtGroups' => $this->ref->districts(),
+            'statusOptions' => ProgramStatus::options(),
+            'gallery' => $this->programs->completedPhotos($type),
+            'about' => [
+                'title' => 'Freelancing, brought to your district',
+                'emphasis' => 'your district',
+                'paragraphs' => [
+                    'District roadshows take the Freelancer Summit to towns across Bangladesh: one day of career awareness, practical skill sessions, local success stories and marketplace guidance, close to home and free to attend.',
+                    'Each roadshow is run with a local organiser and feeds into its divisional summit and the Grand Summit in Dhaka.',
+                ],
+            ],
+            'headings' => [
+                'directory' => self::h('Find a roadshow', 'roadshow'),
+                'gallery' => self::h('From the road', 'road'),
+                'cta' => self::h('Follow the national journey', 'national journey'),
+            ],
+            'empty' => ['title' => 'Roadshows announced soon', 'body' => 'Each roadshow is listed here with its date, venue and registration once it is confirmed.'],
+        ];
     }
 
     public function campus(Request $request): array
@@ -143,7 +169,8 @@ class JourneyPages
             'typeLabel' => $type->label(),
             'facts' => array_values(array_filter([
                 ['icon' => 'calendar', 'label' => 'Date', 'value' => $date ?? 'To be announced'],
-                ['icon' => 'pin', 'label' => 'Location', 'value' => $p['location'] ?? 'To be announced'],
+                ['icon' => 'pin', 'label' => 'Venue', 'value' => $p['location'] ?? 'To be announced'],
+                $p['district'] ? ['icon' => 'map', 'label' => 'District', 'value' => $p['district']] : null,
                 ['icon' => 'handshake', 'label' => 'Organiser or partner', 'value' => $p['partner'] ?? 'To be announced'],
                 ['icon' => 'map', 'label' => 'Division', 'value' => $p['division'] ?? 'To be announced'],
             ])),
@@ -160,36 +187,28 @@ class JourneyPages
     }
 
     /** Brief §7: date, venue, map, countdown, highlights, agenda preview, speakers, exhibition, downloads, archive. */
-    public function grandSummit(ContentQuery $content): array
+    public function grandSummit(): array
     {
         $agenda = $this->home->agenda();
+        // The six highlights the Grand Summit page features, in this order (picked from the landing's highlight list)
+        $pick = ['Keynote sessions', 'AI showcase', 'Workshops', 'Freelancer Awards', 'Marketplace sessions', 'Networking'];
+        $highlights = collect($this->home->highlights())->keyBy('title');
 
         return [
             'headings' => [
-                'what' => self::h('One day, every part of the journey', 'every part'),
-                'agenda' => self::h('Agenda highlights', 'highlights'),
-                'speakers' => self::h('On stage in Dhaka', 'in Dhaka'),
-                'venue' => self::h('Venue and visitor information', 'visitor information'),
-                'downloads' => self::h('Brochure, agenda and prospectus', 'prospectus'),
-                'archive' => self::h('After the summit', 'After'),
+                'glance' => self::h('At a glance', 'glance'),
+                'highlights' => self::h('Summit highlights', 'highlights'),
+                'agenda' => self::h('Agenda preview', 'preview'),
+                'speakers' => self::h('Featured speakers', 'speakers'),
+                'expo' => self::h('Exhibition & networking', '& networking'),
+                'venue' => self::h('Venue & location', 'location'),
+                'cta' => self::h('Be part of the Grand Summit', 'Grand Summit'),
             ],
-            'highlights' => $this->home->highlights(),
-            'sessions' => array_slice($agenda['sessions'], 0, 4),
+            'highlights' => array_values(array_filter(array_map(fn ($t) => $highlights->get($t), $pick))),
+            'sessions' => array_slice($agenda['sessions'], 0, 5),
             'sessionsSample' => $agenda['sample'],
-            'speakers' => array_map(fn ($s) => [...$s, 'sample' => false, 'href' => "/speaker/{$s['slug']}"], array_slice($this->home->speakers(), 0, 4)),
-            'visitor' => [
-                ['icon' => 'ticket', 'title' => 'Entry', 'text' => 'Register online. Your e-ticket with a QR code is emailed once the venue is confirmed.'],
-                ['icon' => 'clock', 'title' => 'Timing', 'text' => 'Doors, session times and the awards ceremony are published with the final agenda.'],
-                ['icon' => 'pin', 'title' => 'Getting there', 'text' => 'Venue address, map and transport details appear here when the venue is announced.'],
-                ['icon' => 'shield', 'title' => 'Accessibility', 'text' => 'Tell us about access needs when you register and the team will plan for them.'],
-            ],
-            'experiences' => [
-                ['icon' => 'trophy', 'tone' => 'tone-sun', 'title' => 'Freelancer Awards', 'text' => 'The national awards ceremony closes the day on the main stage.', 'href' => '/awards'],
-                ['icon' => 'store', 'tone' => 'tone-violet', 'title' => 'Exhibition', 'text' => 'Marketplaces, companies and training providers in one hall.', 'href' => '/exhibition'],
-                ['icon' => 'people', 'tone' => 'tone-rose', 'title' => 'BACCO Freelancer Forum', 'text' => 'Meet the forum team and apply for membership on the day.', 'href' => '/forum'],
-            ],
-            'downloads' => $content->downloads([DownloadKind::Brochure, DownloadKind::Agenda, DownloadKind::Prospectus]),
-            'archiveEmpty' => ['title' => 'Archive opens after the summit', 'body' => 'Presentations, photos, videos, reports and highlights are kept here after the Grand Summit.'],
+            'speakers' => array_slice($this->home->speakers(), 0, 4),
+            'expo' => ['photo' => '/media/photos/exhibition-hero.jpg'],
         ];
     }
 }

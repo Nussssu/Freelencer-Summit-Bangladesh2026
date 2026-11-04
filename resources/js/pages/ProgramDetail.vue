@@ -21,11 +21,15 @@ import SeoHead from '@/components/layout/SeoHead.vue';
 import { useReveal } from '@/composables/useReveal';
 import type { Consent, InnerPage, ProgramCard } from '@/types/inner';
 
-// Brief §15: each activity's page: date, location, organiser/partner, description, registration and photo/video gallery.
+// Brief §15: each activity's page: date, venue, organiser/partner, description, speakers, registration and photo/video gallery.
 const props = defineProps<{
     page: InnerPage;
     content: {
-        program: ProgramCard & { description: string | null; media: { kind: string; src: string | null; youtubeId: string | null; caption: string | null }[] };
+        program: ProgramCard & {
+            description: string | null;
+            speakers: { slug: string; name: string; designation: string | null; organisation: string | null; role: string | null; photo: string | null }[];
+            media: { kind: string; src: string | null; youtubeId: string | null; caption: string | null }[];
+        };
         typeLabel: string;
         facts: { icon: GlyphName; label: string; value: string }[];
         register: { open: boolean; action: string; closed: string; consent: Consent };
@@ -61,6 +65,20 @@ const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en
             <h2 class="in-h3 text-2xl!">About this programme</h2>
             <div v-if="content.program.description" class="in-prose mt-4" v-html="content.program.description" />
             <p v-else class="in-body mt-4">The full programme, speakers and mentors are published here as they are confirmed.</p>
+
+            <div v-if="content.program.speakers.length" class="mt-12">
+                <h2 class="in-h3 text-2xl!">Speakers and mentors</h2>
+                <ul class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                    <li v-for="s in content.program.speakers" :key="s.slug" class="overflow-hidden rounded-xl bg-white ring-1 ring-night/8">
+                        <span class="block aspect-[4/5] bg-mist"><img v-if="s.photo" :src="s.photo" :alt="s.name" loading="lazy" class="h-full w-full object-cover object-top" /></span>
+                        <span class="block p-4">
+                            <span v-if="s.role" class="in-meta block">{{ s.role }}</span>
+                            <span class="mt-0.5 block font-extrabold text-night">{{ s.name }}</span>
+                            <span v-if="s.designation || s.organisation" class="mt-1 block text-sm text-ink-2">{{ [s.designation, s.organisation].filter(Boolean).join(', ') }}</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
 
             <div id="register" class="mt-10 scroll-mt-[calc(var(--header-h)+1rem)]">
                 <h2 class="in-h3 text-2xl!">Register for this programme</h2>

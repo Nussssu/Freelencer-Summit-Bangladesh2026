@@ -6,7 +6,6 @@ use App\Enums\ProgramType;
 use App\Enums\SessionType;
 use App\Models\AgendaSession;
 use App\Models\Booth;
-use App\Models\Exhibitor;
 use App\Models\JourneyProgram;
 use App\Models\NewsPost;
 use App\Models\Speaker;
@@ -37,6 +36,6 @@ class DemoSeeder extends Seeder
             Booth::factory()->create(['code' => sprintf('B%02d', $i + 1), 'x' => ($i % 8) * 100 + 5, 'y' => intdiv($i, 8) * 100 + 5]);
         }
 
-        Exhibitor::factory()->count(4)->create();
+        $this->call(ExhibitorDemoSeeder::class);
     }
 }

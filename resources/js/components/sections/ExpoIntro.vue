@@ -73,7 +73,7 @@ useGsap(root, (reduced) => {
                             <span class="ex-title" data-ex-copy>{{ t(`sections.exCards.${c.id}.title`) }}</span>
                             <span class="ex-text" data-ex-copy>{{ t(`sections.exCards.${c.id}.text`) }}</span>
                             <span class="ex-more" data-ex-copy>
-                                {{ t('sections.exLearn') }}
+                                {{ t(`sections.exCards.${c.id}.cta`) }}
                                 <span class="ex-arrow" aria-hidden="true">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                                 </span>

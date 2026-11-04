@@ -4,6 +4,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
 import Dialog from '@/components/ui/Dialog.vue';
+import SpeakerHoverCard from '@/components/speakers/SpeakerHoverCard.vue';
 import SplitHeading from '@/components/ui/SplitHeading.vue';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
@@ -11,14 +12,12 @@ import type { Heading, Speaker } from '@/types/content';
 
 // Section 7. BPO role labels + "Details" (B6), reinterpreted as a right-side drawer. Every slot starts as
 // "Revealing soon" (blurred silhouette); the data shape is ready for real speakers.
-const props = defineProps<{ speakers: Speaker[]; heading: Heading }>();
+defineProps<{ speakers: Speaker[]; heading: Heading }>();
 const { t } = useI18n();
 const { site } = useShared();
 const cta = computed(() => site.value.ctas.secondary.find((c) => c.id === 'speakers')!);
 const root = ref<HTMLElement>();
 useReveal(root);
-const featured = computed(() => props.speakers.find((s) => s.featured) ?? props.speakers[0]);
-const rest = computed(() => props.speakers.filter((s) => s !== featured.value));
 const selected = ref<Speaker | null>(null);
 const drawerOpen = computed({ get: () => !!selected.value, set: (v) => !v && (selected.value = null) });
 const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
@@ -34,29 +33,10 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                 <CtaLink :href="cta.href" tone="ghost">{{ cta.label }}</CtaLink>
             </div>
 
-            <!-- Featured showcase -->
-            <article class="mt-12 card grid grid-cols-1 overflow-hidden md:grid-cols-12" data-reveal="fade">
-                <div class="silhouette relative aspect-[4/3] md:col-span-5 md:aspect-auto md:min-h-80" aria-hidden="true">
-                    <img v-if="featured.photo" :src="featured.photo" alt="" class="h-full w-full object-cover" />
-                </div>
-                <div class="flex flex-col justify-center gap-4 p-6 md:col-span-7 md:p-10">
-                    <p class="t-label text-gold-ink">{{ t('sections.featured') }} · {{ featured.role }}</p>
-                    <h3 class="font-display text-5xl font-black uppercase md:text-6xl">{{ nameOf(featured) }}</h3>
-                    <p class="text-lg text-ink-2">{{ featured.credential ?? ([featured.designation, featured.organisation].filter(Boolean).join(', ') || t('sections.announcement')) }}</p>                </div>
-            </article>
-
-            <ul class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                <li v-for="s in rest" :key="s.slug" class="card card-hover flex flex-col overflow-hidden" data-reveal="fade">
-                    <div class="silhouette aspect-[4/5]" aria-hidden="true"><img v-if="s.photo" :src="s.photo" alt="" class="h-full w-full object-cover" /></div>
-                    <div class="flex min-w-0 flex-1 flex-col gap-1 p-3 sm:p-4">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="t-label bg-gold px-2 py-1 text-night">{{ s.role }}</span>
-                            <span class="t-label text-ink-2">{{ s.country ?? t('common.tba') }}</span>
-                        </div>
-                        <h3 class="mt-3 font-display text-xl font-black uppercase sm:text-2xl">{{ nameOf(s) }}</h3>
-                        <p class="text-sm text-ink-2">{{ s.designation ?? t('sections.announcement') }}</p>
-                        <p v-if="s.organisation" class="text-sm font-bold">{{ s.organisation }}</p>
-                    </div>
+            <!-- One grid for everyone (chief guest included). Card shows the photo; hover/focus flips it to a profile panel. -->
+            <ul class="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                <li v-for="s in speakers" :key="s.slug" data-reveal="fade">
+                    <SpeakerHoverCard :person="s" :href="`/speaker/${s.slug}`" />
                 </li>
             </ul>
         </div>

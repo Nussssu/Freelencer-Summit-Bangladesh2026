@@ -8,7 +8,6 @@ use App\Enums\DownloadKind;
 use App\Http\Controllers\SubmissionController;
 use App\Queries\ContentQuery;
 use App\Queries\ExhibitorQuery;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /** Brief §10, §11, §12 and partners: sponsorship, sponsors, exhibition, exhibitors, the forum. */
@@ -61,32 +60,36 @@ class BusinessPages
         ];
     }
 
-    public function exhibition(Request $request): array
+    public function exhibition(): array
     {
         $x = $this->home->exhibition();
-        $filters = ['q' => (string) $request->query('q', ''), 'sector' => (string) $request->query('sector', '')];
 
         return [
             'headings' => [
-                'why' => self::h('Why exhibit', 'exhibit'),
+                'audience' => self::h('The right audience for your brand', 'right audience'),
+                'why' => self::h('Why exhibit?', 'exhibit?'),
                 'who' => self::h('Who should exhibit', 'exhibit'),
-                'floor' => self::h('Floor plan', 'plan'),
-                'directory' => self::h('Exhibitor directory', 'directory'),
-                'visit' => self::h('Visiting the exhibition', 'exhibition'),
+                'floor' => self::h('Find your spot on the floor', 'floor'),
+                'cta' => self::h('Book your stand at the summit', 'the summit'),
             ],
-            'why' => array_map(fn ($t, $i) => ['title' => $t, 'icon' => ['people', 'briefcase', 'rocket'][$i], 'tone' => ['tone-teal', 'tone-sun', 'tone-violet'][$i]], $x['why'], array_keys($x['why'])),
+            'why' => array_map(fn ($t, $i) => ['title' => $t, 'icon' => ['people', 'briefcase', 'rocket'][$i], 'tone' => ['tone-teal', 'tone-sun', 'tone-violet'][$i], 'photo' => ['/media/photos/highlight-networking.jpg', '/media/photos/highlight-career.jpg', '/media/photos/highlight-marketplace.jpg'][$i] ?? '/media/photos/exhibit-booth.jpg'], $x['why'], array_keys($x['why'])),
             'who' => array_map(fn ($t, $i) => ['title' => $t, 'icon' => ['globe', 'building', 'cap', 'chart'][$i] ?? 'store'], $x['who'], array_keys($x['who'])),
-            'booths' => $this->exhibitors->booths(),
-            'boothsNote' => 'Illustrative layout until the venue floor plan is final. Booth status updates as allocations are confirmed.',
-            'legend' => [['value' => 'available', 'label' => 'Available'], ['value' => 'reserved', 'label' => 'Reserved'], ['value' => 'confirmed', 'label' => 'Confirmed']],
-            'filters' => $filters,
-            'exhibitors' => fn () => $this->exhibitors->directory($filters, 12),
-            'sectors' => array_map(fn ($s) => ['value' => $s, 'label' => $s], $this->exhibitors->sectors()),
-            'visit' => [
-                ['icon' => 'ticket', 'title' => 'Free with registration', 'text' => 'The exhibition hall is open to every registered summit attendee.'],
-                ['icon' => 'map', 'title' => 'Exhibition map', 'text' => 'A printable hall map with booth numbers is published with the final floor plan.'],
-                ['icon' => 'search', 'title' => 'Plan your visit', 'text' => 'Search the directory by name or sector and note the booths you want to see.'],
+            'booths' => $booths = $this->exhibitors->booths(),
+            // Audience band: counts straight from the booth table plus the summit's reach, nothing estimated.
+            'stats' => [
+                ['value' => (string) count($booths), 'label' => 'Exhibition booths'],
+                ['value' => (string) count(array_filter($booths, fn ($b) => $b['status'] === 'available')), 'label' => 'Booths still available'],
+                ['value' => '8', 'label' => 'Divisions represented'],
             ],
+            'legend' => [['value' => 'available', 'label' => 'Available'], ['value' => 'reserved', 'label' => 'Reserved'], ['value' => 'confirmed', 'label' => 'Confirmed']],
+        ];
+    }
+
+    /** The full exhibitor list: every exhibitor in sequence, no search or filters. */
+    public function exhibitors(): array
+    {
+        return [
+            'exhibitors' => $this->exhibitors->all(),
         ];
     }
 
@@ -101,14 +104,10 @@ class BusinessPages
             '_page' => [
                 'title' => $e['name'],
                 'description' => "{$e['name']} ({$e['sector']}) at the Freelancer Summit Bangladesh exhibition.",
-                'crumbs' => [['label' => 'Exhibition', 'href' => '/exhibition'], ['label' => $e['name']]],
+                'crumbs' => [['label' => 'Exhibition', 'href' => '/exhibition'], ['label' => 'Exhibitors', 'href' => '/exhibition/exhibitors'], ['label' => $e['name']]],
                 'hero' => ['title' => $e['name'], 'emphasis' => '', 'intro' => $e['sector'], 'image' => '/media/photos/exhibit-booth.jpg', 'actions' => []],
             ],
             'exhibitor' => $e,
-            'facts' => [
-                ['icon' => 'store', 'label' => 'Booth', 'value' => $e['booth'] ?? 'To be allocated'],
-                ['icon' => 'grid', 'label' => 'Sector', 'value' => $e['sector']],
-            ],
         ];
     }
 
@@ -128,13 +127,24 @@ class BusinessPages
 
         return [
             'headings' => [
-                'purpose' => self::h('A community that outlasts the summit', 'outlasts the summit'),
                 'benefits' => self::h('Member benefits', 'benefits'),
                 'how' => self::h('How to join', 'join'),
                 'activities' => self::h('Community and activities', 'activities'),
                 'faq' => self::h('Questions about membership', 'membership'),
+                'cta' => self::h('Join the BACCO Freelancer Forum', 'Freelancer Forum'),
             ],
             'forum' => $f,
+            // About-page style intro under the hero: BACCO's own description of the forum.
+            'intro' => [
+                'title' => 'BACCO Freelancer Forum',
+                'emphasis' => 'Freelancer Forum',
+                'paragraphs' => [
+                    'Bangladesh Association of Contact Center and Outsourcing (BACCO) has recently launched “BACCO Online Professionals Forum (BOPF)” in October, 2020 to support the talented online professional community in the journey of being an entrepreneur from solopreneur. The online professional’s community and BACCO will work together to eventually develop the overall BPO industry as outsourcing has been a major functional part of this large community and this collaboration will excavate numerous openings.',
+                    'Honorable Minister of State for the ICT Division, Mr. Zunaid Ahmed Palak, MP inaugurated the forum through a virtual launching ceremony with the presence of BACCO Executive Committee, top freelancers and BPO stakeholders.',
+                    'Mission: Development of the online professionals’ community of Bangladesh by assisting the established and potential freelancers for building entrepreneurial projects.',
+                    'Vision: To make a core platform where proficient freelancers will come together to share knowledge and skills to create jobs, earn foreign remittance and work together for a viable journey.',
+                ],
+            ],
             'benefits' => array_map(fn ($b, $i) => [...$b, 'icon' => ['id', 'people', 'cap', 'megaphone'][$i] ?? 'star', 'tone' => ['tone-blue', 'tone-teal', 'tone-sun', 'tone-rose'][$i] ?? 'tone-teal'], $f['benefits'], array_keys($f['benefits'])),
             'steps' => [
                 ['title' => 'Apply online', 'text' => 'Fill in your profile, skills and marketplace links. It takes a few minutes.'],
@@ -167,21 +177,17 @@ class BusinessPages
 
     public function partners(SiteContent $site): array
     {
-        $trust = $this->home->trust();
         $partners = $this->home->partners();
 
         return [
             'headings' => [
-                'organisers' => self::h('Jointly organised by', 'organised by'),
-                'groups' => self::h('Partners and supporters', 'supporters'),
-                'sponsors' => self::h('Sponsors', 'Sponsors'),
+                'organisers' => self::h('Organised by', 'by'),
+                // The landing's partner wall, under its own title (the hero already says "Built with partners")
+                'wall' => ['title' => 'Our partners and sponsors', 'emphasis' => 'partners and sponsors'],
                 'become' => self::h('Partner with the summit', 'Partner'),
             ],
             'organisers' => $site->organisers(),
-            'groups' => $trust['groups'],
-            'tiers' => $partners['tiers'],
-            'provisional' => $partners['provisional'],
-            'note' => 'Partner and sponsor names shown here are placeholders until partnerships are confirmed.',
+            'partners' => $partners,
         ];
     }
 }

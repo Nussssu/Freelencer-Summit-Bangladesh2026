@@ -7,7 +7,7 @@ import { useShared } from '@/composables/useShared';
 import type { InnerPage, SectionHeading } from '@/types/inner';
 
 // Deep teal rounded band: two-line display heading with the last word in gold, Register (gold) and the page's
-// secondary hero action (outline) on the right.
+// secondary hero action (outline) on the right; the default slot replaces those buttons.
 const props = defineProps<{ heading: SectionHeading; page: InnerPage }>();
 const { site } = useShared();
 const root = ref<HTMLElement>();
@@ -31,8 +31,10 @@ const secondary = computed(() => props.page.hero.actions?.find((a) => a.tone !==
                     />
                 </div>
                 <div class="flex flex-wrap gap-4 lg:col-span-5 lg:justify-end" data-reveal="fade">
-                    <CtaLink :href="register.href" class="!px-7 !py-4">{{ register.label }}</CtaLink>
-                    <CtaLink v-if="secondary" :href="secondary.href" tone="outline" class="!px-7 !py-4">{{ secondary.label }}</CtaLink>
+                    <slot>
+                        <CtaLink :href="register.href" class="!px-7 !py-4">{{ register.label }}</CtaLink>
+                        <CtaLink v-if="secondary" :href="secondary.href" tone="outline" class="!px-7 !py-4">{{ secondary.label }}</CtaLink>
+                    </slot>
                 </div>
             </div>
         </div>

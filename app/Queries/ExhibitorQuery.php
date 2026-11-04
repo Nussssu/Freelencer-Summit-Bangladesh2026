@@ -18,6 +18,14 @@ class ExhibitorQuery
         return Paginated::from($page, $this->card(...));
     }
 
+    /** Every visible exhibitor, A–Z, with the profile text, a page at a time (the full exhibitor list page). */
+    public function all(int $perPage = 8): array
+    {
+        $page = Exhibitor::with('booth')->where('visible', true)->orderBy('name')->paginate($perPage)->withQueryString();
+
+        return Paginated::from($page, fn ($e) => [...$this->card($e), 'description' => $e->description, 'website' => $e->website]);
+    }
+
     public function sectors(): array
     {
         return Exhibitor::where('visible', true)->distinct()->orderBy('sector')->pluck('sector')->all();

@@ -7,6 +7,7 @@ use App\Enums\ProgramType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JourneyProgram extends Model
@@ -33,6 +34,11 @@ class JourneyProgram extends Model
     public function campus(): BelongsTo
     {
         return $this->belongsTo(Campus::class);
+    }
+
+    public function speakers(): BelongsToMany
+    {
+        return $this->belongsToMany(Speaker::class)->withPivot('sort')->orderByPivot('sort');
     }
 
     public function media(): HasMany

@@ -6,7 +6,7 @@ import type { AboutContent } from '@/types/inner';
 // The summit's name and the positioning prose straight under the hero, in the reference About page's structure
 // (bposummit.org.bd/about-us): a centred two-tone name (teal, then the emphasis in a summit-gold gradient), then
 // full-width paragraphs of equal weight.
-const props = defineProps<{ intro: AboutContent['intro'] }>();
+const props = defineProps<{ intro: AboutContent['intro']; justify?: boolean }>();
 const root = ref<HTMLElement>();
 useReveal(root);
 
@@ -24,7 +24,7 @@ const parts = computed(() => {
                 {{ parts[0] }}<span v-if="parts[1]" class="tone">{{ parts[1] }}</span>
             </h2>
             <div class="mt-10 space-y-8 md:mt-12">
-                <p v-for="(p, i) in intro.paragraphs" :key="i" class="text-lg leading-[1.8] text-night" data-reveal="fade">{{ p }}</p>
+                <p v-for="(p, i) in intro.paragraphs" :key="i" class="text-lg leading-[1.8] text-night" :class="justify && 'text-justify hyphens-auto'" data-reveal="fade">{{ p }}</p>
             </div>
         </div>
     </section>

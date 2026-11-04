@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import EmptyState from '@/components/inner/EmptyState.vue';
-import PersonCard from '@/components/inner/PersonCard.vue';
 import SpeakerDialog from '@/components/speakers/SpeakerDialog.vue';
+import SpeakerHoverCard from '@/components/speakers/SpeakerHoverCard.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import NewsHero from '@/components/news/NewsHero.vue';
@@ -38,7 +38,7 @@ const current = ref<number | null>(null);
                 <SectionHead id="sp-directory" :heading="content.headings.directory" />
                 <ul v-if="content.speakers.length" class="grid grid-cols-2 gap-4 lg:grid-cols-4">
                     <li v-for="(p, i) in content.speakers" :key="p.slug" data-reveal="fade">
-                        <PersonCard :person="p" heading-level="h3" plain :pill-class="rolePill(p.role)" />
+                        <SpeakerHoverCard :person="p" @click="current = i" />
                     </li>
                 </ul>
                 <EmptyState v-else level="h3" icon="people" :title="t('inner.empty.title')" :body="t('inner.empty.body')" />
