@@ -6,6 +6,7 @@ use App\Enums\DownloadKind;
 use App\Models\NewsPost;
 use App\Queries\ContentQuery;
 use App\Queries\NewsQuery;
+use Illuminate\Support\Str;
 
 /**
  * Hero copy and body sections for the built main-navigation pages. Title/description for SEO stay in PageContent.
@@ -14,6 +15,9 @@ use App\Queries\NewsQuery;
  */
 class InnerPageContent
 {
+    /** Summit days shown on the agenda and in its PDF, whether or not sessions are published for them yet. */
+    public const AGENDA_DAYS = ['Day 1', 'Day 2', 'Day 3'];
+
     public function __construct(private HomeContent $home, private NewsQuery $news) {}
 
     /** Section heading: eyebrow label, title (emphasis is a substring of it), optional one-line intro. */
@@ -97,6 +101,7 @@ class InnerPageContent
                 ['label' => 'Meet the speakers', 'href' => '/speakers', 'tone' => 'ghost'],
             ],
         ],
+        '/agenda/session/{slug}' => ['component' => 'AgendaSessionDetail', 'content' => [self::class, 'agendaSession'], 'title' => 'View Session Details', 'emphasis' => 'Details', 'image' => '/media/photos/agenda-hero.jpg'],
         '/speakers' => [
             'component' => 'Speakers',
             'title' => 'Speakers & Experts',
@@ -117,17 +122,8 @@ class InnerPageContent
             'image' => '/media/photos/awards-hero.jpg',
             'actions' => [
                 ['label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'gold'],
-                ['label' => 'View award categories', 'href' => '/awards/categories', 'tone' => 'ghost'],
+                ['label' => 'View award categories', 'href' => '/awards#categories', 'tone' => 'ghost'],
             ],
-        ],
-        '/awards/categories' => [
-            'component' => 'AwardCategories', 'content' => [Pages\AwardPages::class, 'categories'],
-            'crumbs' => [['label' => 'Freelancer Awards', 'href' => '/awards'], ['label' => 'Award Categories']],
-            'title' => 'Find the category for your work',
-            'emphasis' => 'your work',
-            'intro' => 'Each category lists who it is for and what the jury looks at. Categories stay provisional until the award guidelines are published.',
-            'image' => '/media/photos/involved-nominate.jpg',
-            'actions' => [['label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'gold'], ['label' => 'About the awards', 'href' => '/awards', 'tone' => 'ghost']],
         ],
         '/awards/nominate' => [
             'component' => 'AwardNominate', 'content' => [Pages\AwardPages::class, 'nominate'],
@@ -137,6 +133,28 @@ class InnerPageContent
             'intro' => 'Nominate yourself or someone you know for the Freelancer Awards 2026.',
             // shortcut: cut from the client's nomination mock-up (low resolution, soft-edged PNG); replace with the original.
             'image' => '/media/photos/award-trophy.png',
+        ],
+        '/awards/winners' => [
+            'component' => 'AwardWinners', 'content' => [Pages\AwardPages::class, 'winners'],
+            'crumbs' => [['label' => 'Freelancer Awards', 'href' => '/awards'], ['label' => 'Winners']],
+            'title' => 'Freelancer Award Winners',
+            'emphasis' => 'Winners',
+            'image' => '/media/photos/awards-hero.jpg',
+            'actions' => [
+                ['label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'gold'],
+                ['label' => 'Back to the awards', 'href' => '/awards', 'tone' => 'ghost'],
+            ],
+        ],
+        '/awards/nominees' => [
+            'component' => 'AwardNominees', 'content' => [Pages\AwardPages::class, 'nominees'],
+            'crumbs' => [['label' => 'Freelancer Awards', 'href' => '/awards'], ['label' => 'Shortlisted Nominees']],
+            'title' => 'Shortlisted Nominees',
+            'emphasis' => 'Nominees',
+            'image' => '/media/photos/awards-hero.jpg',
+            'actions' => [
+                ['label' => 'Nominate for Awards', 'href' => '/awards/nominate', 'tone' => 'gold'],
+                ['label' => 'Back to the awards', 'href' => '/awards', 'tone' => 'ghost'],
+            ],
         ],
         '/sponsors' => [
             'component' => 'Sponsors', 'content' => [Pages\BusinessPages::class, 'sponsors'],
@@ -250,7 +268,6 @@ class InnerPageContent
                 'pillars' => self::h('', 'Purpose & Vision', 'Vision'),
                 'goals' => self::h('', 'Key Objectives', 'Objectives'),
                 'organisers' => self::h('', 'Organized by', 'by'),
-                'news' => self::h('', 'News & Updates', 'Updates'),
                 'cta' => self::h('', 'Be part of Bangladesh’s freelance future.', 'future.'),
             ],
             // Brief §1 positioning, laid out like the reference About page (bposummit.org.bd/about-us): name, then prose.
@@ -287,7 +304,6 @@ class InnerPageContent
                 ['short' => 'BACCO', 'text' => 'Bangladesh Association of Contact Center & Outsourcing'],
                 ['short' => 'DoICT', 'text' => 'Department of ICT, Government of Bangladesh'],
             ],
-            'latestNews' => $this->latestNews(),
         ];
     }
 
@@ -301,10 +317,10 @@ class InnerPageContent
     ];
 
     /**
-     * About marquee cards: the newest real posts (title, excerpt, date), each opening its article page. Demo rows
+     * Landing News & Updates marquee: the newest real posts (title, excerpt, date), each opening its article page. Demo rows
      * (is_sample) never show here; with nothing published the section stays hidden.
      */
-    private function latestNews(): array
+    public function latestNews(): array
     {
         return NewsPost::where('is_sample', false)->whereNotNull('published_at')->where('published_at', '<=', now())->latest('published_at')->limit(8)->get()
             ->map(fn (NewsPost $p) => [
@@ -395,20 +411,68 @@ class InnerPageContent
 
         return [
             'headings' => [
-                'programme' => self::h('Programme', 'Plan your day', 'your day', 'Filter by day, session type or hall, and add any session to your calendar.'),
-                'formats' => self::h('Session formats', 'Learn, practise, connect', 'connect'),
-                'downloads' => self::h('Downloads', 'Take the programme with you', 'with you'),
-                'cta' => self::h('', 'Save your seat in Dhaka', 'in Dhaka', 'Register for the Grand Summit and we will email your confirmation.'),
+                'programme' => self::h('', 'Summit Programme', 'Programme'),
+                'plan' => self::h('', 'Plan your day', 'your day'),
+                'tracks' => self::h('', 'At a Glance: Programme Tracks'),
+                'cta' => self::h('', 'Register for the Grand Summit', 'Grand Summit', "Secure your spot at Freelancer Summit Bangladesh ".config('summit.edition')." and be part of the country's biggest freelancing and entrepreneurship gathering."),
             ],
-            'agenda' => [...$agenda, 'sessions' => array_map(fn ($s, $i) => [...$s, 'ics' => "/agenda/sessions/{$i}.ics"], $agenda['sessions'], array_keys($agenda['sessions']))],
-            'formats' => [
-                ['title' => 'Keynotes & panels', 'text' => 'Policy makers, industry leaders and global experts on where freelancing in Bangladesh goes next.'],
-                ['title' => 'Workshops & seminars', 'text' => 'Hands-on skill sessions in small groups, from client work to AI tools.'],
-                ['title' => 'Marketplace sessions', 'text' => 'Platform representatives on profiles, ranking, payments and getting hired.'],
-                ['title' => 'Career talks & success stories', 'text' => 'Routes into ITES, BPO and AI services, told by people who took them.'],
-            ],
+            // Day tabs for the whole summit; a day without sessions yet shows "Announcing soon".
+            'agenda' => [...$agenda, 'days' => self::AGENDA_DAYS, 'sessions' => $this->agendaSessions()],
             'downloads' => $content->downloads([DownloadKind::Agenda, DownloadKind::Brochure]),
         ];
+    }
+
+    /** One agenda session's own page: the full brief, at-a-glance facts, speaker and related sessions. */
+    public function agendaSession(string $slug): ?array
+    {
+        $sessions = $this->agendaSessions();
+        $i = array_search($slug, array_column($sessions, 'slug'), true);
+        if ($i === false) {
+            return null;
+        }
+        $session = $sessions[$i];
+        // The next three sessions in running order, wrapping round to the start of the day.
+        $related = array_map(fn ($n) => $sessions[($i + $n) % count($sessions)], range(1, min(3, count($sessions) - 1)));
+
+        return [
+            '_page' => [
+                'title' => $session['title'],
+                'description' => $session['summary'] ?? PageContent::for('/agenda/session/{slug}')['description'],
+                'crumbs' => [['label' => 'Agenda', 'href' => '/agenda'], ['label' => 'Session Details']],
+                // The hero names the session type (Workshop, Keynote…), its last word in gold.
+                'hero' => ['title' => $session['type'], 'emphasis' => Str::afterLast($session['type'], ' ')],
+            ],
+            'session' => $session,
+            'related' => $related,
+            'days' => array_values(array_unique(array_column($sessions, 'day'))),
+            'headings' => [
+                'speaker' => self::h('', 'Meet the Speaker', 'Speaker'),
+                'related' => self::h('', 'Related Sessions', 'Sessions'),
+                'cta' => self::h('', 'Join the Grand Summit', 'Grand Summit'),
+            ],
+        ];
+    }
+
+    /** Agenda rows with their sample detail, page link and calendar file; replace the detail with CMS session fields. */
+    public function agendaSessions(): array
+    {
+        // Sample detail by session index.
+        $details = [
+            ['track' => 'Industry & policy', 'summary' => 'Where freelancing in Bangladesh stands today and what the next year asks of it.', 'learn' => ['The state of the freelance economy', 'Where demand is growing', 'What industry and government are planning'], 'audience' => ['Freelancers planning their next year', 'Students considering a freelance career', 'Industry and policy partners']],
+            ['track' => 'Marketplaces', 'summary' => 'Platform teams on profiles, ranking, payments and getting hired.', 'learn' => ['Build a profile that ranks', 'Avoid common account issues', 'Get paid faster and safer'], 'audience' => ['Freelancers new to the marketplaces', 'Freelancers whose profiles have stalled', 'Anyone setting up international payments']],
+            ['track' => 'AI & skills', 'summary' => 'A hands-on walkthrough of AI tools you can use on client work the same day.', 'learn' => ['Pick the right tool for a task', 'Speed up delivery without losing quality', 'Price AI-assisted work fairly'], 'audience' => ['Freelancers who are new to AI tools', 'Professionals looking to boost productivity', 'Anyone curious about AI in freelancing']],
+            ['track' => 'Business growth', 'summary' => 'Taking a solo practice to a registered company: licences, tax, team and clients.', 'learn' => ['Register and stay compliant', 'Hire your first team members', 'Win larger, longer contracts'], 'audience' => ['Established freelancers ready to grow', 'Small agency founders', 'Freelancers thinking about hiring']],
+            ['track' => 'Recognition', 'summary' => 'The Freelancer Awards ceremony, honouring freelancers from all 8 divisions.', 'learn' => ['Meet the winners', 'See what the judges looked for', 'Plan your nomination for next year'], 'audience' => ['Nominees and their guests', 'Freelancers planning a nomination', 'Everyone at the summit']],
+        ];
+        $sessions = $this->home->agenda()['sessions'];
+
+        return array_map(fn ($s, $i) => [
+            ...$s,
+            ...($details[$i] ?? []),
+            'slug' => Str::slug($s['title']),
+            'href' => '/agenda/session/'.Str::slug($s['title']),
+            'ics' => "/agenda/sessions/{$i}.ics",
+        ], $sessions, array_keys($sessions));
     }
 
     /** Brief §13: directory with filters, profile links, speaker categories. */
@@ -432,12 +496,12 @@ class InnerPageContent
             'headings' => [
                 'overview' => self::h('About the awards', 'Your work deserves a stage', 'a stage'),
                 'categories' => self::h('Categories', 'Award categories', 'categories', 'Provisional until the award guidelines are published.'),
-                'steps' => self::h('How to apply', 'Four steps to a nomination', 'nomination'),
-                'statuses' => self::h('After you apply', 'Track your application', 'application'),
-                'shortlist' => self::h('Shortlist', 'Shortlisted nominees', 'nominees'),
-                'winners' => self::h('Archive', 'Winners archive', 'archive'),
+                'steps' => self::h('Nomination process', 'How to Nominate', 'Nominate'),
+                'statuses' => self::h('', 'Application Review Status'),
+                'shortlist' => self::h('Freelancer Awards', 'Shortlisted Nominees', 'Nominees'),
+                'winners' => self::h('Winners & Archive', 'Featured Winner Spotlights', 'Spotlights'),
                 'faq' => self::h('Questions', 'Before you nominate', 'nominate'),
-                'cta' => self::h('', 'Know someone exceptional?', 'exceptional?', 'Nominate yourself or another freelancer. It takes a few minutes and you get a reference number straight away.'),
+                'cta' => self::h('', 'Your work deserves recognition.', 'recognition.', 'Put yourself or a deserving freelancer in the spotlight at the Freelancer Awards.'),
             ],
             'awards' => $awards = $this->home->awards(),
             'facts' => [
@@ -447,13 +511,16 @@ class InnerPageContent
                 ['label' => 'Results', 'value' => 'Shortlist and winners on this page'],
             ],
             'categoryNote' => 'Description, eligibility, criteria and deadline are published in the award guidelines.',
+            'categoryTexts' => array_map(fn ($c) => Pages\AwardPages::categoryText($c), $awards['categories']),
             'shortlistEmpty' => ['title' => 'Revealing soon', 'body' => 'Shortlisted nominees are published here once the jury has reviewed every application.'],
+            'shortlist' => Pages\AwardPages::SHORTLIST,
+            'winners' => Pages\AwardPages::WINNERS,
             'winnersEmpty' => ['title' => 'First edition', 'body' => 'Winners are announced at the Grand Summit in Dhaka and kept here as a permanent archive.'],
             'steps' => [
-                ['title' => 'Choose a category', 'text' => 'Read the category description, eligibility and criteria in the award guidelines.'],
-                ['title' => 'Prepare your evidence', 'text' => 'Portfolio links, marketplace profiles, achievements and any supporting documents.'],
-                ['title' => 'Submit the nomination', 'text' => 'Apply for yourself or nominate someone. You get a reference number and a confirmation email.'],
-                ['title' => 'Review and results', 'text' => 'Track your application status. Shortlisted nominees and winners are announced on this page.'],
+                ['title' => 'Choose a Category', 'text' => 'Review the categories, eligibility and award criteria.'],
+                ['title' => 'Prepare Your Evidence', 'text' => 'Portfolio links, achievements and supporting documents.'],
+                ['title' => 'Submit Your Nomination', 'text' => 'Complete the application and get a reference number.'],
+                ['title' => 'Review & Results', 'text' => 'Track your application status and follow the award announcement.'],
             ],
             'faq' => [
                 ['q' => 'Is award nomination the same as summit registration?', 'a' => 'No. Nominations use their own form and review process. Register separately if you also want to attend the Grand Summit.'],

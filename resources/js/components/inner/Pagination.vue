@@ -21,7 +21,7 @@ const btn = 'grid min-h-11 min-w-11 place-items-center rounded-full border borde
         <button type="button" :class="btn" :disabled="meta.page <= 1" :aria-label="t('inner.pager.previous')" @click="emit('go', meta.page - 1)"><Icon name="arrow-left" :size="16" /></button>
         <template v-for="(p, i) in pages" :key="p">
             <span v-if="i && p - pages[i - 1] > 1" class="px-1 text-ink-2" aria-hidden="true">…</span>
-            <button type="button" :class="[btn, p === meta.page && 'border-green! bg-green text-paper']" :aria-current="p === meta.page ? 'page' : undefined" @click="emit('go', p)">{{ p }}</button>
+            <button type="button" :class="[btn, p === meta.page && 'border-green! bg-green! text-paper']" :aria-current="p === meta.page ? 'page' : undefined" @click="emit('go', p)">{{ p }}</button>
         </template>
         <button type="button" :class="btn" :disabled="meta.page >= meta.lastPage" :aria-label="t('inner.pager.next')" @click="emit('go', meta.page + 1)"><Icon name="arrow" :size="16" /></button>
         <p class="sr-only">{{ t('inner.pager.page', { n: meta.page, total: meta.lastPage }) }}</p>

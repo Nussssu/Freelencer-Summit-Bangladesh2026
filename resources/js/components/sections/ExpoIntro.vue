@@ -70,7 +70,6 @@ useGsap(root, (reduced) => {
                     <Link :href="withUtm(c.href, utm)" class="ex-card group" :class="c.tone">
                         <span class="ex-media"><img :src="c.image" alt="" loading="lazy" /></span>
                         <span class="ex-body">
-                            <span class="ex-kicker" data-ex-copy>{{ t('sections.exEyebrow') }}</span>
                             <span class="ex-title" data-ex-copy>{{ t(`sections.exCards.${c.id}.title`) }}</span>
                             <span class="ex-text" data-ex-copy>{{ t(`sections.exCards.${c.id}.text`) }}</span>
                             <span class="ex-more" data-ex-copy>
@@ -181,15 +180,7 @@ useGsap(root, (reduced) => {
     align-items: flex-start;
     padding: 1.5rem 1.75rem 1.75rem;
 }
-.ex-kicker {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--ink-2);
-}
 .ex-title {
-    margin-top: 0.625rem;
     font-size: clamp(1.5rem, 2vw, 1.875rem);
     font-weight: 800;
     line-height: 1.15;

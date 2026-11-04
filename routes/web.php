@@ -2,6 +2,7 @@
 
 use App\Content\InnerPageContent;
 use App\Content\PageContent;
+use App\Http\Controllers\AgendaDownloadController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\Dev\KitController;
 use App\Http\Controllers\ExhibitEnquiryController;
@@ -22,6 +23,9 @@ foreach (array_keys(InnerPageContent::PAGES) as $path) {
 foreach (array_diff(array_keys(PageContent::PAGES), array_keys(InnerPageContent::PAGES)) as $path) {
     Route::get($path, PageController::class)->where('slug', '[a-z0-9-]+');
 }
+
+// The award categories page was folded into /awards; old links land on its categories section.
+Route::permanentRedirect('/awards/categories', '/awards#categories');
 
 // Brief §8: one journey per form, each with its own record, reference number and confirmation.
 Route::middleware(['honeypot', 'throttle:forms'])->controller(SubmissionController::class)->group(function () {
@@ -46,6 +50,8 @@ Route::post('/locale', function (Request $request) {
     return back();
 })->name('locale');
 
+Route::get('/agenda/summit-programme.pdf', AgendaDownloadController::class)->name('agenda.pdf');
+Route::get('/agenda/summit.ics', [CalendarController::class, 'summit'])->name('agenda.summit.ics');
 Route::get('/agenda/sessions/{index}.ics', [CalendarController::class, 'session'])->whereNumber('index')->name('agenda.ics');
 
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);

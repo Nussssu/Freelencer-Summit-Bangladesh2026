@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Content\HomeContent;
+use App\Content\InnerPageContent;
 use App\Content\SiteContent;
 use App\Support\PageBlocks;
 use Inertia\Inertia;
@@ -10,9 +11,10 @@ use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function __invoke(HomeContent $content, SiteContent $site): Response
+    public function __invoke(HomeContent $content, InnerPageContent $inner, SiteContent $site): Response
     {
-        return Inertia::render('Home', ['content' => PageBlocks::apply('/', $content->all())])
+        // News & Updates reads the newest published posts, so it joins after the CMS blocks (code-only, never stored).
+        return Inertia::render('Home', ['content' => [...PageBlocks::apply('/', $content->all()), 'latestNews' => $inner->latestNews()]])
             ->withViewData(['jsonLd' => $this->jsonLd($site)]);
     }
 

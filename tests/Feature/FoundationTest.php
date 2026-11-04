@@ -97,7 +97,7 @@ it('validates and normalises Bangladesh mobile numbers', function (string $input
         expect(BdMobile::normalize($input))->toBe('+8801712345678');
     }
 })->with([
-    ['01712345678', true], ['+8801712345678', true], ['8801712345678', true], ['01712-345 678', true],
+    ['1712345678', true], ['01712345678', true], ['+8801712345678', true], ['8801712345678', true], ['01712-345 678', true],
     ['0171234567', false], ['01212345678', false], ['029123456', false], ['+911712345678', false],
 ]);
 

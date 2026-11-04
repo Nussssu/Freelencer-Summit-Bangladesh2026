@@ -2,6 +2,7 @@
 import { Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import BdPrefix from '@/components/forms/BdPrefix.vue';
 import ErrorSummary from '@/components/forms/ErrorSummary.vue';
 import Field from '@/components/forms/Field.vue';
 import FormPage from '@/components/forms/FormPage.vue';
@@ -9,7 +10,6 @@ import FormSuccess from '@/components/forms/FormSuccess.vue';
 import PillRadios from '@/components/forms/PillRadios.vue';
 import { iconInputClass } from '@/components/forms/input';
 import { useFormDraft } from '@/components/forms/useFormDraft';
-import Glyph from '@/components/inner/Glyph.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import { useSubmitted } from '@/components/inner/useSubmitted';
@@ -40,12 +40,12 @@ const facts = computed(() => [
     { icon: 'people' as const, text: 'In-Person Event' },
 ]);
 
-const fields: { key: 'name' | 'email' | 'mobile' | 'organisation' | 'designation'; label: string; icon: GlyphName; placeholder: string; type?: string; autocomplete: string }[] = [
-    { key: 'name', label: 'Full Name', icon: 'user', placeholder: 'Enter your full name', autocomplete: 'name' },
-    { key: 'email', label: 'Email Address', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
-    { key: 'mobile', label: 'Mobile Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
-    { key: 'organisation', label: 'Organization / Institution', icon: 'building', placeholder: 'Your organization or institution', autocomplete: 'organization' },
-    { key: 'designation', label: 'Designation', icon: 'briefcase', placeholder: 'Your designation', autocomplete: 'organization-title' },
+const fields: { key: 'name' | 'email' | 'mobile' | 'organisation' | 'designation'; label: string; icon: GlyphName; type?: string; autocomplete: string }[] = [
+    { key: 'name', label: 'Full Name', icon: 'user', autocomplete: 'name' },
+    { key: 'email', label: 'Email Address', icon: 'mail', type: 'email', autocomplete: 'email' },
+    { key: 'mobile', label: 'Mobile Number', icon: 'phone', type: 'tel', autocomplete: 'tel' },
+    { key: 'organisation', label: 'Organization / Institution', icon: 'building', autocomplete: 'organization' },
+    { key: 'designation', label: 'Designation', icon: 'briefcase', autocomplete: 'organization-title' },
 ];
 const input = iconInputClass;
 
@@ -75,7 +75,7 @@ const consentParts = computed(() => props.content.consent.text.split('Privacy Po
             <div class="mt-8 grid gap-x-9 gap-y-6 sm:grid-cols-2">
                 <Field v-for="f in fields" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                     <div class="relative">
-                        <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
+                        <BdPrefix v-if="f.type === 'tel'" />
                         <input
                             :id="id"
                             v-model.trim="form[f.key]"
@@ -83,17 +83,15 @@ const consentParts = computed(() => props.content.consent.text.split('Privacy Po
                             :name="f.key"
                             :inputmode="f.key === 'mobile' ? 'tel' : undefined"
                             :autocomplete="f.autocomplete"
-                            :placeholder="f.placeholder"
                             required
                             :aria-invalid="invalid"
                             :aria-describedby="describedby"
-                            :class="input(invalid)"
+                            :class="[input(invalid), f.type === 'tel' && 'pl-[6.75rem]!']"
                         />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="City" name="district" required :error="form.errors.district">
                     <div class="relative">
-                        <Glyph name="pin" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
                         <select :id="id" v-model="form.district" name="district" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[input(invalid), 'appearance-none pr-11', !form.district && 'text-ink-2/80']">
                             <option value="">Select your city</option>
                             <optgroup v-for="g in content.districts" :key="g.label" :label="g.label">

@@ -8,6 +8,7 @@ import { scrollToTarget } from '@/composables/useLenis';
 import { useShared } from '@/composables/useShared';
 import { utm, withUtm } from '@/composables/useUtm';
 import SocialLinks from './SocialLinks.vue';
+import Wordmark from './Wordmark.vue';
 
 // Section 17. GITEX giant cropped footer wordmark (G13) with slow parallax; contacts per journey (G13 "Let's Talk").
 const { site, summit } = useShared();
@@ -24,14 +25,15 @@ useGsap(root, (reduced) => {
     <footer ref="root" id="footer" data-section="17" class="on-light light-tokens relative z-[1] overflow-hidden flow border-t border-line-light pt-16 pb-24 md:pb-8">
         <div class="container-site grid gap-12 lg:grid-cols-12">
             <div class="lg:col-span-4">
-                <p class="t-label text-green">{{ summit.hashtag }}</p>
-                <p class="mt-4 max-w-sm text-sm text-ink-2">
+                <Wordmark class="mb-6 w-max" />
+                <p class="max-w-sm text-sm text-ink-2">
                     {{ t('footer.organisers', { names: site.organisers.map((o) => `${o.name} (${o.short})`).join(' · ') }) }}
                 </p>
-                <ul class="mt-6 space-y-2">
-                    <li v-for="o in site.organisers" :key="o.short" class="flex items-baseline gap-3">
-                        <span class="font-display text-2xl font-black uppercase">{{ o.short }}</span>
-                        <span class="t-label text-ink-2">{{ o.role }}</span>
+                <p class="t-label mt-6 text-ink-2">{{ t('footer.organisedBy') }}</p>
+                <ul class="mt-3 flex items-center gap-8">
+                    <li v-for="o in site.organisers" :key="o.short">
+                        <img v-if="o.logo" :src="o.logo" :alt="o.name" loading="lazy" class="h-14 w-auto object-contain" />
+                        <span v-else class="font-display text-2xl font-black uppercase">{{ o.short }}</span>
                     </li>
                 </ul>
                 <SocialLinks class="-ml-3 mt-6" />
@@ -67,7 +69,7 @@ useGsap(root, (reduced) => {
         </div>
 
         <div class="relative mt-16 flex justify-center select-none" aria-hidden="true">
-            <p data-wordmark class="text-center font-display leading-[0.78] font-black whitespace-nowrap text-night/[0.06] uppercase" style="font-size: 19vw">Freelancer</p>
+            <p data-wordmark class="text-center font-display leading-[0.78] font-black whitespace-nowrap text-night/[0.06] uppercase" style="font-size: 6.4vw">{{ t('brand.title') }}</p>
         </div>
 
         <div class="container-site mt-4 flex flex-col gap-4 border-t border-line-light pt-6 text-sm text-ink-2 md:flex-row md:items-center">

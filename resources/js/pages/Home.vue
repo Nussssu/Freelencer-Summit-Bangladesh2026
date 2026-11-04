@@ -7,7 +7,7 @@ import ExpoIntro from '@/components/sections/ExpoIntro.vue';
 import GetInvolved from '@/components/sections/GetInvolved.vue';
 import ForumIntro from '@/components/sections/ForumIntro.vue';
 import MediaGallery from '@/components/sections/MediaGallery.vue';
-import NewsList from '@/components/sections/NewsList.vue';
+import LatestNews from '@/components/sections/LatestNews.vue';
 import PartnersWall from '@/components/sections/PartnersWall.vue';
 import StoriesIntro from '@/components/sections/StoriesIntro.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
@@ -119,7 +119,7 @@ useGsap(page5, (reduced) => {
     <ForumIntro />
     <StoriesIntro />
     <PartnersWall :partners="content.partners" :heading="content.headings.partners" />
-    <NewsList :news="content.news" :heading="content.headings.news" />
+    <LatestNews :heading="content.headings.news" :news="content.latestNews" />
     <MediaGallery :media="content.media" :heading="content.headings.media" />
     <GetInvolved />
 </template>

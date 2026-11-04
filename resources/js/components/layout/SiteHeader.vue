@@ -18,10 +18,11 @@ const { t } = useI18n();
 const nominate = computed(() => site.value.ctas.primary.find((c) => c.id === 'nominate')!);
 const involved = computed(() => site.value.ctas.primary.filter((c) => ['sponsor', 'exhibit', 'forum'].includes(c.id)));
 
-// Active nav item: exact path or any page below it; speaker profiles (/speaker/{slug}) belong to /speakers.
+// Active nav item: exact path or any page below it; speaker profiles (/speaker/{slug}) belong to /speakers; the nomination form highlights nothing.
 const page = usePage();
 const isActive = (href: string) => {
     const path = page.url.split(/[?#]/)[0];
+    if (path === '/awards/nominate') return false;
     return href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`) || (href === '/speakers' && path.startsWith('/speaker/'));
 };
 
@@ -83,9 +84,6 @@ onBeforeUnmount(() => {
         <!-- Utility bar -->
         <div class="hidden h-9 border-b border-line-dark md:block">
             <div class="container-site flex h-full items-center gap-4 xl:max-w-none xl:px-8">
-                <span class="t-label border border-line-dark px-2 py-1">{{ t('header.lateNov', { edition: summit.edition }) }}</span>
-                <span class="t-label border border-line-dark px-2 py-1">{{ summit.venue ?? t('header.city') }}</span>
-                <span v-if="!summit.dateConfirmed" class="text-xs text-muted">{{ t('header.tbc') }}</span>
                 <div class="ml-auto flex items-center gap-2">
                     <LocaleToggle />
                     <span class="h-4 w-px bg-line-dark" aria-hidden="true" />

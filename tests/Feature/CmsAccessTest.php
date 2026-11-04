@@ -94,7 +94,7 @@ class CmsAccessTest extends TestCase
             if ($b['type'] === 'hero') {
                 $b['data']['eyebrow'] = 'From the CMS';
             }
-            if ($b['type'] === 'news') {
+            if ($b['type'] === 'highlights') {
                 $b['data']['items'] = array_slice($b['data']['items'], 0, 1);
             }
 
@@ -105,7 +105,7 @@ class CmsAccessTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $p) => $p
             ->where('content.hero.eyebrow', 'From the CMS')
             ->where('content.hero.video.src', '/media/delta-flow.webm')
-            ->has('content.news', 1)
+            ->has('content.highlights', 1)
             ->where('content.exhibition.enquiryFields', app(HomeContent::class)->exhibition()['enquiryFields']));
 
         $page->update(['is_draft' => true]);

@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import BdPrefix from '@/components/forms/BdPrefix.vue';
 import ConsentField from '@/components/forms/ConsentField.vue';
 import ErrorSummary from '@/components/forms/ErrorSummary.vue';
 import Field from '@/components/forms/Field.vue';
@@ -15,7 +16,6 @@ import LinksField from '@/components/forms/LinksField.vue';
 import RadioCards from '@/components/forms/RadioCards.vue';
 import TextareaField from '@/components/forms/TextareaField.vue';
 import { useFormDraft } from '@/components/forms/useFormDraft';
-import Glyph from '@/components/inner/Glyph.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import { useSubmitted } from '@/components/inner/useSubmitted';
@@ -72,17 +72,17 @@ const heads = [
 ];
 
 type TextKey = 'nominee_name' | 'nominee_email' | 'nominee_mobile' | 'headline' | 'nominator_name' | 'nominator_email' | 'nominator_mobile';
-type TextField = { key: TextKey; label: string; icon: GlyphName; placeholder: string; type?: string; autocomplete?: string };
+type TextField = { key: TextKey; label: string; icon: GlyphName; type?: string; autocomplete?: string };
 const profile: TextField[] = [
-    { key: 'nominee_name', label: 'Full Name', icon: 'user', placeholder: 'Enter your full name', autocomplete: 'name' },
-    { key: 'nominee_email', label: 'Email Address', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
-    { key: 'nominee_mobile', label: 'Mobile Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
+    { key: 'nominee_name', label: 'Full Name', icon: 'user', autocomplete: 'name' },
+    { key: 'nominee_email', label: 'Email Address', icon: 'mail', type: 'email', autocomplete: 'email' },
+    { key: 'nominee_mobile', label: 'Mobile Number', icon: 'phone', type: 'tel', autocomplete: 'tel' },
 ];
-const headline: TextField = { key: 'headline', label: 'Professional Title / Headline', icon: 'briefcase', placeholder: 'e.g. Freelance Graphic Designer, Web Developer', autocomplete: 'organization-title' };
+const headline: TextField = { key: 'headline', label: 'Professional Title / Headline', icon: 'briefcase', autocomplete: 'organization-title' };
 const nominator: TextField[] = [
-    { key: 'nominator_name', label: 'Your Name', icon: 'user', placeholder: 'Enter your full name', autocomplete: 'name' },
-    { key: 'nominator_email', label: 'Your Email', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
-    { key: 'nominator_mobile', label: 'Your Mobile Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
+    { key: 'nominator_name', label: 'Your Name', icon: 'user', autocomplete: 'name' },
+    { key: 'nominator_email', label: 'Your Email', icon: 'mail', type: 'email', autocomplete: 'email' },
+    { key: 'nominator_mobile', label: 'Your Mobile Number', icon: 'phone', type: 'tel', autocomplete: 'tel' },
 ];
 
 const checks: Record<number, () => Record<string, string | false>> = {
@@ -130,7 +130,7 @@ function saveDraft() {
 <template>
     <SeoHead :title="page.title" :description="page.description" :path="page.path" />
 
-    <FormPage eyebrow="Freelancer Awards" :title="page.hero.title" :emphasis="page.hero.emphasis" :intro="page.hero.intro" :points="intro" :image="page.hero.image" label="Nomination form">
+    <FormPage :title="page.hero.title" :emphasis="page.hero.emphasis" :intro="page.hero.intro" :points="intro" label="Nomination form">
         <FormSuccess v-if="reference" title="Nomination submitted" :reference="reference" reference-label="Your application reference" body="Status: Submitted. We have emailed a confirmation. Shortlisted nominees are announced on the awards page.">
             <InBtn href="/awards">Back to the awards</InBtn>
             <InBtn href="/register" tone="ghost">Register for the summit</InBtn>
@@ -152,13 +152,12 @@ function saveDraft() {
             <div v-show="step === 0" class="nom-fields mt-7 grid gap-x-9 gap-y-6 sm:grid-cols-2">
                 <Field v-for="f in profile" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                     <div class="relative">
-                        <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
-                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" :placeholder="f.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <BdPrefix v-if="f.type === 'tel'" />
+                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Current Location (City)" name="district" required :error="form.errors.district">
                     <div class="relative">
-                        <Glyph name="pin" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
                         <select :id="id" v-model="form.district" name="district" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.district && 'text-ink-2/80']">
                             <option value="">Select your city</option>
                             <optgroup v-for="g in content.districts" :key="g.label" :label="g.label">
@@ -170,13 +169,11 @@ function saveDraft() {
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" :label="headline.label" name="headline" required :error="form.errors.headline">
                     <div class="relative">
-                        <Glyph :name="headline.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
-                        <input :id="id" v-model.trim="form.headline" type="text" name="headline" maxlength="160" :autocomplete="headline.autocomplete" :placeholder="headline.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <input :id="id" v-model.trim="form.headline" type="text" name="headline" maxlength="160" :autocomplete="headline.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Years of Freelancing Experience" name="experience" required :error="form.errors.experience">
                     <div class="relative">
-                        <Glyph name="calendar" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
                         <select :id="id" v-model="form.experience" name="experience" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.experience && 'text-ink-2/80']">
                             <option value="">Select experience</option>
                             <option v-for="o in content.experience" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
@@ -209,8 +206,8 @@ function saveDraft() {
                     <legend class="mb-4 text-lg font-bold text-night">Your details (nominator)</legend>
                     <Field v-for="f in nominator" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                         <div class="relative">
-                            <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
-                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" :placeholder="f.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                            <BdPrefix v-if="f.type === 'tel'" />
+                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                         </div>
                     </Field>
                 </fieldset>

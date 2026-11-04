@@ -20,6 +20,7 @@ const panel = ref<HTMLElement>();
 const page = usePage();
 const isActive = (href: string) => {
     const path = page.url.split(/[?#]/)[0];
+    if (path === '/awards/nominate') return false;
     return href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`) || (href === '/speakers' && path.startsWith('/speaker/'));
 };
 

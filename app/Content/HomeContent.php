@@ -332,18 +332,6 @@ class HomeContent
         ];
     }
 
-    public function news(): array
-    {
-        $n = fn (string $category, string $title) => ['category' => $category, 'title' => $title, 'date' => null, 'slug' => null];
-
-        return [
-            $n('Announcement', 'Official summit announcements will be published here.'),
-            $n('Roadshow update', 'District roadshow schedule: coming soon.'),
-            $n('Speaker announcement', 'The first speakers will be announced here.'),
-            $n('Media coverage', 'Press coverage of the campaign will be collected here.'),
-        ];
-    }
-
     public function media(): array
     {
         $programmes = ['Divisional', 'District', 'Campus'];
@@ -384,7 +372,7 @@ class HomeContent
             'forum' => $h('A community that outlasts the summit.', 'outlasts'),
             'stories' => $h('From first gig to first company.', 'first company.'),
             'partners' => $h('Built with partners.', 'partners.'),
-            'news' => $h('Campaign news.', 'news.'),
+            'news' => $h('News & Updates', 'Updates'),
             'media' => $h('From every corner of the delta.', 'delta.'),
         ];
     }
@@ -408,7 +396,6 @@ class HomeContent
             'forum' => $this->forum(),
             'stories' => $this->stories(),
             'partners' => $this->partners(),
-            'news' => $this->news(),
             'media' => $this->media(),
             'finalCta' => $this->finalCta(),
         ];

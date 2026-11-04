@@ -96,7 +96,7 @@ class SiteTest extends TestCase
                 ->has('forum.benefits', 4)
                 ->has('stories.tiles')
                 ->has('partners.tiers', 8)
-                ->has('news', 4)
+                ->has('latestNews')
                 ->has('media.tiles')
                 ->has('finalCta')
                 ->etc()));

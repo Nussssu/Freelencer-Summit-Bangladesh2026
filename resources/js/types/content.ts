@@ -203,11 +203,12 @@ export interface Partners {
     provisional: boolean;
     tiers: { name: string; slots: number; sponsors: { name: string; logo: string | null; href?: string }[] }[];
 }
-export interface NewsItem {
-    category: string;
+export interface LatestNewsItem {
     title: string;
-    date: string | null;
-    slug: string | null;
+    text: string | null;
+    href: string;
+    tag: string;
+    image: string;
 }
 export interface Media {
     tiles: { id: number; programme: string; kind: 'photo' | 'video'; src: string | null; caption: string | null }[];
@@ -236,7 +237,7 @@ export interface HomeContent {
     forum: Forum;
     stories: Stories;
     partners: Partners;
-    news: NewsItem[];
+    latestNews: LatestNewsItem[];
     media: Media;
     finalCta: { line: string; marquee: string };
 }

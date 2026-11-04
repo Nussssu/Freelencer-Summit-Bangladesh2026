@@ -66,7 +66,6 @@ const en = {
         awTitle: 'Celebrating',
         awEmphasis: 'Real talent',
         awCta: 'View award categories',
-        exEyebrow: 'Freelancer Summit',
         exTitle: 'Exhibition &',
         exEmphasis: 'Sponsorship',
         exLearn: 'Learn more',
@@ -84,9 +83,9 @@ const en = {
         stNext: 'Next story',
         stGoto: 'Show story {n}',
         stItems: {
-            s1: { kind: 'Freelancer', title: 'From Dhaka to Global Clients', quote: 'Freelancing gave me the freedom to build the life I want.', name: 'Nusrat Jahan', role: 'UI/UX Designer' },
-            s2: { kind: 'Entrepreneur', title: 'Turning an Idea into a Global Brand', quote: 'Started small, now reaching customers worldwide.', name: 'Rafiul Islam', role: 'Founder, E-commerce Brand' },
-            s3: { kind: 'Freelancer', title: 'Creating Opportunities Through Freelancing', quote: 'Now I work with clients across 5 countries.', name: 'Sadia Noor', role: 'Digital Marketing Specialist' },
+            s1: { title: 'From Dhaka to Global Clients', name: 'Nusrat Jahan', role: 'UI/UX Designer' },
+            s2: { title: 'Turning an Idea into a Global Brand', name: 'Rafiul Islam', role: 'Founder, E-commerce Brand' },
+            s3: { title: 'Creating Opportunities Through Freelancing', name: 'Sadia Noor', role: 'Digital Marketing Specialist' },
         },
         exCards: {
             exhibit: { title: 'Exhibit at Summit', text: 'Showcase your products, services and innovations to a highly engaged audience.' },
@@ -176,7 +175,7 @@ const en = {
         sending: 'Sending…',
         back: 'Back',
     },
-    footer: { explore: 'Explore', connect: 'Connect', important: 'Important links', organisers: 'Organised by {names}.' },
+    footer: { explore: 'Explore', connect: 'Connect', important: 'Important links', organisers: 'Organised by {names}.', organisedBy: 'Organised by' },
     page: { comingNext: 'Coming next', willHold: 'This page will hold', meanwhile: 'Meanwhile' },
     inner,
 };

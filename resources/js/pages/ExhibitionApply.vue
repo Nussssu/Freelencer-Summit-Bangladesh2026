@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import BdPrefix from '@/components/forms/BdPrefix.vue';
 import ConsentField from '@/components/forms/ConsentField.vue';
 import ErrorSummary from '@/components/forms/ErrorSummary.vue';
 import Field from '@/components/forms/Field.vue';
@@ -13,7 +14,6 @@ import { iconInputClass } from '@/components/forms/input';
 import RadioCards from '@/components/forms/RadioCards.vue';
 import TextareaField from '@/components/forms/TextareaField.vue';
 import { useFormDraft } from '@/components/forms/useFormDraft';
-import Glyph from '@/components/inner/Glyph.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import { useSubmitted } from '@/components/inner/useSubmitted';
@@ -39,11 +39,11 @@ const points: { icon: GlyphName; text: string }[] = [
 const heads = ['Provide your organization information for exhibition registration.', 'Tell us the space you need and what you will show.', 'Check the details, then confirm and submit.'];
 
 type TextKey = 'organisation' | 'contact_person' | 'designation' | 'email' | 'mobile';
-const contact: { key: TextKey; label: string; icon: GlyphName; placeholder: string; type?: string; autocomplete: string }[] = [
-    { key: 'contact_person', label: 'Contact Person', icon: 'user', placeholder: "Enter contact person's name", autocomplete: 'name' },
-    { key: 'designation', label: 'Designation', icon: 'briefcase', placeholder: 'Enter your designation', autocomplete: 'organization-title' },
-    { key: 'email', label: 'Email Address', icon: 'mail', placeholder: 'Enter your email address', type: 'email', autocomplete: 'email' },
-    { key: 'mobile', label: 'Mobile Number', icon: 'phone', placeholder: '01XXXXXXXXX', type: 'tel', autocomplete: 'tel' },
+const contact: { key: TextKey; label: string; icon: GlyphName; type?: string; autocomplete: string }[] = [
+    { key: 'contact_person', label: 'Contact Person', icon: 'user', autocomplete: 'name' },
+    { key: 'designation', label: 'Designation', icon: 'briefcase', autocomplete: 'organization-title' },
+    { key: 'email', label: 'Email Address', icon: 'mail', type: 'email', autocomplete: 'email' },
+    { key: 'mobile', label: 'Mobile Number', icon: 'phone', type: 'tel', autocomplete: 'tel' },
 ];
 
 const groups: Record<number, Record<string, string>> = {
@@ -93,13 +93,11 @@ const label = (options: Option[], value: string) => options.find((o) => o.value 
             <div v-show="step === 0" class="mt-7 grid gap-x-9 gap-y-6 border-b border-line-light pb-9 sm:grid-cols-2">
                 <Field v-slot="{ id, describedby, invalid }" label="Organization / Company Name" name="organisation" required :error="form.errors.organisation">
                     <div class="relative">
-                        <Glyph name="building" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
-                        <input :id="id" v-model.trim="form.organisation" type="text" name="organisation" autocomplete="organization" placeholder="Enter your organization or company name" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <input :id="id" v-model.trim="form.organisation" type="text" name="organisation" autocomplete="organization" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Industry / Sector" name="sector" required :error="form.errors.sector">
                     <div class="relative">
-                        <Glyph name="layers" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
                         <select :id="id" v-model="form.sector" name="sector" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.sector && 'text-ink-2/80']">
                             <option value="">Select your industry or sector</option>
                             <option v-for="o in content.sectors" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
@@ -109,8 +107,8 @@ const label = (options: Option[], value: string) => options.find((o) => o.value 
                 </Field>
                 <Field v-for="f in contact" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                     <div class="relative">
-                        <Glyph :name="f.icon" class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-ink-2" />
-                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" :placeholder="f.placeholder" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <BdPrefix v-if="f.type === 'tel'" />
+                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                     </div>
                 </Field>
             </div>

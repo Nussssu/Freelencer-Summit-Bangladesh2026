@@ -42,9 +42,7 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                 <div class="flex flex-col justify-center gap-4 p-6 md:col-span-7 md:p-10">
                     <p class="t-label text-gold-ink">{{ t('sections.featured') }} · {{ featured.role }}</p>
                     <h3 class="font-display text-5xl font-black uppercase md:text-6xl">{{ nameOf(featured) }}</h3>
-                    <p class="text-lg text-ink-2">{{ featured.credential ?? ([featured.designation, featured.organisation].filter(Boolean).join(', ') || t('sections.announcement')) }}</p>
-                    <button type="button" class="btn btn-ghost self-start" @click="selected = featured">{{ t('common.details') }}</button>
-                </div>
+                    <p class="text-lg text-ink-2">{{ featured.credential ?? ([featured.designation, featured.organisation].filter(Boolean).join(', ') || t('sections.announcement')) }}</p>                </div>
             </article>
 
             <ul class="mt-4 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -58,7 +56,6 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                         <h3 class="mt-3 font-display text-xl font-black uppercase sm:text-2xl">{{ nameOf(s) }}</h3>
                         <p class="text-sm text-ink-2">{{ s.designation ?? t('sections.announcement') }}</p>
                         <p v-if="s.organisation" class="text-sm font-bold">{{ s.organisation }}</p>
-                        <button type="button" class="link-u t-label mt-auto inline-flex min-h-11 items-center self-start pt-3 text-green" :aria-label="`${t('common.details')}: ${s.role}, ${nameOf(s)}`" @click="selected = s">{{ t('common.details') }} →</button>
                     </div>
                 </li>
             </ul>

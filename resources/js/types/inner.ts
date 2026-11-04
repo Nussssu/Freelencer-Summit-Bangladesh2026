@@ -32,13 +32,12 @@ export interface SectionHeading {
 type Headings<K extends string> = Record<K, SectionHeading>;
 
 export interface AboutContent {
-    headings: Headings<'overview' | 'pillars' | 'goals' | 'organisers' | 'news' | 'cta'>;
+    headings: Headings<'overview' | 'pillars' | 'goals' | 'organisers' | 'cta'>;
     intro: { title: string; emphasis: string | null; paragraphs: string[] };
     overview: { stats: { icon: string; value: string; label: string }[] };
     pillars: { icon: string; title: string; text: string; image: string | null }[];
     goals: { icon: string; title: string }[];
     organisers: { short: string; text: string }[];
-    latestNews: { title: string; text: string | null; href: string; tag: string; image: string }[];
 }
 export interface JourneyContent {
     headings: Headings<'progress' | 'route' | 'divisions' | 'finder' | 'cta'>;
@@ -46,10 +45,16 @@ export interface JourneyContent {
     reel: { image: string; place: string; date: string }[];
     divisionSummits: { name: string; date: string; venue: string; districts: number; campuses: number; participants: number; held: boolean; image: string }[];
 }
+export type AgendaSession = Session & { ics: string; slug: string; href: string; track?: string; summary?: string; learn?: string[]; audience?: string[] };
+export interface AgendaSessionContent {
+    session: AgendaSession;
+    related: AgendaSession[];
+    days: string[];
+    headings: Headings<'speaker' | 'related' | 'cta'>;
+}
 export interface AgendaContent {
-    headings: Headings<'programme' | 'formats' | 'downloads' | 'cta'>;
-    agenda: Omit<Agenda, 'sessions'> & { sessions: (Session & { ics: string })[] };
-    formats: { title: string; text: string }[];
+    headings: Headings<'programme' | 'plan' | 'tracks' | 'cta'>;
+    agenda: Omit<Agenda, 'sessions'> & { days: string[]; sessions: AgendaSession[] };
     downloads: DownloadItem[];
 }
 export interface SpeakersContent {
@@ -57,12 +62,34 @@ export interface SpeakersContent {
     speakers: SpeakerCard[];
     categories: string[];
 }
+export interface Nominee {
+    name: string;
+    role: string;
+    category: string;
+    photo: string;
+}
+export interface Winner {
+    name: string;
+    category: string;
+    year: number;
+    photo: string;
+    text: string | null;
+}
+export interface AwardWinnersContent {
+    winners: Winner[];
+}
+export interface AwardNomineesContent {
+    nominees: Nominee[];
+}
 export interface AwardsContent {
     headings: Headings<'overview' | 'categories' | 'steps' | 'statuses' | 'shortlist' | 'winners' | 'faq' | 'cta'>;
     awards: Awards;
     facts: { label: string; value: string }[];
     categoryNote: string;
+    categoryTexts: (string | null)[];
     shortlistEmpty: { title: string; body: string };
+    shortlist: Nominee[];
+    winners: Winner[];
     winnersEmpty: { title: string; body: string };
     steps: { title: string; text: string }[];
     faq: FaqItem[];

@@ -69,9 +69,7 @@ useGsap(root, (reduced) => {
                                     </span>
                                 </span>
                                 <span class="st-body">
-                                    <span class="st-kind">{{ t(`sections.stItems.${s.id}.kind`) }}</span>
                                     <span class="st-title">{{ t(`sections.stItems.${s.id}.title`) }}</span>
-                                    <span class="st-quote">“{{ t(`sections.stItems.${s.id}.quote`) }}”</span>
                                     <span class="st-dash" aria-hidden="true" />
                                     <span class="st-name">{{ t(`sections.stItems.${s.id}.name`) }}</span>
                                     <span class="st-role">{{ t(`sections.stItems.${s.id}.role`) }}</span>
@@ -278,26 +276,12 @@ useGsap(root, (reduced) => {
     margin-top: -1.25rem;
     padding: 0 1.5rem 1.5rem;
 }
-.st-kind {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgb(255 255 255 / 0.8);
-}
 .st-title {
-    margin-top: 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.01em;
     transition: font-size 0.7s var(--ease-out);
-}
-.st-quote {
-    margin-top: 0.75rem;
-    font-size: 0.9375rem;
-    line-height: 1.4;
-    color: rgb(255 255 255 / 0.85);
 }
 .st-dash {
     width: 2.25rem;
@@ -314,14 +298,12 @@ useGsap(root, (reduced) => {
     font-size: 0.875rem;
     color: rgb(255 255 255 / 0.75);
 }
+
 .is-active .st-body {
     padding: 0 2rem 2rem;
 }
 .is-active .st-title {
     font-size: clamp(1.5rem, 2.1vw, 2rem);
-}
-.is-active .st-quote {
-    font-size: 1.125rem;
 }
 
 /* re-order: cards slide to their new slots */
