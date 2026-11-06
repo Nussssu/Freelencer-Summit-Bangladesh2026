@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import AboutHero from '@/components/about/AboutHero.vue';
-import CtaBand from '@/components/inner/CtaBand.vue';
-import InBtn from '@/components/inner/InBtn.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import PartnersWall from '@/components/sections/PartnersWall.vue';
@@ -11,11 +9,11 @@ import type { Heading, Partners } from '@/types/content';
 import type { InnerPage, SectionHeading } from '@/types/inner';
 
 // Partners: About-style photo hero, the two organisers (BACCO, DoICT), then the landing's partner wall as is, under
-// its own title, and the partnership call to action.
+// its own title.
 defineProps<{
     page: InnerPage;
     content: {
-        headings: Record<'organisers' | 'become', SectionHeading> & { wall: Heading };
+        headings: Record<'organisers', SectionHeading> & { wall: Heading };
         organisers: { short: string; name: string; role: string; logo: string | null }[];
         partners: Partners;
     };
@@ -49,9 +47,4 @@ useReveal(root);
     </div>
 
     <PartnersWall :partners="content.partners" :heading="content.headings.wall" />
-
-    <CtaBand :title="content.headings.become.title" :emphasis="content.headings.become.emphasis ?? undefined" text="Government, development, strategic and supporting partners help carry the campaign to every division.">
-        <InBtn href="/sponsorship-opportunity" tone="gold">Become a Sponsor</InBtn>
-        <InBtn href="/contact?topic=sponsorship" tone="ghost">Talk to the team</InBtn>
-    </CtaBand>
 </template>

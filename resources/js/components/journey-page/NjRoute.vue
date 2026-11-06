@@ -10,8 +10,9 @@ import type { JourneyStep } from '@/types/content';
 import type { SectionHeading } from '@/types/inner';
 
 // Map and a compact step list (title + link) as one instrument that fits a single screen. On desktop the whole block
-// pins under the header while scrolling advances the map one stage at a time, up to the Grand Summit, then lets go;
-// scrolling back steps it back. On small screens and under reduced motion the map plays campuses → districts →
+// pins under the header and the scroll drives the map and the spine continuously: half a stretch of scroll brings the
+// spine halfway to the next step, the rest lands it on that step, up to the Grand Summit, then it lets go; scrolling
+// back runs it back. On small screens and under reduced motion the map plays campuses → districts →
 // divisions → Dhaka once in view instead. Click a step to go to its stage (hover and focus too, off desktop).
 const props = defineProps<{ heading: SectionHeading; steps: JourneyStep[]; beaconLabel: string }>();
 const root = ref<HTMLElement>();
@@ -23,15 +24,29 @@ useReveal(root);
 
 // Stage centres on JourneyMapStages' 0–4 scale, and where each stage hands over to the next.
 const AT = [1, 2, 2.95, 4];
-const stepOf = (s: number) => (s < 1.5 ? 0 : s < 2.5 ? 1 : s < 3.4 ? 2 : 3);
-const s = ref(0);
 const active = ref(-1);
+// Spine fill in px: from the first dot, through each dot in turn, so a stage between two steps sits between their dots.
+const items = ref<HTMLElement[]>([]);
+const fill = ref(0);
+const fillAt = (v: number) => {
+    const dots = items.value.map((el) => el.offsetTop + 11.5);
+    if (!dots.length || v <= AT[0]) return 0;
+    const k = AT.findIndex((a, i) => i > 0 && v <= a);
+    if (k < 0) return dots[dots.length - 1] - 8;
+    return dots[k - 1] + ((v - AT[k - 1]) / (AT[k] - AT[k - 1])) * (dots[k] - dots[k - 1]) - 8;
+};
+// Stage value for a position 0…n-1 along the steps.
+const stageAt = (f: number) => {
+    const k = Math.min(AT.length - 2, Math.floor(f));
+    return AT[k] + (f - k) * (AT[k + 1] - AT[k]);
+};
 
 const p = { v: 0 };
 let tween: gsap.core.Tween | undefined;
 const apply = () => {
-    s.value = p.v;
-    active.value = p.v < 0.4 ? -1 : stepOf(p.v);
+    fill.value = fillAt(p.v);
+    // A step lights up once the spine reaches it, not halfway there.
+    active.value = p.v < 0.4 ? -1 : AT.filter((a) => a <= p.v + 0.02).length - 1 + Number(p.v < AT[0]);
     map.value?.setStep(p.v);
 };
 const play = (to: number, duration: number) => {
@@ -43,32 +58,35 @@ const play = (to: number, duration: number) => {
     tween = gsap.to(p, { v: to, duration, ease: duration > 3 ? 'none' : 'power2.inOut', onUpdate: apply });
 };
 const goTo = (i: number) => play(AT[i], 0.9);
-// While pinned, a click scrolls to the middle of that step's stretch, so the scroll position and the map agree.
+// While pinned, a click scrolls to that step's point, so the scroll position and the map agree.
 const pick = (i: number) => {
     if (!scrollMode.value || !pin) return goTo(i);
-    window.scrollTo({ top: pin.start + ((i + 0.5) / props.steps.length) * (pin.end - pin.start), behavior: 'smooth' });
+    window.scrollTo({ top: pin.start + (i / (props.steps.length - 1)) * (pin.end - pin.start), behavior: 'smooth' });
 };
+const onResize = () => apply();
 
 let mm: gsap.MatchMedia | undefined;
 onMounted(() => {
+    addEventListener('resize', onResize);
     mm = gsap.matchMedia();
     mm.add({ scroll: '(min-width: 1024px) and (prefers-reduced-motion: no-preference)' }, (ctx) => {
         if (ctx.conditions?.scroll) {
             scrollMode.value = true;
-            // Pinned just under the fixed header; about a screen of scroll per stage (two scrolls, not one).
+            // Pinned just under the fixed header; about a screen of scroll from one step to the next (two scrolls: the
+            // first brings the spine halfway, the second onto the next step). A short ease keeps it smooth, not jumpy.
             const head = () => document.querySelector('header')?.offsetHeight ?? 0;
-            let shown = -1;
             pin = ScrollTrigger.create({
                 trigger: frame.value,
                 start: () => `top top+=${head() + 24}`,
-                end: () => `+=${innerHeight * 0.9 * props.steps.length}`,
+                end: () => `+=${innerHeight * 0.9 * (props.steps.length - 1)}`,
                 pin: true,
                 anticipatePin: 1,
                 onUpdate: (t) => {
-                    const i = Math.min(props.steps.length - 1, Math.floor(t.progress * props.steps.length));
-                    if (i !== shown) goTo((shown = i));
+                    tween?.kill();
+                    tween = gsap.to(p, { v: stageAt(t.progress * (props.steps.length - 1)), duration: 0.35, ease: 'power3.out', onUpdate: apply });
                 },
             });
+            goTo(0);
             return () => {
                 pin?.kill();
                 pin = undefined;
@@ -88,6 +106,7 @@ onMounted(() => {
     });
 });
 onBeforeUnmount(() => {
+    removeEventListener('resize', onResize);
     mm?.revert();
     tween?.kill();
 });
@@ -103,10 +122,6 @@ onBeforeUnmount(() => {
                     <!-- Soft halo behind Dhaka so the converging lines have somewhere to land -->
                     <div class="pointer-events-none absolute top-[38%] left-[44%] size-[55%] -translate-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(234_185_75/0.22),transparent)]" aria-hidden="true" />
                     <JourneyMapStages ref="map" scrubbed :beacon-label="beaconLabel" />
-                    <p class="mt-2 text-center text-sm text-ink-2" aria-live="polite">
-                        <span class="font-semibold text-night">{{ active < 0 ? steps[0].title : steps[active].title }}</span>
-                        <span class="mx-2 text-gold" aria-hidden="true">/</span>{{ active < 0 ? steps[0].tag : steps[active].tag }}
-                    </p>
                 </div>
 
                 <!-- Steps start at the top of the map (not centred on it), so the last one sits well inside the screen -->
@@ -114,9 +129,10 @@ onBeforeUnmount(() => {
                     <ol class="relative">
                         <!-- Spine: hairline track, filled teal → bronze as the map advances -->
                         <span class="absolute top-2 bottom-2 left-[7px] w-px bg-line-light" aria-hidden="true" />
-                        <span class="absolute top-2 bottom-2 left-[7px] w-px origin-top bg-gradient-to-b from-green to-gold" :style="{ transform: `scaleY(${Math.min(1, s / 4)})` }" aria-hidden="true" />
+                        <span class="absolute top-2 left-[7px] w-px bg-gradient-to-b from-green to-gold" :style="{ height: `${fill}px` }" aria-hidden="true" />
                         <li
                             v-for="(st, i) in steps"
+                            ref="items"
                             :key="st.title"
                             class="relative cursor-pointer pb-6 pl-10 transition-opacity duration-500 last:pb-0"
                             :class="active === -1 || active === i ? 'opacity-100' : 'opacity-55 hover:opacity-100'"

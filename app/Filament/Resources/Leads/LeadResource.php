@@ -29,6 +29,8 @@ class LeadResource extends Resource
 
     protected static ?string $navigationLabel = 'All leads';
 
+    protected static ?string $pluralModelLabel = 'Leads';
+
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';

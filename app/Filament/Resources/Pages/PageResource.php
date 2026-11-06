@@ -13,9 +13,14 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
 
-/** Content blocks and SEO per routed page. Pages are defined by the site's routes, so they are edited here, not created. */
+/**
+ * Content blocks and SEO per routed page. Pages are defined by the site's routes, so they are edited here, not created;
+ * a copy (Copy action) reuses a page's layout at a new URL, and a deleted page stays offline until restored.
+ */
 class PageResource extends Resource
 {
     use ChecksModulePermission;
@@ -42,6 +47,12 @@ class PageResource extends Resource
     public static function table(Table $table): Table
     {
         return PagesTable::configure($table);
+    }
+
+    /** Deleted (offline) pages stay listable for the "Deleted pages" filter. */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
     public static function canCreate(): bool

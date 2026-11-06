@@ -20,7 +20,8 @@ class CmsSeeder extends Seeder
 
         // SEO fields start blank (blank means "use the coded title and description"); content blocks start as the coded content.
         foreach (['/' => ['Home'], ...PageContent::PAGES] as $slug => [$title]) {
-            $page = Page::firstOrCreate(['slug' => $slug], ['title' => $title, 'is_draft' => false]);
+            // A page deleted in the CMS stays offline: re-seeding neither restores nor duplicates it.
+            $page = Page::withTrashed()->firstOrCreate(['slug' => $slug], ['title' => $title, 'is_draft' => false]);
             if (! $page->sections && ($blocks = PageBlocks::seed($slug))) {
                 $page->forceFill(['sections' => $blocks])->saveQuietly();
             }

@@ -8,6 +8,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -36,15 +37,13 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#087f8c'), // site teal (--green)
             ])
-            ->navigationGroups([
-                'Overview',
-                'Leads & CRM',
-                'Messages',
-                'Catalogue',
-                'Content Management',
-                'Configuration',
-                'Access Control',
-            ])
+            // Nine collapsible groups, in the order the team works through them.
+            ->navigationGroups(array_map(fn (string $label) => NavigationGroup::make($label)->collapsible(), [
+                'Overview', 'Registrations', 'Awards Management', 'Leads & CRM', 'Messages',
+                'Event Management', 'Content Management', 'Configuration', 'Access Control',
+            ]))
+            ->databaseNotifications() // new submissions notify the team in the panel (bell, top right)
+            ->databaseNotificationsPolling('60s')
             ->sidebarWidth('16rem') // default 20rem
             ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.hooks.theme'))
             ->renderHook(PanelsRenderHook::SIDEBAR_FOOTER, fn () => view('filament.hooks.sidebar-view-website'))

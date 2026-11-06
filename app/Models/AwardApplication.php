@@ -19,7 +19,7 @@ class AwardApplication extends Model
 
     protected function casts(): array
     {
-        return ['status' => AwardStatus::class, 'self_nominated' => 'boolean', 'nominator_phone' => 'encrypted', 'nominee_phone' => 'encrypted', 'portfolio_links' => 'array', 'marketplace_profiles' => 'array', 'shortlist_published' => 'boolean', 'winner_published' => 'boolean'];
+        return ['status' => AwardStatus::class, 'self_nominated' => 'boolean', 'nominator_phone' => 'encrypted', 'nominee_phone' => 'encrypted', 'portfolio_links' => 'array', 'marketplace_profiles' => 'array', 'shortlist_published' => 'boolean', 'winner_published' => 'boolean', 'score' => 'integer'];
     }
 
     public function category(): BelongsTo

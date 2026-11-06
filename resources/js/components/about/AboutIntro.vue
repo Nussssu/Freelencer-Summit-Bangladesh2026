@@ -19,7 +19,7 @@ const parts = computed(() => {
 
 <template>
     <section ref="root" class="container-site" aria-labelledby="ab-intro">
-        <div class="border-b border-line-light pt-16 pb-14 md:pt-24 md:pb-20">
+        <div class="border-b border-line-light py-12 md:py-14">
             <h2 id="ab-intro" class="text-center text-[clamp(2.25rem,4.6vw,4rem)] leading-[1.1] font-extrabold tracking-[-0.02em] text-green [text-wrap:balance]" data-reveal="fade">
                 {{ parts[0] }}<span v-if="parts[1]" class="tone">{{ parts[1] }}</span>
             </h2>

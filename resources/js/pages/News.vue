@@ -31,7 +31,7 @@ const photo = (a: ArticleCard) => a.image ?? `/media/photos/gallery-0${(a.slug.l
         <div class="container-site">
             <ul v-if="content.posts.data.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <li v-for="a in content.posts.data" :key="a.slug" class="flex" data-reveal="fade">
-                    <NewsCard :title="a.title" :href="a.href" :tag="date(a.publishedAt)" :image="photo(a)" :sample="a.sample" :lines="3" class="w-full" />
+                    <NewsCard :title="a.title" :href="a.href" :tag="date(a.publishedAt)" :image="photo(a)" :lines="3" class="w-full" />
                 </li>
             </ul>
             <EmptyState v-else :title="content.empty.title" :body="content.empty.body" />

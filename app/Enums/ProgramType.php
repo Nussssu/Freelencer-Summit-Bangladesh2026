@@ -12,4 +12,10 @@ enum ProgramType: string
     case CampusProgram = 'campus-program';
 
     const LABELS = ['divisional-summit' => 'Divisional summit', 'district-roadshow' => 'District roadshow', 'campus-program' => 'Campus program'];
+
+    /** The directory's URL segment: /divisional-summits, /district-roadshows, /campus-programs. */
+    public function pathSegment(): string
+    {
+        return $this->value.'s';
+    }
 }

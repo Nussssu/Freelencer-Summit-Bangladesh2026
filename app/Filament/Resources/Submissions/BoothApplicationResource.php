@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Resources\Submissions\Pages\ListBoothApplications;
 use App\Models\ExhibitionApplication;
+use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -24,15 +25,25 @@ class BoothApplicationResource extends SubmissionResource
 
     protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
-    protected static ?string $navigationLabel = 'Applications';
+    protected static ?string $navigationLabel = 'Booth applications';
 
-    protected static ?string $pluralModelLabel = 'Applications';
+    protected static ?string $pluralModelLabel = 'Booth applications';
 
     protected static ?string $recordTitleAttribute = 'organisation';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $modelLabel = 'booth application';
+
+    protected static function statuses(): ?array
+    {
+        return Statuses::ENQUIRY;
+    }
+
+    protected static function exportColumns(): array
+    {
+        return ['Reference' => 'reference', 'Received' => 'created_at', 'Organisation' => 'organisation', 'Sector' => 'sector', 'Booth requirement' => 'booth_requirement', 'Contact person' => 'contact_person', 'Designation' => 'designation', 'Email' => 'email', 'Products' => 'products', 'Branding needs' => 'branding_needs', 'Requirements' => 'requirements'];
+    }
 
     protected static function columns(): array
     {
@@ -51,6 +62,7 @@ class BoothApplicationResource extends SubmissionResource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowSection(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextInput::make('organisation')->required()->maxLength(255),
                 TextInput::make('sector')->required()->maxLength(64),
@@ -69,6 +81,7 @@ class BoothApplicationResource extends SubmissionResource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowEntries(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextEntry::make('reference'), TextEntry::make('created_at')->label('Received')->dateTime('d M Y, h:i A'),
                 TextEntry::make('organisation'), TextEntry::make('sector'),

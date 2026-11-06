@@ -4,7 +4,6 @@ import { ref } from 'vue';
 import AwardsCta from '@/components/awards/AwardsCta.vue';
 import NomineeCard from '@/components/awards/NomineeCard.vue';
 import WinnerCard from '@/components/awards/WinnerCard.vue';
-import DownloadCard from '@/components/inner/DownloadCard.vue';
 import EmptyState from '@/components/inner/EmptyState.vue';
 import type { GlyphName } from '@/components/inner/Glyph.vue';
 import Glyph from '@/components/inner/Glyph.vue';
@@ -13,14 +12,13 @@ import SectionHead from '@/components/inner/SectionHead.vue';
 import TintCard from '@/components/inner/TintCard.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import NewsHero from '@/components/news/NewsHero.vue';
-import Accordion from '@/components/ui/Accordion.vue';
 import Icon from '@/components/ui/Icon.vue';
 import { ScrollTrigger, useGsap } from '@/composables/motion';
 import { useReveal } from '@/composables/useReveal';
 import type { AwardsContent, InnerPage } from '@/types/inner';
 
 // Brief §9: dedicated awards landing: overview, categories, a nomination flow separate from registration, statuses,
-// shortlist and winners archive, guidelines and FAQ.
+// shortlist and winners archive.
 const props = defineProps<{ page: InnerPage; content: AwardsContent }>();
 const root = ref<HTMLElement>();
 useReveal(root);
@@ -157,20 +155,6 @@ const slug = (s: string) => s.toLowerCase().replace(/&/g, '').replace(/[^a-z0-9]
         </section>
 
         <AwardsCta :heading="content.headings.cta" />
-
-        <!-- Guidelines + FAQ -->
-        <section class="in-section">
-            <div class="container-site grid gap-8 lg:grid-cols-12">
-                <div class="lg:col-span-4">
-                    <SectionHead :heading="content.headings.faq" />
-                    <ul class="space-y-4">
-                        <li v-for="d in content.downloads" :key="d.kind"><DownloadCard :item="d" tone="tone-sun" /></li>
-                    </ul>
-                    <p class="mt-4 text-sm"><Link href="/contact?topic=awards" class="font-semibold text-green">Ask the awards team</Link></p>
-                </div>
-                <div class="in-card is-solid in-pad lg:col-span-8" data-reveal="fade"><Accordion :items="content.faq" id-prefix="aw-faq" /></div>
-            </div>
-        </section>
     </div>
 
 </template>

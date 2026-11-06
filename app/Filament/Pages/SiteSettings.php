@@ -63,6 +63,7 @@ class SiteSettings extends Page
             'seo' => Settings::get('seo', []),
             'recaptcha' => $recaptcha + ['enabled' => false, 'version' => 'v3', 'threshold' => 0.5],
             'mail' => $mail + ['admin_emails' => [], 'from_address' => config('mail.from.address'), 'from_name' => config('mail.from.name')],
+            'programmes' => Settings::get('programmes', []) + ['roadshow_media' => false],
         ]);
     }
 
@@ -103,6 +104,12 @@ class SiteSettings extends Page
                         ->helperText('Home page description, same rule as the title.'),
                     MediaPicker::make('seo.og_image')->label('Default share image (Open Graph)')
                         ->helperText('Every page without its own share image. Best at 1200×630. Blank keeps /og-image.png.'),
+                ]),
+                Tab::make('Programmes')->icon(Heroicon::OutlinedMap)->schema([
+                    Section::make('District roadshow pages')->schema([
+                        Toggle::make('programmes.roadshow_media')->label('Show "Photos and videos" on roadshow pages')
+                            ->helperText('Off hides the section on every roadshow page.'),
+                    ]),
                 ]),
                 Tab::make('Security')->icon(Heroicon::OutlinedShieldCheck)->schema([
                     Section::make('Google reCAPTCHA')->description('Protects the public forms. Keys come from google.com/recaptcha/admin; the key type must match the version.')->columns(2)->schema([
@@ -148,7 +155,7 @@ class SiteSettings extends Page
             Form::make([EmbeddedSchema::make('form')])->id('form')->livewireSubmitHandler('save')->footer([
                 Actions::make([
                     Action::make('save')->label('Save settings')->submit('save')->keyBindings(['mod+s']),
-                    Action::make('test')->label('Send test email to me')->color('gray')->action('sendTest'),
+                    Action::make('test')->label('Send test email to admin inbox')->color('gray')->action('sendTest'),
                 ]),
             ]),
         ]);
@@ -161,6 +168,7 @@ class SiteSettings extends Page
         Settings::put('social', array_map(fn ($v) => $v ?: null, $data['social'] ?? []));
         Settings::put('identity', $data['identity'] ?? []);
         Settings::put('seo', array_filter($data['seo'] ?? []));
+        Settings::put('programmes', ['roadshow_media' => (bool) ($data['programmes']['roadshow_media'] ?? false)]);
 
         $recaptcha = $data['recaptcha'] ?? [];
         $savedSecret = Settings::get('recaptcha', [])['secret_key'] ?? null;
@@ -178,12 +186,13 @@ class SiteSettings extends Page
 
     public function sendTest(): void
     {
-        $to = auth()->user()->email;
+        $to = array_values(array_filter(Settings::get('mail', [])['admin_emails'] ?? []));
+        $to = $to ?: [auth()->user()->email];
         try {
             Settings::applyMail();
             Mail::purge();
             Mail::raw('This is a test from the Freelancer Summit CMS. Email delivery works.', fn ($m) => $m->to($to)->subject('CMS test email'));
-            Notification::make()->success()->title("Test sent to {$to}")->send();
+            Notification::make()->success()->title('Test sent to '.implode(', ', $to))->send();
         } catch (Throwable $e) {
             Notification::make()->danger()->title('Sending failed')->body($e->getMessage())->persistent()->send();
         }

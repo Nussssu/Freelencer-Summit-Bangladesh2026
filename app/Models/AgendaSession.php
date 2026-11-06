@@ -16,7 +16,7 @@ class AgendaSession extends Model
 
     protected function casts(): array
     {
-        return ['type' => SessionType::class, 'date' => 'date', 'is_sample' => 'boolean'];
+        return ['type' => SessionType::class, 'date' => 'date', 'is_sample' => 'boolean', 'visible' => 'boolean', 'learn' => 'array', 'audience' => 'array'];
     }
 
     public function hall(): BelongsTo

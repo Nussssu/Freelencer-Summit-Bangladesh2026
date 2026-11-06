@@ -236,6 +236,7 @@ export interface HomeContent {
     sponsorship: Sponsorship;
     forum: Forum;
     stories: Stories;
+    storyCards?: { id: string; title: string; name: string; role: string | null; image: string | null; url: string | null }[] | null;
     partners: Partners;
     latestNews: LatestNewsItem[];
     media: Media;

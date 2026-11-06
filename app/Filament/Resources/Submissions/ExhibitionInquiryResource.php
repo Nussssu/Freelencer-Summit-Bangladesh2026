@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Resources\Submissions\Pages\ListExhibitionInquiries;
 use App\Models\ExhibitEnquiry;
+use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -21,20 +22,30 @@ class ExhibitionInquiryResource extends SubmissionResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Messages';
+    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
 
-    protected static ?string $navigationLabel = 'Exhibition Inquiries';
+    protected static ?string $navigationLabel = 'Exhibition enquiries';
 
-    protected static ?string $pluralModelLabel = 'Exhibition Inquiries';
+    protected static ?string $pluralModelLabel = 'Exhibition enquiries';
 
     protected static ?string $recordTitleAttribute = 'company_name';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'exhibition inquiry';
 
     // The live "Enquire to exhibit" popup (landing page). It asks no booth size; booth requirements come from the
     // /exhibition/apply form (Booth Applications) once that page is built.
+    protected static function statuses(): ?array
+    {
+        return Statuses::ENQUIRY;
+    }
+
+    protected static function exportColumns(): array
+    {
+        return ['Reference' => 'reference', 'Received' => 'created_at', 'Organisation' => 'company_name', 'Sector' => 'industry', 'Website' => 'website', 'Head office' => 'head_office', 'Contact person' => 'full_name', 'Designation' => 'designation', 'Email' => 'email'];
+    }
+
     protected static function columns(): array
     {
         return [
@@ -52,6 +63,7 @@ class ExhibitionInquiryResource extends SubmissionResource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowSection(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextInput::make('company_name')->label('Organisation')->required()->maxLength(160),
                 TextInput::make('industry')->label('Sector')->required()->maxLength(120),
@@ -68,6 +80,7 @@ class ExhibitionInquiryResource extends SubmissionResource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowEntries(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextEntry::make('company_name')->label('Organisation'), TextEntry::make('industry')->label('Sector'),
                 TextEntry::make('website')->placeholder('—'), TextEntry::make('head_office')->label('Head office'),

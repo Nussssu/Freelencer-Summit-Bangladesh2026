@@ -25,7 +25,6 @@ const span = ['md:col-span-2 md:row-span-2', '', '', 'md:col-span-2', '', ''];
                     <p class="t-label text-green">{{ t('sections.stories') }}</p>
                     <SplitHeading id="st-title" :text="heading.title" :emphasis="heading.emphasis" emphasis-class="text-green" class="t-h2 mt-3" />
                 </div>
-                <p v-if="stories.sample" class="t-label bg-gold px-2 py-1 text-night">{{ t('common.sample') }}</p>
             </div>
 
             <ul class="mt-12 grid auto-rows-[minmax(11rem,auto)] grid-cols-1 gap-3 md:grid-cols-4">

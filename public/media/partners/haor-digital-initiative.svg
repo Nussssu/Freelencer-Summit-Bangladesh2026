@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Haor Digital Initiative logo">
+  <rect width="160" height="160" rx="32" fill="#0f766e"/>
+  <path d="M24 96c14-10 26-10 40 0s26 10 40 0 22-10 32-4" fill="none" stroke="#a7f3d0" stroke-width="6" stroke-linecap="round"/><circle cx="80" cy="44" r="10" fill="#a7f3d0"/>
+  <text x="80" y="80" dy=".35em" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="800" letter-spacing="0.5" fill="#fff">HDI</text>
+</svg>

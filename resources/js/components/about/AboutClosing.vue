@@ -18,7 +18,7 @@ const secondary = computed(() => props.page.hero.actions?.find((a) => a.tone !==
 </script>
 
 <template>
-    <section ref="root" class="px-4 pb-16 md:px-6 md:pb-24" aria-labelledby="ab-cta">
+    <section ref="root" class="px-4 pt-12 pb-16 md:px-6 md:pt-14 md:pb-24" aria-labelledby="ab-cta">
         <div class="band relative mx-auto max-w-[90rem] overflow-hidden rounded-2xl px-6 py-12 text-paper md:px-12 md:py-14">
             <div class="relative grid items-center gap-10 lg:grid-cols-12">
                 <div class="lg:col-span-7">

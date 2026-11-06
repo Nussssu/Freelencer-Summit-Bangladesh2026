@@ -18,7 +18,7 @@ class JourneyProgram extends Model
 
     protected function casts(): array
     {
-        return ['type' => ProgramType::class, 'status' => ProgramStatus::class, 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'registration_open' => 'boolean', 'is_sample' => 'boolean'];
+        return ['type' => ProgramType::class, 'status' => ProgramStatus::class, 'starts_at' => 'datetime', 'ends_at' => 'datetime', 'registration_open' => 'boolean', 'is_sample' => 'boolean', 'participants' => 'integer'];
     }
 
     public function division(): BelongsTo
@@ -44,5 +44,10 @@ class JourneyProgram extends Model
     public function media(): HasMany
     {
         return $this->hasMany(MediaItem::class)->orderBy('sort');
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(ProgramRegistration::class);
     }
 }

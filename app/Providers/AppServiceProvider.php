@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Content\HomeContent;
 use App\Models\AuditLog;
+use App\Models\Lead;
+use App\Support\NotifyTeamOfSubmission;
 use App\Models\User;
 use App\Support\Settings;
 use Illuminate\Auth\Events\Login;
@@ -36,7 +38,16 @@ class AppServiceProvider extends ServiceProvider
 
         // SMTP saved in the CMS (Settings > Email) overrides .env, applied only when mail is actually used.
         $this->app->afterResolving('mail.manager', fn () => Settings::applyMail());
-        Queue::before(fn () => Settings::flush()); // workers are long-lived; read settings fresh per job
+        // Event Management › Grand Summit overrides config('summit') (date, venue, tagline, counters).
+        Settings::applySummit();
+        Queue::before(function () { // workers are long-lived; read settings fresh per job
+            Settings::flush();
+            Settings::applySummit();
+        });
+
+        // Messages › Email & SMS log: App\Listeners\LogSentMessage (auto-discovered, MessageSent).
+        // Admin notifications (bell) for each new public submission.
+        Event::listen('eloquent.created: '.Lead::class, fn (Lead $lead) => rescue(fn () => NotifyTeamOfSubmission::send($lead), report: false));
 
         Gate::before(fn (User $user) => $user->isSuperAdmin() ?: null);
 

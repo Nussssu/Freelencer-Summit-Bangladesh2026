@@ -2,10 +2,13 @@
 
 namespace App\Content\Pages;
 
+use App\Content\CmsData;
 use App\Content\HomeContent;
-use App\Models\SuccessStory;
+use App\Enums\MediaKind;
+use App\Models\MediaItem;
 use App\Queries\ContentQuery;
 use App\Queries\NewsQuery;
+use App\Queries\ReferenceQuery;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -14,14 +17,12 @@ class MediaPages
 {
     use FormOptions;
 
-    public function __construct(private HomeContent $home, private NewsQuery $news) {}
+    public function __construct(private HomeContent $home, private NewsQuery $news, private ReferenceQuery $ref) {}
 
     public function stories(): array
     {
-        $published = SuccessStory::where('published', true)->orderBy('sort')->get()->map(fn ($s) => [
-            'name' => $s->name, 'role' => null, 'kind' => 'Freelancer', 'title' => $s->headline, 'quote' => Str::limit(strip_tags((string) $s->body), 140) ?: null,
-            'image' => $s->photo, 'youtubeId' => $s->youtube_id, 'sample' => $s->is_sample,
-        ])->all();
+        // Content Management › Success stories (published, in sort order).
+        $published = CmsData::stories();
 
         // shortcut: the landing's three sample people (StoriesIntro) until real stories are published.
         $samples = [
@@ -32,8 +33,8 @@ class MediaPages
 
         return [
             'headings' => ['stories' => self::h('Stories from across Bangladesh', 'across Bangladesh'), 'videos' => self::h('Watch their stories', 'stories'), 'share' => self::h('Share your story', 'your story')],
-            'stories' => $published ?: $samples,
-            'filters' => [['value' => 'Freelancer', 'label' => 'Freelancers'], ['value' => 'Entrepreneur', 'label' => 'Entrepreneurs']],
+            'stories' => $published ?? $samples,
+            'filters' => self::storyFilters($published ?? $samples),
             'videos' => [
                 ['title' => 'Freelance video editor', 'poster' => '/media/photos/story-video-editor.jpg', 'youtubeId' => null],
                 ['title' => 'Campus program stories', 'poster' => '/media/photos/highlight-workshops.jpg', 'youtubeId' => null],
@@ -42,6 +43,15 @@ class MediaPages
             'videoSoon' => 'Video coming soon',
             'share' => 'Started from a campus program or a district roadshow? Built a team from freelancing? Tell the team and your story could be featured here and on stage in Dhaka.',
         ];
+    }
+
+    /** The wall's filter tabs: one per story type in use (Freelancers, Entrepreneurs, Students…). */
+    private static function storyFilters(array $stories): array
+    {
+        $labels = ['Freelancer' => 'Freelancers', 'Entrepreneur' => 'Entrepreneurs', 'Student' => 'Students'];
+        $kinds = array_values(array_unique(array_filter(array_column($stories, 'kind'))));
+
+        return array_map(fn ($k) => ['value' => $k, 'label' => $labels[$k] ?? $k.'s'], $kinds ?: ['Freelancer', 'Entrepreneur']);
     }
 
     /** One grid of every published post, newest first; there is no category filter, so old ?category= links show it all. */
@@ -75,14 +85,32 @@ class MediaPages
     public function media(): array
     {
         $m = $this->home->media();
+        // Photos stored against a programme, so each one knows its programme type, division, district and campus.
+        $programme = ['divisional-summit' => 'Divisional', 'district-roadshow' => 'District', 'campus-program' => 'Campus'];
+        $tiles = MediaItem::with(['program.division', 'program.district', 'program.campus'])->where('kind', MediaKind::Photo)
+            ->whereHas('program')->orderBy('journey_program_id')->orderBy('sort')->get()
+            ->map(fn ($x) => [
+                'id' => $x->id,
+                'programme' => $programme[$x->program->type->value],
+                'programmeLabel' => $x->program->title,
+                'kind' => 'photo',
+                'src' => $x->src,
+                'caption' => $x->caption,
+                'division' => $x->program->division?->slug,
+                'district' => $x->program->district?->slug,
+                'campus' => $x->program->campus?->slug,
+            ])->all();
 
         return [
             'headings' => ['photos' => self::h('Photo gallery', 'gallery'), 'videos' => self::h('Video gallery', 'gallery'), 'press' => self::h('Press and media kit', 'media kit')],
-            'tiles' => array_map(fn ($t) => [...$t, 'programmeLabel' => "{$t['programme']} programme"], $m['tiles']),
+            'tiles' => $tiles,
+            'divisionOptions' => $this->ref->divisions(),
+            'districtGroups' => $this->ref->districts(),
+            'campusOptions' => $this->ref->campuses(),
             'programmes' => [['value' => 'Divisional', 'label' => 'Divisional summits'], ['value' => 'District', 'label' => 'District roadshows'], ['value' => 'Campus', 'label' => 'Campus programs']],
             'videos' => $m['videos'],
             'sample' => true,
-            'note' => 'Sample photos from earlier events until the campaign gallery is published.',
+            'note' => 'Photos from earlier events until the campaign gallery is published.',
             'downloads' => app(ContentQuery::class)->downloads([\App\Enums\DownloadKind::MediaKit, \App\Enums\DownloadKind::Brochure]),
         ];
     }

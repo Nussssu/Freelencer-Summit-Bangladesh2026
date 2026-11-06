@@ -2,6 +2,7 @@
 
 namespace App\Content\Pages;
 
+use App\Content\CmsData;
 use App\Content\HomeContent;
 use App\Content\SiteContent;
 use App\Enums\DownloadKind;
@@ -48,7 +49,9 @@ class BusinessPages
                 ['icon' => 'people', 'tone' => 'tone-sky', 'title' => 'Meet the talent', 'text' => 'Connect with freelancers, students, companies and marketplaces in person.'],
                 ['icon' => 'globe', 'tone' => 'tone-violet', 'title' => 'On the website', 'text' => 'Confirmed sponsor logos appear automatically in the sponsor areas of this website.'],
             ],
-            'tiers' => array_map(fn ($t, $i) => ['slug' => Str::slug($t), 'name' => $t, 'benefits' => [], 'provisional' => $s['provisional'], 'tone' => self::TONES[$i % 8]], $s['tiers'], array_keys($s['tiers'])),
+            // Content Management › Sponsors › tiers (name, benefits, provisional), else the coded tier names.
+            'tiers' => array_map(fn ($t, $i) => ['slug' => Str::slug($t['name']), 'name' => $t['name'], 'benefits' => $t['benefits'], 'provisional' => $t['provisional'], 'tone' => self::TONES[$i % 8]],
+                $packages = CmsData::sponsorPackages() ?? array_map(fn ($t) => ['name' => $t, 'benefits' => [], 'provisional' => $s['provisional']], $s['tiers']), array_keys($packages)),
             'tiersNote' => 'Final tier names, benefits and commercial terms are in the sponsorship prospectus.',
             'prospectus' => $content->downloads([DownloadKind::Prospectus])[0],
             'form' => [
@@ -184,7 +187,6 @@ class BusinessPages
                 'organisers' => self::h('Organised by', 'by'),
                 // The landing's partner wall, under its own title (the hero already says "Built with partners")
                 'wall' => ['title' => 'Our partners and sponsors', 'emphasis' => 'partners and sponsors'],
-                'become' => self::h('Partner with the summit', 'Partner'),
             ],
             'organisers' => $site->organisers(),
             'partners' => $partners,

@@ -10,25 +10,23 @@ import type { DirectoryRow, Journey } from '@/types/content';
 import type { SectionHeading } from '@/types/inner';
 
 // "Find a programme near you", laid out like the client mock-up: eyebrow, headline, three pill tabs (all eight
-// divisions, then districts and campuses) with a search box, and one card of rows (photo, name + venue, date, partner,
-// Register). Tabs follow the ARIA tabs pattern; the search matches name, venue and partner within the open tab.
+// divisions, then districts and campuses) with one button to the open tab's own page (divisional summits, district
+// roadshows or campus programmes), and one card of rows (photo, name + venue, date, partner, Register). Tabs follow
+// the ARIA tabs pattern.
 const props = defineProps<{ heading: SectionHeading; directory: Journey['directory'] }>();
 const root = ref<HTMLElement>();
 useReveal(root);
 
 const tabs = [
-    { type: 'division', label: 'Divisions', icon: 'pin' },
-    { type: 'district', label: 'Districts', icon: 'map' },
-    { type: 'campus', label: 'Campuses', icon: 'cap' },
+    { type: 'division', label: 'Divisions', icon: 'pin', page: { href: '/divisional-summits', label: 'View all divisional summits' } },
+    { type: 'district', label: 'Districts', icon: 'map', page: { href: '/district-roadshows', label: 'View all district roadshows' } },
+    { type: 'campus', label: 'Campuses', icon: 'cap', page: { href: '/campus-programs', label: 'View all campus programmes' } },
 ] as const;
 const tab = ref<DirectoryRow['type']>('division');
-const query = ref('');
 const tabEls: HTMLButtonElement[] = [];
 
-const rows = computed(() => {
-    const q = query.value.trim().toLowerCase();
-    return props.directory.rows.filter((r) => r.type === tab.value && (!q || `${r.name} ${r.location ?? ''} ${r.partner ?? ''}`.toLowerCase().includes(q)));
-});
+const page = computed(() => tabs.find((x) => x.type === tab.value)!.page);
+const rows = computed(() => props.directory.rows.filter((r) => r.type === tab.value));
 
 function onTabKey(e: KeyboardEvent, i: number) {
     const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
@@ -67,11 +65,9 @@ function onTabKey(e: KeyboardEvent, i: number) {
                         <Icon :name="x.icon" :size="20" /> {{ x.label }}
                     </button>
                 </div>
-                <label class="relative flex items-center">
-                    <span class="sr-only">Search programmes</span>
-                    <Icon name="search" :size="20" class="pointer-events-none absolute left-5 text-night" />
-                    <input v-model="query" type="search" placeholder="Search programmes" class="min-h-12 w-full rounded-full border border-line-light bg-paper/80 py-2 pr-5 pl-13 text-sm placeholder:text-ink-2 focus:border-green focus:outline-none lg:w-96" />
-                </label>
+                <Link :href="page.href" class="inline-flex min-h-12 items-center justify-center gap-3 self-start rounded-full border border-green bg-paper/80 px-6 font-semibold text-green transition-colors duration-300 hover:bg-green hover:text-snow lg:self-auto">
+                    {{ page.label }} <Icon name="arrow" :size="18" />
+                </Link>
             </div>
 
             <div id="finder-panel" role="tabpanel" :aria-labelledby="`finder-tab-${tab}`" class="mt-8 overflow-hidden rounded-2xl border border-white/80 bg-paper/75 shadow-[0_24px_60px_-34px_rgb(8_58_64/0.35)] backdrop-blur-sm" data-reveal="fade">
@@ -98,7 +94,7 @@ function onTabKey(e: KeyboardEvent, i: number) {
                         </Link>
                     </li>
                 </ul>
-                <p v-else class="p-8 text-ink-2">No programmes match “{{ query }}”.</p>
+                <p v-else class="p-8 text-ink-2">No programmes listed here yet.</p>
             </div>
         </div>
     </section>

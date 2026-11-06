@@ -18,7 +18,7 @@ const cards = computed(() => site.value.organisers.map((o) => ({ ...o, text: pro
 
 <template>
     <section ref="root" class="container-site" aria-labelledby="ab-organisers">
-        <div class="border-t border-line-light pt-16 pb-16 md:pt-24 md:pb-24">
+        <div class="border-t border-line-light py-12 md:py-14">
             <SplitHeading
                 id="ab-organisers"
                 :text="heading.title"

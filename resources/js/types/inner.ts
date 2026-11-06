@@ -36,7 +36,7 @@ export interface AboutContent {
     intro: { title: string; emphasis: string | null; paragraphs: string[] };
     overview: { stats: { icon: string; value: string; label: string }[] };
     pillars: { icon: string; title: string; text: string; image: string | null }[];
-    goals: { icon: string; title: string }[];
+    goals: { icon: string; title: string; text: string }[];
     organisers: { short: string; text: string }[];
 }
 export interface JourneyContent {
@@ -53,7 +53,7 @@ export interface AgendaSessionContent {
     headings: Headings<'speaker' | 'related' | 'cta'>;
 }
 export interface AgendaContent {
-    headings: Headings<'programme' | 'plan' | 'tracks' | 'cta'>;
+    headings: Headings<'programme' | 'plan' | 'cta'>;
     agenda: Omit<Agenda, 'sessions'> & { days: string[]; sessions: AgendaSession[] };
     downloads: DownloadItem[];
 }
@@ -142,6 +142,7 @@ export interface ProgramCard {
     partner: string | null;
     division: string | null;
     district: string | null;
+    institution: string | null;
     status: string;
     statusLabel: string;
     registrationOpen: boolean;

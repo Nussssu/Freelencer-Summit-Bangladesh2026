@@ -146,7 +146,7 @@ const emphasis = computed(() => s.value.title.split(' ').at(-1) ?? '');
                     <div>
                         <h3 class="text-2xl font-bold text-night">{{ speaker }}</h3>
                         <p v-if="s.track" class="mt-2 border-l-2 border-green pl-4 font-bold text-green">{{ s.track }}</p>
-                        <p class="in-body mt-3 max-w-3xl">{{ t('inner.agenda.speakerTbaBody') }}</p>
+                        <p v-if="!s.speaker" class="in-body mt-3 max-w-3xl">{{ t('inner.agenda.speakerTbaBody') }}</p>
                     </div>
                 </div>
             </div>

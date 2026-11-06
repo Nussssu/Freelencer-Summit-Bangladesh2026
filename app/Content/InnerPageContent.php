@@ -56,14 +56,14 @@ class InnerPageContent
             ],
         ],
         '/divisional-summits' => [
-            'component' => 'Programs', 'content' => [Pages\JourneyPages::class, 'divisional'],
+            'component' => 'DistrictRoadshows', 'content' => [Pages\JourneyPages::class, 'divisional'],
             'title' => 'A summit in every division',
             'emphasis' => 'every division',
             'intro' => "Eight divisional summits bring each division's districts and campuses together on the road to the Grand Summit in Dhaka.",
             'image' => '/media/photos/gallery-07.jpg',
             'actions' => [['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'], ['label' => 'See the national journey', 'href' => '/national-journey', 'tone' => 'ghost']],
         ],
-        '/divisional-summits/{slug}' => ['component' => 'ProgramDetail', 'content' => [Pages\JourneyPages::class, 'divisionalDetail'], 'title' => 'Divisional summit'],
+        '/divisional-summits/{slug}' => ['component' => 'RoadshowDetail', 'content' => [Pages\JourneyPages::class, 'divisionalDetail'], 'title' => 'Divisional summit'],
         '/district-roadshows' => [
             'component' => 'DistrictRoadshows', 'content' => [Pages\JourneyPages::class, 'district'],
             'title' => 'District Roadshows',
@@ -72,16 +72,16 @@ class InnerPageContent
             'image' => '/media/photos/gallery-10.jpg',
             'actions' => [['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'gold'], ['label' => 'Divisional summits', 'href' => '/divisional-summits', 'tone' => 'ghost']],
         ],
-        '/district-roadshows/{slug}' => ['component' => 'ProgramDetail', 'content' => [Pages\JourneyPages::class, 'districtDetail'], 'title' => 'District roadshow'],
+        '/district-roadshows/{slug}' => ['component' => 'RoadshowDetail', 'content' => [Pages\JourneyPages::class, 'districtDetail'], 'title' => 'District roadshow'],
         '/campus-programs' => [
-            'component' => 'Programs', 'content' => [Pages\JourneyPages::class, 'campus'],
-            'title' => 'Bringing the summit to campus',
-            'emphasis' => 'to campus',
-            'intro' => 'Seminars, workshops, career talks, AI awareness and mentor sessions at universities, polytechnics and higher education institutions.',
-            'image' => '/media/photos/highlight-career.jpg',
-            'actions' => [['label' => 'Become a campus ambassador', 'href' => '#ambassador', 'tone' => 'gold'], ['label' => 'Find a programme', 'href' => '#directory', 'tone' => 'ghost']],
+            'component' => 'CampusPrograms', 'content' => [Pages\JourneyPages::class, 'campus'],
+            'title' => 'Campus Programs',
+            'emphasis' => 'Programs',
+            'intro' => 'Seminars, workshops, career talks and AI awareness for students at universities, polytechnics and colleges across Bangladesh.',
+            'image' => '/media/photos/gallery-04.jpg',
+            'actions' => [['label' => 'Find a programme', 'href' => '#directory', 'tone' => 'gold'], ['label' => 'Register for Summit', 'href' => '/register', 'tone' => 'ghost']],
         ],
-        '/campus-programs/{slug}' => ['component' => 'ProgramDetail', 'content' => [Pages\JourneyPages::class, 'campusDetail'], 'title' => 'Campus program'],
+        '/campus-programs/{slug}' => ['component' => 'RoadshowDetail', 'content' => [Pages\JourneyPages::class, 'campusDetail'], 'title' => 'Campus program'],
         '/grand-summit' => [
             'component' => 'GrandSummit', 'content' => [Pages\JourneyPages::class, 'grandSummit'],
             'title' => 'The Grand Summit in Dhaka',
@@ -239,10 +239,10 @@ class InnerPageContent
         '/news/{slug}' => ['component' => 'Article', 'content' => [Pages\MediaPages::class, 'article'], 'title' => 'News'],
         '/media' => [
             'component' => 'Media', 'content' => [Pages\MediaPages::class, 'media'],
-            'title' => 'From every corner of the delta',
-            'emphasis' => 'the delta',
+            'title' => 'Media Gallery',
+            'emphasis' => 'Gallery',
             'intro' => 'Photos and videos from divisional summits, district roadshows and campus programs.',
-            'image' => '/media/photos/gallery-01.jpg',
+            'image' => '/media/photos/story-video-editor.jpg',
             'actions' => [['label' => 'Latest news', 'href' => '/news', 'tone' => 'ghost']],
         ],
         '/partners' => [
@@ -302,10 +302,10 @@ class InnerPageContent
                 ['icon' => 'eye', 'title' => 'Our Vision', 'text' => 'Building a globally competitive and inclusive freelancing ecosystem for Bangladesh.', 'image' => '/media/photos/about-vision.jpg'],
             ],
             'goals' => [
-                ['icon' => 'laptop', 'title' => 'Advance Digital Skills'],
-                ['icon' => 'people', 'title' => 'Create Opportunities'],
-                ['icon' => 'layers', 'title' => 'Strengthen the Ecosystem'],
-                ['icon' => 'chart', 'title' => 'Connect to Global Markets'],
+                ['icon' => 'laptop', 'title' => 'Advance Digital Skills', 'text' => 'Build future-ready talent for a digital economy.'],
+                ['icon' => 'people', 'title' => 'Create Opportunities', 'text' => 'Enable people, ideas, and businesses to grow.'],
+                ['icon' => 'layers', 'title' => 'Strengthen the Ecosystem', 'text' => 'Foster collaboration, innovation, and impact.'],
+                ['icon' => 'chart', 'title' => 'Connect to Global Markets', 'text' => 'Open pathways to new markets and partnerships.'],
             ],
             // Logos and names stay in Settings (site.organisers); this is the one-line description per organiser.
             'organisers' => [
@@ -370,6 +370,9 @@ class InnerPageContent
     private function journeyDemo(): array
     {
         $journey = $this->home->journey();
+        if (($summits = CmsData::divisionSummits()) !== null) {
+            return [$journey, $summits]; // counters and directory rows already come from the programmes (HomeContent::journey)
+        }
         foreach ($journey['counters'] as &$c) {
             $c['value'] = ['divisions_covered' => 6, 'districts_covered' => 11, 'institutions_activated' => 87, 'participants_reached' => 42500][$c['id']];
         }
@@ -421,7 +424,6 @@ class InnerPageContent
             'headings' => [
                 'programme' => self::h('', 'Summit Programme', 'Programme'),
                 'plan' => self::h('', 'Plan your day', 'your day'),
-                'tracks' => self::h('', 'At a Glance: Programme Tracks'),
                 'cta' => self::h('', 'Register for the Grand Summit', 'Grand Summit', "Secure your spot at Freelancer Summit Bangladesh ".config('summit.edition')." and be part of the country's biggest freelancing and entrepreneurship gathering."),
             ],
             // Day tabs for the whole summit; a day without sessions yet shows "Announcing soon".
@@ -461,18 +463,24 @@ class InnerPageContent
         ];
     }
 
-    /** Agenda rows with their sample detail, page link and calendar file; replace the detail with CMS session fields. */
+    /** Agenda rows with their detail, page link and calendar file, from Event Management › Agenda & sessions. */
     public function agendaSessions(): array
     {
-        // Sample detail by session index.
+        return CmsData::agendaSessions() ?? $this->codedAgendaSessions();
+    }
+
+    /** The coded agenda (stands in while the sessions table is empty; also the import source). */
+    public function codedAgendaSessions(): array
+    {
+        // Sample detail by session index; the speakers are placeholder names until the CMS assigns real ones.
         $details = [
-            ['track' => 'Industry & policy', 'summary' => 'Where freelancing in Bangladesh stands today and what the next year asks of it.', 'learn' => ['The state of the freelance economy', 'Where demand is growing', 'What industry and government are planning'], 'audience' => ['Freelancers planning their next year', 'Students considering a freelance career', 'Industry and policy partners']],
-            ['track' => 'Marketplaces', 'summary' => 'Platform teams on profiles, ranking, payments and getting hired.', 'learn' => ['Build a profile that ranks', 'Avoid common account issues', 'Get paid faster and safer'], 'audience' => ['Freelancers new to the marketplaces', 'Freelancers whose profiles have stalled', 'Anyone setting up international payments']],
-            ['track' => 'AI & skills', 'summary' => 'A hands-on walkthrough of AI tools you can use on client work the same day.', 'learn' => ['Pick the right tool for a task', 'Speed up delivery without losing quality', 'Price AI-assisted work fairly'], 'audience' => ['Freelancers who are new to AI tools', 'Professionals looking to boost productivity', 'Anyone curious about AI in freelancing']],
-            ['track' => 'Business growth', 'summary' => 'Taking a solo practice to a registered company: licences, tax, team and clients.', 'learn' => ['Register and stay compliant', 'Hire your first team members', 'Win larger, longer contracts'], 'audience' => ['Established freelancers ready to grow', 'Small agency founders', 'Freelancers thinking about hiring']],
-            ['track' => 'Recognition', 'summary' => 'The Freelancer Awards ceremony, honouring freelancers from all 8 divisions.', 'learn' => ['Meet the winners', 'See what the judges looked for', 'Plan your nomination for next year'], 'audience' => ['Nominees and their guests', 'Freelancers planning a nomination', 'Everyone at the summit']],
+            ['track' => 'Industry & policy', 'speaker' => 'Tanvir Ahmed Chowdhury', 'summary' => 'Where freelancing in Bangladesh stands today and what the next year asks of it.', 'learn' => ['The state of the freelance economy', 'Where demand is growing', 'What industry and government are planning'], 'audience' => ['Freelancers planning their next year', 'Students considering a freelance career', 'Industry and policy partners']],
+            ['track' => 'Marketplaces', 'speaker' => 'Nusrat Jahan Mim', 'summary' => 'Platform teams on profiles, ranking, payments and getting hired.', 'learn' => ['Build a profile that ranks', 'Avoid common account issues', 'Get paid faster and safer'], 'audience' => ['Freelancers new to the marketplaces', 'Freelancers whose profiles have stalled', 'Anyone setting up international payments']],
+            ['track' => 'AI & skills', 'speaker' => 'Rafiul Islam Sajib', 'summary' => 'A hands-on walkthrough of AI tools you can use on client work the same day.', 'learn' => ['Pick the right tool for a task', 'Speed up delivery without losing quality', 'Price AI-assisted work fairly'], 'audience' => ['Freelancers who are new to AI tools', 'Professionals looking to boost productivity', 'Anyone curious about AI in freelancing']],
+            ['track' => 'Business growth', 'speaker' => 'Farhana Rahman Lima', 'summary' => 'Taking a solo practice to a registered company: licences, tax, team and clients.', 'learn' => ['Register and stay compliant', 'Hire your first team members', 'Win larger, longer contracts'], 'audience' => ['Established freelancers ready to grow', 'Small agency founders', 'Freelancers thinking about hiring']],
+            ['track' => 'Recognition', 'speaker' => 'Mahmudul Hasan Rony', 'summary' => 'The Freelancer Awards ceremony, honouring freelancers from all 8 divisions.', 'learn' => ['Meet the winners', 'See what the judges looked for', 'Plan your nomination for next year'], 'audience' => ['Nominees and their guests', 'Freelancers planning a nomination', 'Everyone at the summit']],
         ];
-        $sessions = $this->home->agenda()['sessions'];
+        $sessions = $this->home->codedAgenda()['sessions'];
 
         return array_map(fn ($s, $i) => [
             ...$s,
@@ -521,8 +529,8 @@ class InnerPageContent
             'categoryNote' => 'Description, eligibility, criteria and deadline are published in the award guidelines.',
             'categoryTexts' => array_map(fn ($c) => Pages\AwardPages::categoryText($c), $awards['categories']),
             'shortlistEmpty' => ['title' => 'Revealing soon', 'body' => 'Shortlisted nominees are published here once the jury has reviewed every application.'],
-            'shortlist' => Pages\AwardPages::SHORTLIST,
-            'winners' => Pages\AwardPages::WINNERS,
+            'shortlist' => Pages\AwardPages::shortlist(),
+            'winners' => Pages\AwardPages::spotlight(),
             'winnersEmpty' => ['title' => 'First edition', 'body' => 'Winners are announced at the Grand Summit in Dhaka and kept here as a permanent archive.'],
             'steps' => [
                 ['title' => 'Choose a Category', 'text' => 'Review the categories, eligibility and award criteria.'],

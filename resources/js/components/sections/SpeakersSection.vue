@@ -1,26 +1,22 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 import CtaLink from '@/components/ui/CtaLink.vue';
-import Dialog from '@/components/ui/Dialog.vue';
+import SpeakerDialog from '@/components/speakers/SpeakerDialog.vue';
 import SpeakerHoverCard from '@/components/speakers/SpeakerHoverCard.vue';
 import SplitHeading from '@/components/ui/SplitHeading.vue';
 import { useReveal } from '@/composables/useReveal';
 import { useShared } from '@/composables/useShared';
 import type { Heading, Speaker } from '@/types/content';
 
-// Section 7. BPO role labels + "Details" (B6), reinterpreted as a right-side drawer. Every slot starts as
+// Section 7. BPO role labels + "Details" (B6), reinterpreted as the speaker popup. Every slot starts as
 // "Revealing soon" (blurred silhouette); the data shape is ready for real speakers.
 defineProps<{ speakers: Speaker[]; heading: Heading }>();
-const { t } = useI18n();
 const { site } = useShared();
 const cta = computed(() => site.value.ctas.secondary.find((c) => c.id === 'speakers')!);
 const root = ref<HTMLElement>();
 useReveal(root);
-const selected = ref<Speaker | null>(null);
-const drawerOpen = computed({ get: () => !!selected.value, set: (v) => !v && (selected.value = null) });
-const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
+// Index of the speaker shown in the popup (null = closed).
+const selected = ref<number | null>(null);
 </script>
 
 <template>
@@ -33,39 +29,17 @@ const nameOf = (s: Speaker) => s.name ?? t('common.revealingSoon');
                 <CtaLink :href="cta.href" tone="ghost">{{ cta.label }}</CtaLink>
             </div>
 
-            <!-- One grid for everyone (chief guest included). Card shows the photo; hover/focus flips it to a profile panel. -->
+            <!-- One grid for everyone (chief guest included). Card shows the photo; hover/focus flips it to a profile panel and a
+                 click opens the speaker popup (no profile pages). -->
             <ul class="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                <li v-for="s in speakers" :key="s.slug" data-reveal="fade">
-                    <SpeakerHoverCard :person="s" :href="`/speaker/${s.slug}`" />
+                <!-- Two rows only: 4 cards on phones/tablets (2 columns), 8 on desktop (4 columns) -->
+                <li v-for="(s, i) in speakers.slice(0, 8)" :key="s.slug" :class="i >= 4 && 'hidden lg:block'" data-reveal="fade">
+                    <SpeakerHoverCard :person="s" @click="selected = i" />
                 </li>
             </ul>
         </div>
 
-        <Dialog v-model:open="drawerOpen" :label="selected ? `${selected.role}: ${nameOf(selected)}` : ''" tone="light">
-            <template v-if="selected">
-                <div class="silhouette aspect-square w-40" aria-hidden="true"><img v-if="selected.photo" :src="selected.photo" alt="" class="h-full w-full object-cover" /></div>
-                <p class="t-label mt-6 text-gold-ink">{{ selected.role }} · {{ selected.country ?? t('common.tba') }}</p>
-                <h2 class="mt-2 font-display text-4xl font-black uppercase">{{ nameOf(selected) }}</h2>
-                <p class="mt-1 text-ink-2">{{ [selected.designation, selected.organisation].filter(Boolean).join(', ') || t('sections.announcement') }}</p>
-                <p class="mt-6 leading-relaxed">{{ selected.bio ?? t('sections.bioSoon') }}</p>
-                <h3 class="t-label mt-8 text-green">{{ t('sections.expertise') }}</h3>
-                <p class="mt-2 text-ink-2">{{ selected.expertise.length ? selected.expertise.join(' · ') : t('common.tba') }}</p>
-                <h3 class="t-label mt-6 text-green">{{ t('sections.links') }}</h3>
-                <ul class="mt-2"><li v-for="l in selected.links" :key="l.href"><a :href="l.href" class="link-u" target="_blank" rel="noopener">{{ l.label }}</a></li><li v-if="!selected.links.length" class="text-ink-2">{{ t('common.tba') }}</li></ul>
-                <Link :href="`/speaker/${selected.slug}`" class="btn mt-8">{{ t('sections.profile') }}</Link>
-            </template>
-        </Dialog>
+        <SpeakerDialog v-model:index="selected" :people="speakers" />
     </section>
 </template>
 
-<style scoped>
-.silhouette {
-    background:
-        radial-gradient(circle at 50% 38%, rgb(8 112 122 / 0.18) 0 14%, transparent 15%),
-        radial-gradient(ellipse 34% 30% at 50% 95%, rgb(8 112 122 / 0.14) 0 98%, transparent 100%),
-        linear-gradient(160deg, var(--mist), var(--paper-2));
-}
-.silhouette:not(:has(img)) {
-    filter: blur(1.5px);
-}
-</style>

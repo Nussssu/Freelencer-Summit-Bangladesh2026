@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AwardCategory extends Model
 {
@@ -20,5 +21,10 @@ class AwardCategory extends Model
     public function acceptsNominations(): bool
     {
         return $this->is_open && (! $this->deadline || now(config('summit.timezone'))->lte($this->deadline->copy()->endOfDay()));
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(AwardApplication::class);
     }
 }

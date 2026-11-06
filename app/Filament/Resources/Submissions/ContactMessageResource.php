@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Resources\Submissions\Pages\ListContactMessages;
 use App\Models\ContactMessage;
+use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -16,7 +17,7 @@ use UnitEnum;
 
 class ContactMessageResource extends SubmissionResource
 {
-    protected static string $module = 'leads';
+    protected static string $module = 'messages';
 
     protected static ?string $model = ContactMessage::class;
 
@@ -24,15 +25,25 @@ class ContactMessageResource extends SubmissionResource
 
     protected static string|UnitEnum|null $navigationGroup = 'Messages';
 
-    protected static ?string $navigationLabel = 'Contact Messages';
+    protected static ?string $navigationLabel = 'Contact messages';
 
-    protected static ?string $pluralModelLabel = 'Contact Messages';
+    protected static ?string $pluralModelLabel = 'Contact messages';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'contact message';
+
+    protected static function statuses(): ?array
+    {
+        return Statuses::MESSAGE;
+    }
+
+    protected static function exportColumns(): array
+    {
+        return ['Reference' => 'reference', 'Received' => 'created_at', 'Topic' => 'topic', 'Name' => 'name', 'Email' => 'email', 'Message' => 'message'];
+    }
 
     protected static function columns(): array
     {
@@ -49,6 +60,7 @@ class ContactMessageResource extends SubmissionResource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowSection(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextInput::make('name')->required()->maxLength(255),
                 TextInput::make('email')->email()->required()->maxLength(255),
@@ -62,6 +74,7 @@ class ContactMessageResource extends SubmissionResource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowEntries(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextEntry::make('name'), TextEntry::make('email')->copyable(),
                 TextEntry::make('phone')->copyable(), TextEntry::make('topic')->badge(),

@@ -98,9 +98,6 @@ useGsap(root, (reduced) => {
                     <button type="button" class="hg-hit" :aria-pressed="i === active" @click="pick(i)">
                         <span class="hg-title" data-hg-copy>{{ h.title }}</span>
                         <span class="hg-foot" data-hg-copy>
-                            <span class="hg-arrow" aria-hidden="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-                            </span>
                             <span class="hg-text">{{ h.text }}</span>
                         </span>
                     </button>
@@ -186,20 +183,6 @@ useGsap(root, (reduced) => {
     margin-top: auto;
     padding-top: 1rem;
 }
-.hg-arrow {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 2.5rem;
-    aspect-ratio: 1;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
-    transition:
-        background-color 0.4s var(--ease-out),
-        color 0.4s var(--ease-out),
-        border-color 0.4s var(--ease-out),
-        transform 0.4s var(--ease-out);
-}
 .hg-text {
     max-width: 30ch;
     font-size: 0.875rem;
@@ -211,22 +194,19 @@ useGsap(root, (reduced) => {
         transform 0.45s var(--ease-out);
 }
 
-/* Hover and the active tile: photo pushes in, arrow fills, the dash grows in gold; the active tile opens its summary */
+/* Hover and the active tile: photo pushes in; the active tile opens its summary */
 .hg-tile:hover .hg-img,
 .hg-tile.is-active .hg-img {
     scale: 1.06;
     filter: saturate(1.05) brightness(0.95);
 }
-.hg-tile:hover .hg-arrow,
-.hg-tile.is-active .hg-arrow {
-    background: var(--white);
-    border-color: var(--white);
-    color: var(--night);
-    transform: translateX(3px);
-}
 .hg-tile.is-active .hg-text {
     opacity: 1;
     transform: none;
+}
+/* The first tile shows its title only, no summary */
+.hg-tile:first-child .hg-text {
+    display: none;
 }
 .hg-tile.is-active {
     box-shadow:
@@ -250,9 +230,6 @@ useGsap(root, (reduced) => {
     }
     .hg-title {
         font-size: 1.0625rem;
-    }
-    .hg-arrow {
-        width: 2rem;
     }
     .hg-tile:not(:first-child) .hg-text {
         display: none;
@@ -310,8 +287,7 @@ useGsap(root, (reduced) => {
 }
 @media (prefers-reduced-motion: reduce) {
     .hg-img,
-    .hg-text,
-    .hg-arrow {
+    .hg-text {
         transition: none;
     }
 }

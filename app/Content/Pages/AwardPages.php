@@ -2,7 +2,9 @@
 
 namespace App\Content\Pages;
 
+use App\Content\CmsData;
 use App\Content\HomeContent;
+use App\Models\AwardCategory;
 use App\Http\Controllers\SubmissionController;
 use Illuminate\Support\Str;
 
@@ -71,12 +73,29 @@ class AwardPages
     /** The one-line "who it is for" description of an award category (null for a category without one). */
     public static function categoryText(string $category): ?string
     {
-        return self::ABOUT[$category]['text'] ?? null;
+        $saved = CmsData::awardCategories()?->firstWhere('name', $category)?->description;
+
+        return filled($saved) ? $saved : (self::ABOUT[$category]['text'] ?? null);
+    }
+
+    /** The public shortlist: nominations published in Awards Management, else the coded showcase. */
+    public static function shortlist(): array
+    {
+        return CmsData::shortlist() ?? self::SHORTLIST;
+    }
+
+    /** The public winners: winners published in Awards Management, else the coded spotlight. */
+    public static function spotlight(): array
+    {
+        return CmsData::winners() ?? self::WINNERS;
     }
 
     /** Brief §9 winner announcement page and permanent archive: every winner, listed by year with the category. */
     public function winners(): array
     {
+        if ($published = CmsData::winners()) {
+            return ['winners' => $published];
+        }
         $past = collect(self::PAST_WINNERS)->flatMap(fn ($rows, $year) => array_map(
             fn ($w) => ['name' => $w[1], 'category' => $w[0], 'year' => $year, 'photo' => "/media/photos/winner-{$w[2]}.jpg", 'text' => null],
             $rows,
@@ -88,6 +107,9 @@ class AwardPages
     /** Brief §9 shortlisted nominee showcase: every nominee, listed by category on the page. */
     public function nominees(): array
     {
+        if ($published = CmsData::shortlist()) {
+            return ['nominees' => $published];
+        }
         $dummy = collect(self::DUMMY)->flatMap(fn ($people, $category) => array_map(
             fn ($p) => ['name' => $p[0], 'role' => $p[1], 'category' => $category, 'photo' => "/media/photos/nominee-{$p[2]}.jpg"],
             $people,
@@ -99,9 +121,14 @@ class AwardPages
     public function nominate(): array
     {
         $awards = $this->home->awards();
+        // Awards Management › Award categories: only the ones accepting nominations (open, deadline not passed).
+        $saved = CmsData::awardCategories();
+        $categories = $saved
+            ? $saved->filter(fn (AwardCategory $c) => $c->acceptsNominations())->map(fn (AwardCategory $c) => ['value' => $c->slug, 'label' => $c->name, 'description' => $c->description ?: (self::ABOUT[$c->name]['text'] ?? null)])->values()->all()
+            : array_map(fn ($c) => ['value' => Str::slug($c), 'label' => $c, 'description' => self::ABOUT[$c]['text'] ?? null], $awards['categories']);
 
         return [
-            'categories' => array_map(fn ($c) => ['value' => Str::slug($c), 'label' => $c, 'description' => self::ABOUT[$c]['text'] ?? null], $awards['categories']),
+            'categories' => $categories,
             'provisional' => $awards['categoriesProvisional'],
             'districts' => $this->districts(),
             'platforms' => self::options(SubmissionController::PLATFORMS),

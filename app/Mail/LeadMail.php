@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Listeners\LogSentMessage;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
 use Illuminate\Bus\Queueable;
@@ -12,6 +13,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Throwable;
 
 /** A lead email built from an admin-edited template (admin summary or user confirmation). */
 class LeadMail extends Mailable implements ShouldQueue
@@ -19,6 +21,12 @@ class LeadMail extends Mailable implements ShouldQueue
     use Queueable, SerializesModels;
 
     public function __construct(public Lead $lead, public EmailTemplate $template) {}
+
+    /** Called by the queue when sending gave up: recorded in Messages › Email & SMS log. */
+    public function failed(Throwable $e): void
+    {
+        LogSentMessage::failed($this->lead, array_column($this->to, 'address'), $this->fill($this->template->subject, escape: false), $e);
+    }
 
     public function envelope(): Envelope
     {

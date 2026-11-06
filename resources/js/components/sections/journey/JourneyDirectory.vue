@@ -34,7 +34,6 @@ function onTabKey(e: KeyboardEvent, i: number) {
         <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
             <div class="lg:col-span-5">
                 <h3 class="font-display text-4xl font-black uppercase md:text-5xl">{{ t('sections.directory') }}</h3>
-                <p v-if="directory.sample" class="t-label mt-3 inline-block bg-gold px-2 py-1 text-night">{{ t('common.sample') }}</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center lg:col-span-7 lg:justify-end">
                 <div role="tablist" :aria-label="t('sections.directory')" class="flex border border-line-light">

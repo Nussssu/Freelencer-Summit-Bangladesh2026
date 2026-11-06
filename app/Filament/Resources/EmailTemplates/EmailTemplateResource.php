@@ -27,7 +27,11 @@ class EmailTemplateResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static string|\UnitEnum|null $navigationGroup = 'Messages';
+
+    protected static ?string $navigationLabel = 'Email templates';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -33,3 +33,6 @@ Thumbs.db
 _ide_helper.php
 /bootstrap/ssr
 /public/media/uploads
+/storage/backups
+*.sql
+

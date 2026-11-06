@@ -24,7 +24,7 @@ class Lead extends Model
 
     protected function casts(): array
     {
-        return ['data' => 'encrypted:array', 'phone' => 'encrypted']; // source tables encrypt phones; the copy must too
+        return ['data' => 'encrypted:array', 'phone' => 'encrypted', 'follow_up_at' => 'datetime']; // source tables encrypt phones; the copy must too
     }
 
     public function submittable(): MorphTo

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\IsSubmission;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AmbassadorLead extends Model
 {
@@ -16,5 +17,10 @@ class AmbassadorLead extends Model
     protected function casts(): array
     {
         return ['phone' => 'encrypted'];
+    }
+
+    public function campus(): BelongsTo
+    {
+        return $this->belongsTo(Campus::class);
     }
 }

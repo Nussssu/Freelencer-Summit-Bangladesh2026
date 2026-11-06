@@ -131,7 +131,6 @@ const submit = () => form.post('/campus-programs/ambassadors', { preserveScroll:
                         :image="p.image ?? '/media/photos/gallery-0' + ((p.slug.length % 9) + 1) + '.jpg'"
                         :meta="[date(p.startsAt), p.location ?? p.district ?? p.division]"
                         :status="{ value: p.status, label: p.statusLabel }"
-                        :sample="p.sample"
                         :text="p.partner ? `With ${p.partner}` : null"
                     />
                     <template #empty><Link href="/register" class="in-btn">Register for the Grand Summit</Link></template>

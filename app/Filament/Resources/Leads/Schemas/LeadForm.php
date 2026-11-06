@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Leads\Schemas;
 
 use App\Models\Lead;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\KeyValueEntry;
@@ -27,6 +28,7 @@ class LeadForm
                 ]),
                 Section::make('Follow-up')->columnSpan(['lg' => 1])->schema([
                     Select::make('status')->options(Lead::STATUSES)->required()->native(false),
+                    DateTimePicker::make('follow_up_at')->label('Follow up on')->seconds(false)->timezone(config('summit.timezone'))->helperText('Shows under "Follow-up due" in All leads from this time.'),
                     Textarea::make('notes')->rows(6)->helperText('Internal only. Never emailed.'),
                 ]),
             ]),

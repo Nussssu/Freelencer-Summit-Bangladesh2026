@@ -12,7 +12,7 @@ class ExhibitEnquiry extends Model
 
     protected $fillable = [
         'company_name', 'website', 'industry', 'head_office',
-        'full_name', 'designation', 'email', 'phone', 'utm',
+        'full_name', 'designation', 'email', 'phone', 'utm', 'status', 'notes',
     ];
 
     protected function casts(): array

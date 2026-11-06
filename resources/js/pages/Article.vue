@@ -2,7 +2,6 @@
 import { Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import Photo from '@/components/inner/Photo.vue';
-import SampleRibbon from '@/components/inner/SampleRibbon.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import NewsHero from '@/components/news/NewsHero.vue';
 import Icon from '@/components/ui/Icon.vue';
@@ -38,7 +37,6 @@ const photo = computed(() => a.value.image ?? `/media/photos/gallery-0${(a.value
                     <div class="mt-5 flex flex-wrap items-center justify-center gap-3" data-reveal="fade">
                         <span v-if="a.date" class="rounded-full bg-green px-4 py-1.5 text-sm font-bold text-snow">{{ a.date }}</span>
                         <span class="rounded-full border border-green/30 px-4 py-1.5 text-sm font-semibold text-green">{{ a.categoryLabel }}</span>
-                        <SampleRibbon v-if="a.sample" />
                     </div>
 
                     <figure class="mt-8 md:mt-10" data-reveal="fade">

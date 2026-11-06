@@ -44,8 +44,8 @@ const planOpen = ref(false);
         <!-- Audience figures -->
         <section class="in-section" aria-labelledby="ex-audience">
             <div class="container-site text-center">
-                <SplitHeading id="ex-audience" :text="content.headings.audience.title" :emphasis="content.headings.audience.emphasis ?? undefined" emphasis-class="text-green" class="in-h2 mx-auto max-w-4xl" />
-                <dl class="mt-12 grid gap-8 sm:grid-cols-3">
+                <SectionHead id="ex-audience" :heading="content.headings.audience" center />
+                <dl class="grid gap-8 sm:grid-cols-3">
                     <div v-for="s in content.stats" :key="s.label" class="flex flex-col-reverse gap-2" data-reveal="fade">
                         <dt class="text-sm font-bold tracking-wide text-ink-2 uppercase">{{ s.label }}</dt>
                         <dd class="font-display text-[clamp(3rem,6vw,4.75rem)] leading-none font-black text-green">{{ s.value }}</dd>
@@ -57,8 +57,8 @@ const planOpen = ref(false);
         <!-- Why exhibit: photo cards -->
         <section class="in-section" aria-labelledby="ex-why">
             <div class="container-site">
-                <SplitHeading id="ex-why" :text="content.headings.why.title" :emphasis="content.headings.why.emphasis ?? undefined" emphasis-class="text-green" class="in-h2 text-center" />
-                <ul class="mt-12 grid gap-6 md:grid-cols-3">
+                <SectionHead id="ex-why" :heading="content.headings.why" center />
+                <ul class="grid gap-6 md:grid-cols-3">
                     <li v-for="w in content.why" :key="w.title" class="group text-center" data-reveal="fade">
                         <span class="block aspect-[3/2] overflow-hidden rounded-xl">
                             <img :src="w.photo" alt="" loading="lazy" class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />

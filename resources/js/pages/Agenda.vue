@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import AgendaSession from '@/components/agenda/AgendaSession.vue';
 import EmptyState from '@/components/inner/EmptyState.vue';
@@ -25,13 +25,76 @@ useReveal(root);
 
 const opts = (values: string[]) => [...new Set(values)];
 const days = computed(() => opts([...props.content.agenda.days, ...props.content.agenda.sessions.map((s) => s.day)]));
-// A day with no sessions published yet (as opposed to one the type filter emptied).
-const dayEmpty = computed(() => !props.content.agenda.sessions.some((s) => s.day === day.value));
-const day = ref(days.value[0] ?? '');
-const type = ref('');
-const rows = computed(() => props.content.agenda.sessions.filter((s) => s.day === day.value && (!type.value || s.type === type.value)));
-const filtered = computed(() => !!type.value);
-const clear = () => (type.value = '');
+const halls = computed(() => opts(props.content.agenda.sessions.map((s) => s.hall)));
+const speakers = computed(() => opts(props.content.agenda.sessions.flatMap((s) => (s.speaker ? [s.speaker] : []))).sort());
+
+// Programme filters after takeoffistanbul.com/en/schedule: search, stage, speakers, tags, date and an hour range.
+const HOURS = [8, 18] as const;
+const q = ref('');
+const stage = ref('');
+const picked = ref<string[]>([]);
+const tags = ref<string[]>([]);
+const day = ref('');
+const from = ref<number>(HOURS[0]);
+const to = ref<number>(HOURS[1]);
+const filtersOpen = ref(false);
+
+// Desktop sticky sidebar that fits its height: when the filters are taller than the screen, the sticky top goes
+// negative so the sidebar scrolls up with the page until its bottom shows, then holds there (nothing is clipped).
+const aside = ref<HTMLElement>();
+const stickTop = ref('calc(153px + 1.5rem)');
+const fitSticky = () => {
+    const h = aside.value?.offsetHeight ?? 0;
+    stickTop.value = `${Math.min(153 + 24, innerHeight - h - 24)}px`;
+};
+let ro: ResizeObserver | undefined;
+onMounted(() => {
+    fitSticky();
+    ro = new ResizeObserver(fitSticky);
+    if (aside.value) ro.observe(aside.value);
+    addEventListener('resize', fitSticky);
+});
+onBeforeUnmount(() => {
+    ro?.disconnect();
+    removeEventListener('resize', fitSticky);
+});
+// Speaker and tag selects add a removable token each; the arrays are mutated in place (refs unwrap in the template).
+const pick = (list: string[], e: Event) => {
+    const el = e.target as HTMLSelectElement;
+    if (el.value && !list.includes(el.value)) list.push(el.value);
+    el.value = '';
+};
+const drop = (list: string[], v: string) => list.splice(list.indexOf(v), 1);
+// The two thumbs never cross.
+const setFrom = (e: Event) => (from.value = Math.min(Number((e.target as HTMLInputElement).value), to.value));
+const setTo = (e: Event) => (to.value = Math.max(Number((e.target as HTMLInputElement).value), from.value));
+const hours = (time: string) => time.split('–').map((p) => Number(p.trim().split(':')[0]));
+
+const rows = computed(() => {
+    const needle = q.value.trim().toLowerCase();
+    return props.content.agenda.sessions.filter((s) => {
+        const [start, end = start] = hours(s.time);
+        return (
+            (!day.value || s.day === day.value) &&
+            (!stage.value || s.hall === stage.value) &&
+            (!picked.value.length || (!!s.speaker && picked.value.includes(s.speaker))) &&
+            (!tags.value.length || tags.value.includes(s.type)) &&
+            start >= from.value &&
+            end <= to.value &&
+            (!needle || [s.title, s.summary, s.speaker, s.hall, s.type, s.track].some((f) => f?.toLowerCase().includes(needle)))
+        );
+    });
+});
+// A day with no sessions published yet (as opposed to one the other filters emptied).
+const dayEmpty = computed(() => !!day.value && !props.content.agenda.sessions.some((s) => s.day === day.value));
+const filtered = computed(() => !!(q.value || stage.value || picked.value.length || tags.value.length || day.value || from.value !== HOURS[0] || to.value !== HOURS[1]));
+const clear = () => {
+    q.value = stage.value = day.value = '';
+    picked.value = [];
+    tags.value = [];
+    from.value = HOURS[0];
+    to.value = HOURS[1];
+};
 // Day tabs show the calendar date only once it is confirmed; day N is starts_at + N-1.
 const dayDate = (i: number) => {
     if (!summit.value.dateConfirmed) return t('sections.dateTbc');
@@ -57,16 +120,9 @@ const typeStyle: Record<string, [GlyphName, string, string]> = {
     Networking: ['handshake', 'tone-sky', 'highlight-networking'],
 };
 const styleOf = (ty: string) => typeStyle[ty] ?? (['mic', 'tone-teal', 'highlight-keynote'] as const);
-// Track tiles filter the timeline above and bring it into view.
-const pickType = (ty: string) => {
-    type.value = ty;
-    document.getElementById('ag-programme')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
 // An uploaded agenda PDF wins; otherwise the programme PDF generated from these sessions.
 const pdf = computed(() => props.content.downloads.find((x) => x.kind === 'agenda')?.href ?? '/agenda/summit-programme.pdf');
 
-// One row open at a time.
-const open = ref<string | null>(props.content.agenda.sessions[0]?.ics ?? null);
 // Plan your day strip: when and where, with the "to be confirmed" note while either is open (same rule as TbcNotice).
 const tbc = computed(() => !summit.value.dateConfirmed || !summit.value.venue);
 const planDate = computed(() => (summit.value.dateConfirmed ? d(new Date(summit.value.startsAt), { day: 'numeric', month: 'long', year: 'numeric' }) : t('inner.tbc.lateNov', { edition: summit.value.edition })));
@@ -107,82 +163,136 @@ const planPlace = computed(() => (summit.value.venue ? `${summit.value.venue}, $
     </div>
 
     <div ref="root" class="ground">
-        <!-- Programme: day tabs, filters and the session timeline -->
+        <!-- Programme, after takeoffistanbul.com/en/schedule: search and filter sidebar (stages, speaker, tag, date,
+             time range), the session cards beside it. Below xl the filters fold behind a Filter button. -->
         <section class="in-section" aria-labelledby="ag-programme">
             <div class="container-site">
                 <SectionHead id="ag-programme" :heading="content.headings.programme" class="items-center!">
-                    <a :href="pdf" download class="in-btn is-ghost aspect-square px-0! justify-center" :aria-label="t('inner.agenda.downloadPdf')" :title="t('inner.agenda.downloadPdf')"><Glyph name="download" class="size-5" /></a>
+                    <a :href="pdf" download class="in-btn is-ghost justify-center gap-2!">
+                        <Glyph name="download" class="size-5" />
+                        {{ t('inner.agenda.downloadPdf') }}
+                    </a>
                 </SectionHead>
 
-                <div class="grid gap-3 sm:grid-cols-3 lg:max-w-4xl" role="group" :aria-label="t('inner.agenda.days')">
-                    <button
-                        v-for="(dy, i) in days"
-                        :key="dy"
-                        type="button"
-                        class="in-card flex-row! items-center gap-4 px-5 py-4 text-left"
-                        :class="day === dy ? 'bg-green! text-white' : 'is-solid text-night hover:border-green'"
-                        :aria-pressed="day === dy"
-                        @click="day = dy"
-                    >
-                        <Glyph name="calendar" class="size-8 shrink-0" :class="day !== dy && 'text-green'" />
-                        <span>
-                            <span class="block text-lg font-bold">{{ dy }}</span>
-                            <span class="block text-sm opacity-80">{{ dayDate(i) }}</span>
-                        </span>
-                    </button>
-                </div>
+                <div class="flex flex-col gap-6 xl:flex-row xl:items-start xl:gap-8">
+                    <!-- Mobile bar: Filter toggle and search -->
+                    <div class="flex items-center gap-3 xl:hidden">
+                        <button type="button" class="in-btn is-ghost min-h-11! shrink-0 gap-2! px-4! py-2!" :aria-expanded="filtersOpen" aria-controls="ag-filters" @click="filtersOpen = !filtersOpen">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
+                            {{ t('inner.agenda.filter') }}
+                        </button>
+                        <label class="relative flex-1">
+                            <span class="sr-only">{{ t('inner.list.search') }}</span>
+                            <Glyph name="search" class="pointer-events-none absolute top-1/2 left-3.5 size-4.5 -translate-y-1/2 text-ink-2" />
+                            <input v-model="q" type="search" :placeholder="t('inner.list.search')" autocomplete="off" class="ag-input pl-11!" />
+                        </label>
+                    </div>
 
-                <div class="in-card is-solid mt-5 grid gap-4 p-4 md:p-5">
-                    <div class="grid gap-3 lg:grid-cols-[8rem_1fr] lg:items-center">
-                        <p class="font-semibold text-night">{{ t('inner.list.type') }}:</p>
-                        <ul class="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible lg:pb-0" role="group" :aria-label="t('inner.list.type')">
-                            <li v-for="ty in ['', ...content.agenda.types]" :key="ty">
-                                <button type="button" class="in-chip gap-2" :class="type === ty && 'border-gold! bg-gold! text-night!'" :aria-pressed="type === ty" @click="type = ty">
-                                    <Glyph :name="ty ? styleOf(ty)[0] : 'grid'" class="size-4.5" />{{ ty || t('inner.agenda.allSessions') }}
-                                </button>
-                            </li>
-                        </ul>
+                    <!-- Desktop: sticky; a sidebar taller than the screen scrolls with the page until its end shows (fitSticky) -->
+                    <aside
+                        id="ag-filters"
+                        ref="aside"
+                        class="ag-filters w-full shrink-0 xl:sticky xl:block xl:w-[22rem]"
+                        :class="!filtersOpen && 'hidden'"
+                        :style="{ '--ag-top': stickTop }"
+                        :aria-label="t('inner.agenda.filter')"
+                    >
+                        <label class="relative mb-4 hidden xl:block">
+                            <span class="sr-only">{{ t('inner.list.search') }}</span>
+                            <input v-model="q" type="search" :placeholder="t('inner.list.search')" autocomplete="off" class="ag-input pr-11!" />
+                            <Glyph name="search" class="pointer-events-none absolute top-1/2 right-3.5 size-4.5 -translate-y-1/2 text-ink-2" />
+                        </label>
+
+                        <!-- Stages -->
+                        <div class="in-card is-solid mb-6 p-6">
+                            <h3 class="mb-4 text-lg font-semibold text-green">{{ t('inner.agenda.stages') }}</h3>
+                            <div class="mb-4">
+                                <button type="button" class="ag-stage" :aria-pressed="!stage" @click="stage = ''">{{ t('inner.list.all') }}</button>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button v-for="h in halls" :key="h" type="button" class="ag-stage" :aria-pressed="stage === h" @click="stage = stage === h ? '' : h">{{ h }}</button>
+                            </div>
+                        </div>
+
+                        <!-- Filter -->
+                        <div class="in-card is-solid gap-7 p-6">
+                            <h3 class="text-lg font-semibold text-green">{{ t('inner.agenda.filter') }}</h3>
+
+                            <div>
+                                <ul v-if="picked.length" class="mb-3 flex flex-wrap gap-2">
+                                    <li v-for="sp in picked" :key="sp">
+                                        <button type="button" class="ag-token" :aria-label="t('inner.agenda.remove', { name: sp })" @click="drop(picked, sp)">{{ sp }}<span aria-hidden="true">×</span></button>
+                                    </li>
+                                </ul>
+                                <label class="block">
+                                    <span class="sr-only">{{ t('inner.agenda.selectSpeaker') }}</span>
+                                    <select class="ag-select" :disabled="!speakers.length" @change="pick(picked, $event)">
+                                        <option value="">{{ speakers.length ? t('inner.agenda.selectSpeaker') : t('inner.agenda.noSpeakers') }}</option>
+                                        <option v-for="sp in speakers" :key="sp" :value="sp" :disabled="picked.includes(sp)">{{ sp }}</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <div>
+                                <ul v-if="tags.length" class="mb-3 flex flex-wrap gap-2">
+                                    <li v-for="tg in tags" :key="tg">
+                                        <button type="button" class="ag-token" :aria-label="t('inner.agenda.remove', { name: tg })" @click="drop(tags, tg)">{{ tg }}<span aria-hidden="true">×</span></button>
+                                    </li>
+                                </ul>
+                                <label class="block">
+                                    <span class="sr-only">{{ t('inner.agenda.selectTag') }}</span>
+                                    <select class="ag-select" @change="pick(tags, $event)">
+                                        <option value="">{{ t('inner.agenda.selectTag') }}</option>
+                                        <option v-for="ty in content.agenda.types" :key="ty" :value="ty" :disabled="tags.includes(ty)">{{ ty }}</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <fieldset>
+                                <legend class="mb-4 text-sm font-semibold text-night">{{ t('inner.agenda.selectDate') }}</legend>
+                                <div class="flex flex-col gap-3">
+                                    <label class="flex cursor-pointer items-center gap-3 text-sm text-night select-none">
+                                        <input v-model="day" type="radio" name="ag-day" value="" class="ag-radio" />
+                                        <span>{{ t('inner.list.all') }}</span>
+                                    </label>
+                                    <label v-for="(dy, i) in days" :key="dy" class="flex cursor-pointer items-center gap-3 text-sm text-night select-none">
+                                        <input v-model="day" type="radio" name="ag-day" :value="dy" class="ag-radio" />
+                                        <span>{{ dy }} <span class="text-ink-2">· {{ dayDate(i) }}</span></span>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <div>
+                                <p class="mb-4 text-sm font-semibold text-night">{{ t('inner.agenda.timeRange') }}</p>
+                                <div class="ag-range" :style="{ '--a': `${((from - HOURS[0]) / (HOURS[1] - HOURS[0])) * 100}%`, '--b': `${((to - HOURS[0]) / (HOURS[1] - HOURS[0])) * 100}%` }">
+                                    <input type="range" :min="HOURS[0]" :max="HOURS[1]" step="1" :value="from" :aria-label="t('inner.agenda.from')" @input="setFrom" />
+                                    <input type="range" :min="HOURS[0]" :max="HOURS[1]" step="1" :value="to" :aria-label="t('inner.agenda.to')" @input="setTo" />
+                                </div>
+                                <div class="mt-5 flex justify-between px-1 font-semibold text-night">
+                                    <span>{{ from }}:00</span>
+                                    <span>{{ to }}:00</span>
+                                </div>
+                            </div>
+
+                            <button type="button" class="ag-clear" @click="clear">{{ t('inner.list.clear') }}</button>
+                        </div>
+                    </aside>
+
+                    <!-- Sessions -->
+                    <div class="flex w-full min-w-0 flex-col gap-4">
+                        <div class="flex flex-wrap items-baseline justify-between gap-3">
+                            <p v-if="day" class="text-xl font-bold text-night uppercase md:text-3xl">{{ day }} · {{ dayDate(days.indexOf(day)) }}</p>
+                            <p class="in-meta" aria-live="polite">{{ t('inner.list.results', rows.length) }}</p>
+                        </div>
+                        <ol v-if="rows.length" class="flex flex-col gap-6 md:gap-8">
+                            <AgendaSession v-for="s in rows" :key="s.ics" :session="s" :calendar="sessionCal(s)" :icon="styleOf(s.type)[0]" :tone="styleOf(s.type)[1]" />
+                        </ol>
+                        <EmptyState v-else-if="dayEmpty" level="h3" icon="calendar" :title="t('inner.empty.title')" :body="t('inner.empty.body')" />
+                        <EmptyState v-else level="h3" icon="target" :title="t('inner.empty.title')" :body="t('inner.list.noMatch')">
+                            <button v-if="filtered" type="button" class="in-btn is-ghost" @click="clear">{{ t('inner.list.clear') }}</button>
+                        </EmptyState>
                     </div>
                 </div>
-
-                <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
-                    <p class="in-meta flex items-center gap-2" aria-live="polite">{{ t('inner.list.results', rows.length) }}</p>
-                    <button v-if="filtered" type="button" class="in-link min-h-0! text-sm" @click="clear">{{ t('inner.list.clear') }}</button>
-                </div>
-                <div v-if="rows.length" class="in-card is-solid mt-4 p-3 md:p-4">
-                    <ol class="relative grid gap-1 before:absolute before:top-8 before:bottom-8 before:left-[15px] before:w-0.5 before:bg-green/25 md:before:left-[19px]">
-                        <AgendaSession
-                            v-for="s in rows"
-                            :key="s.ics"
-                            :session="s"
-                            :calendar="sessionCal(s)"
-                            :icon="styleOf(s.type)[0]"
-                            :tone="styleOf(s.type)[1]"
-                            :photo="`/media/photos/${styleOf(s.type)[2]}.jpg`"
-                            :open="open === s.ics"
-                            @toggle="open = open === s.ics ? null : s.ics"
-                        />
-                    </ol>
-                </div>
-                <EmptyState v-else-if="dayEmpty" class="mt-4" level="h3" icon="calendar" :title="t('inner.empty.title')" :body="t('inner.empty.body')" />
-                <EmptyState v-else class="mt-4" level="h3" icon="target" :title="t('inner.empty.title')" :body="t('inner.list.noMatch')">
-                    <button type="button" class="in-btn is-ghost" @click="clear">{{ t('inner.list.clear') }}</button>
-                </EmptyState>
-            </div>
-        </section>
-
-        <!-- Programme tracks: one tile per session type, each filters the agenda -->
-        <section class="in-section" aria-labelledby="ag-tracks">
-            <div class="container-site">
-                <SectionHead id="ag-tracks" :heading="content.headings.tracks" />
-                <ul class="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11">
-                    <li v-for="ty in content.agenda.types" :key="ty" data-reveal="fade">
-                        <button type="button" class="in-card is-solid is-link h-full w-full items-center gap-2.5 px-2 py-4 text-center" :aria-label="t('inner.agenda.showType', { type: ty })" @click="pickType(ty)">
-                            <span class="grid size-12 place-items-center rounded-xl bg-(--disc) text-(--tint)" :class="styleOf(ty)[1]"><Glyph :name="styleOf(ty)[0]" class="size-6" /></span>
-                            <span class="text-xs leading-tight font-semibold text-night">{{ ty }}</span>
-                        </button>
-                    </li>
-                </ul>
             </div>
         </section>
 
@@ -210,6 +320,12 @@ const planPlace = computed(() => (summit.value.venue ? `${summit.value.venue}, $
 </template>
 
 <style scoped>
+/* Filter sidebar (desktop): sticky at the top computed by fitSticky */
+@media (min-width: 1280px) {
+    .ag-filters {
+        top: var(--ag-top, calc(153px + 1.5rem));
+    }
+}
 /* Same ground as the About page: ice blue with soft teal and summit-gold glows alternating sides down the page */
 .ground {
     background:
@@ -218,6 +334,154 @@ const planPlace = computed(() => (summit.value.venue ? `${summit.value.venue}, $
         radial-gradient(900px 640px at 0% 62%, rgb(8 127 140 / 0.18), transparent 70%),
         radial-gradient(900px 640px at 100% 92%, rgb(234 185 75 / 0.32), transparent 70%),
         var(--mist);
+}
+/* Programme filters: the reference's controls in the site's teal, gold and ice */
+.ag-input,
+.ag-select {
+    display: block;
+    width: 100%;
+    min-height: 2.875rem;
+    border: 1px solid rgb(7 20 17 / 0.15);
+    border-radius: 0.75rem;
+    background-color: var(--white);
+    padding: 0.5rem 1rem;
+    color: var(--night);
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.ag-input:focus,
+.ag-select:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgb(8 127 140 / 0.15);
+}
+.ag-select {
+    appearance: none;
+    padding-right: 2.5rem;
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23071411' stroke-width='1.6'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 14px center;
+    font-size: 0.875rem;
+}
+.ag-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.ag-stage {
+    display: inline-block;
+    border: 1px solid rgb(7 20 17 / 0.15);
+    border-radius: 999px;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-2);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+.ag-stage:hover,
+.ag-stage[aria-pressed='true'] {
+    border-color: transparent;
+    background: linear-gradient(90deg, #06454c, var(--green));
+    color: var(--white);
+}
+.ag-token {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.375rem;
+    background: rgb(8 127 140 / 0.1);
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--green);
+}
+.ag-token:hover {
+    background: rgb(8 127 140 / 0.18);
+}
+.ag-radio {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 1px solid rgb(7 20 17 / 0.35);
+    border-radius: 999px;
+    transition: all 0.2s ease;
+}
+.ag-radio:checked {
+    border-color: var(--green);
+    background: var(--green);
+    box-shadow: inset 0 0 0 3px var(--white);
+}
+.ag-radio:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
+}
+/* Two stacked range inputs: only the thumbs take pointer events, the track between them is teal */
+.ag-range {
+    position: relative;
+    height: 1.25rem;
+}
+.ag-range::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 4px;
+    translate: 0 -50%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgb(7 20 17 / 0.12) var(--a), var(--green) var(--a) var(--b), rgb(7 20 17 / 0.12) var(--b));
+}
+.ag-range input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    background: none;
+    pointer-events: none;
+}
+.ag-range input::-webkit-slider-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    appearance: none;
+    cursor: pointer;
+    border: 3px solid var(--white);
+    border-radius: 999px;
+    background: var(--green);
+    box-shadow: 0 2px 6px rgb(7 20 17 / 0.3);
+    pointer-events: auto;
+}
+.ag-range input::-moz-range-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border: 3px solid var(--white);
+    border-radius: 999px;
+    background: var(--green);
+    box-shadow: 0 2px 6px rgb(7 20 17 / 0.3);
+    pointer-events: auto;
+}
+.ag-range input:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+.ag-clear {
+    width: 100%;
+    border: 1px solid var(--green);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    font-weight: 600;
+    color: var(--green);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+.ag-clear:hover {
+    background: linear-gradient(90deg, var(--green), #06454c);
+    color: var(--white);
 }
 .cta-band {
     background:

@@ -93,8 +93,10 @@ class SubmissionController extends Controller
 
     public function nominate(Request $request, ReferenceQuery $ref): RedirectResponse
     {
-        $categories = app(HomeContent::class)->awards()['categories'];
-        $slugs = array_map(fn ($c) => Str::slug($c), $categories);
+        // The categories the form offers: open ones from Awards Management, else the coded list.
+        $offered = app(\App\Content\Pages\AwardPages::class)->nominate()['categories'];
+        $categories = array_column($offered, 'label');
+        $slugs = array_column($offered, 'value');
         $self = $request->boolean('self_nominated', true);
 
         $data = $request->validate([

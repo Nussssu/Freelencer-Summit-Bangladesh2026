@@ -239,6 +239,7 @@ useGsap(root, (reduced) => {
     display: flex;
     align-items: center;
     gap: 0.875rem;
+    min-width: 0;
 }
 .ag-avatar {
     flex-shrink: 0;
@@ -253,7 +254,9 @@ useGsap(root, (reduced) => {
         0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 .ag-name {
-    white-space: nowrap;
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 .ag-name,
 .ag-hall {
@@ -265,10 +268,16 @@ useGsap(root, (reduced) => {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0;
     color: var(--night);
 }
 .ag-where svg {
     flex-shrink: 0;
+}
+.ag-hall {
+    min-width: 0;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 @media (min-width: 768px) {
     .ag-card {

@@ -6,6 +6,7 @@ use App\Enums\AttendeeType;
 use App\Enums\Interest;
 use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
 use App\Models\SummitRegistration;
+use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
@@ -27,15 +28,25 @@ class SummitRegistrationResource extends SubmissionResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Leads & CRM';
+    protected static string|UnitEnum|null $navigationGroup = 'Registrations';
 
-    protected static ?string $navigationLabel = 'Registrations';
+    protected static ?string $navigationLabel = 'Grand Summit registrations';
 
-    protected static ?string $pluralModelLabel = 'Registrations';
+    protected static ?string $pluralModelLabel = 'Grand Summit registrations';
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 1;
+
+    protected static function statuses(): ?array
+    {
+        return Statuses::REGISTRATION;
+    }
+
+    protected static function exportColumns(): array
+    {
+        return ['Reference' => 'reference', 'Received' => 'created_at', 'Name' => 'name', 'Email' => 'email', 'Organisation' => 'organisation', 'Designation' => 'designation', 'District' => 'district.name', 'Attendee type' => 'attendee_type', 'Interests' => 'interests', 'UTM source' => 'utm_source'];
+    }
 
     protected static function columns(): array
     {
@@ -55,6 +66,7 @@ class SummitRegistrationResource extends SubmissionResource
     public static function table(Table $table): Table
     {
         return parent::table($table)->filters([
+            static::statusFilter(),
             SelectFilter::make('attendee_type')->label('Attendee type')->options(array_column(AttendeeType::options(), 'label', 'value')),
             SelectFilter::make('district')->relationship('district', 'name')->searchable(),
         ]);
@@ -63,6 +75,7 @@ class SummitRegistrationResource extends SubmissionResource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowSection(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextInput::make('name')->required()->maxLength(255),
                 TextInput::make('email')->email()->required()->maxLength(255),
@@ -79,6 +92,7 @@ class SummitRegistrationResource extends SubmissionResource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            static::workflowEntries(),
             Section::make()->columns(2)->columnSpanFull()->schema([
                 TextEntry::make('reference'), TextEntry::make('created_at')->label('Received')->dateTime('d M Y, h:i A'),
                 TextEntry::make('name'), TextEntry::make('email')->copyable(),

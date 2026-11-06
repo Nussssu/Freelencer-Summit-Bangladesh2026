@@ -42,6 +42,28 @@ class Settings
         }
     }
 
+    /** The coded summit config (config/summit.php + .env), kept so applySummit() always layers over the original. */
+    private static ?array $summitDefaults = null;
+
+    /**
+     * Lay the Grand Summit details saved in Event Management › Grand Summit over config('summit'): edition, date,
+     * venue, tagline and journey counters. A key never saved keeps its config/.env value.
+     */
+    public static function applySummit(): void
+    {
+        static::$summitDefaults ??= config('summit');
+        $saved = static::get('summit', []);
+        if (! is_array($saved) || $saved === []) {
+            config(['summit' => static::$summitDefaults]);
+
+            return;
+        }
+        $allowed = ['edition', 'starts_at', 'date_confirmed', 'city', 'venue', 'tagline', 'tagline_final'];
+        $summit = array_replace(static::$summitDefaults, array_intersect_key($saved, array_flip($allowed)));
+        $summit['counters'] = array_replace(static::$summitDefaults['counters'], array_intersect_key((array) ($saved['counters'] ?? []), static::$summitDefaults['counters']));
+        config(['summit' => $summit]);
+    }
+
     /** Site name, tagline, logos, favicon and contact details, with the config values as defaults. */
     public static function identity(): array
     {

@@ -8,6 +8,8 @@ use App\Enums\ProgramType;
 use App\Models\Division;
 use App\Queries\ProgramQuery;
 use App\Queries\ReferenceQuery;
+use App\Support\Settings;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -24,62 +26,150 @@ class JourneyPages
 
     public function __construct(private HomeContent $home, private ProgramQuery $programs, private ReferenceQuery $ref) {}
 
+    /** Divisional Summits page, laid out like District Roadshows: the same directory with status and division filters. */
     public function divisional(Request $request): array
     {
-        return $this->list('divisional', $request);
+        $type = ProgramType::DivisionalSummit;
+        $filters = [
+            'q' => (string) $request->query('q', ''),
+            'status' => (string) $request->query('status', ''),
+            'division' => (string) $request->query('division', ''),
+        ];
+
+        return [
+            'filters' => $filters,
+            'programs' => fn () => $this->programs->list($type, $filters, 500),
+            'divisionOptions' => $this->ref->divisions(),
+            'statusOptions' => ProgramStatus::options(),
+            'search' => 'Search divisional summits',
+            'headings' => [
+                'directory' => self::h('Find a divisional summit', 'divisional summit'),
+            ],
+            'empty' => ['title' => 'Summits announced soon', 'body' => 'Each divisional summit is listed here with its date, venue and registration once it is confirmed.'],
+        ];
     }
 
-    /** District Roadshows page: short intro, searchable directory (district and status filters), completed-event photos. */
+    /** District Roadshows page: the searchable directory (status, division and district filters), every roadshow on one page. */
     public function district(Request $request): array
     {
         $type = ProgramType::DistrictRoadshow;
         $filters = [
             'q' => (string) $request->query('q', ''),
-            'district' => (string) $request->query('district', ''),
             'status' => (string) $request->query('status', ''),
+            'division' => (string) $request->query('division', ''),
+            'district' => (string) $request->query('district', ''),
         ];
 
         return [
             'filters' => $filters,
-            'programs' => fn () => $this->programs->list($type, $filters, 10),
+            // Every roadshow on one page: the directory has no pager.
+            'programs' => fn () => $this->programs->list($type, $filters, 500),
+            'divisionOptions' => $this->ref->divisions(),
             'districtGroups' => $this->ref->districts(),
             'statusOptions' => ProgramStatus::options(),
-            'gallery' => $this->programs->completedPhotos($type),
-            'about' => [
-                'title' => 'Freelancing, brought to your district',
-                'emphasis' => 'your district',
-                'paragraphs' => [
-                    'District roadshows take the Freelancer Summit to towns across Bangladesh: one day of career awareness, practical skill sessions, local success stories and marketplace guidance, close to home and free to attend.',
-                    'Each roadshow is run with a local organiser and feeds into its divisional summit and the Grand Summit in Dhaka.',
-                ],
-            ],
             'headings' => [
                 'directory' => self::h('Find a roadshow', 'roadshow'),
-                'gallery' => self::h('From the road', 'road'),
-                'cta' => self::h('Follow the national journey', 'national journey'),
             ],
             'empty' => ['title' => 'Roadshows announced soon', 'body' => 'Each roadshow is listed here with its date, venue and registration once it is confirmed.'],
         ];
     }
 
+    /**
+     * Campus Programs page, laid out like District Roadshows: the directory (its heading's button opens the campus
+     * registration popup, the ambassador lead form) with status pills and division, district and institution dropdowns.
+     * Every campus programme on one page.
+     */
     public function campus(Request $request): array
     {
-        return $this->list('campus', $request);
+        $type = ProgramType::CampusProgram;
+        $filters = [
+            'q' => (string) $request->query('q', ''),
+            'status' => (string) $request->query('status', ''),
+            'division' => (string) $request->query('division', ''),
+            'district' => (string) $request->query('district', ''),
+            'campus' => (string) $request->query('campus', ''),
+        ];
+
+        return [
+            'filters' => $filters,
+            'programs' => fn () => $this->programs->list($type, $filters, 500),
+            'divisionOptions' => $this->ref->divisions(),
+            'districtGroups' => $this->ref->districts(),
+            'institutionOptions' => $this->ref->campuses(),
+            'statusOptions' => ProgramStatus::options(),
+            'headings' => [
+                'directory' => self::h('Find a campus program', 'campus program'),
+            ],
+            'consent' => $this->consent(),
+            'empty' => ['title' => 'Programmes announced soon', 'body' => 'Campus programmes are listed here with institution, date and registration once they are confirmed.'],
+        ];
     }
 
+    /** A divisional summit's page, laid out like a roadshow's; without its own photo the hero shows the division's landmark. */
     public function divisionalDetail(string $slug): ?array
     {
-        return $this->detail('divisional', $slug);
+        $page = $this->programPage($this->detail('divisional', $slug));
+        $division = $page ? Str::slug((string) $page['program']['division']) : '';
+        if ($page && ! $page['program']['image'] && is_file(public_path("media/photos/division-{$division}.jpg"))) {
+            $page['_page']['hero']['image'] = "/media/photos/division-{$division}.jpg";
+        }
+
+        return $page;
     }
 
+    /** A roadshow's page: the hero shows a landmark of its district (public/media/photos/districts, credits in CREDITS.json). */
     public function districtDetail(string $slug): ?array
     {
-        return $this->detail('district', $slug);
+        $page = $this->programPage($this->detail('district', $slug));
+        $district = $page ? Str::slug((string) $page['program']['district']) : '';
+        if (! $district || ! is_file(public_path("media/photos/districts/{$district}.jpg"))) {
+            return $page;
+        }
+        $credits = collect(json_decode((string) file_get_contents(public_path('media/photos/districts/CREDITS.json')), true));
+        $page['_page']['hero']['image'] = "/media/photos/districts/{$district}.jpg";
+        $page['photoCredit'] = $credits->firstWhere('district', $district);
+
+        return $page;
     }
 
+    /** A campus programme's page, laid out like a roadshow's, with its institution among the facts. */
     public function campusDetail(string $slug): ?array
     {
-        return $this->detail('campus', $slug);
+        $page = $this->programPage($this->detail('campus', $slug));
+        if (! $page) {
+            return null;
+        }
+        $p = $page['program'];
+        if ($p['institution']) {
+            array_unshift($page['facts'], ['icon' => 'cap', 'label' => 'Institution', 'value' => $p['institution']]);
+        }
+        // A programme without its own photo opens on students at a summit workshop
+        if (! $p['image']) {
+            $page['_page']['hero']['image'] = '/media/photos/highlight-workshops.jpg';
+        }
+
+        return $page;
+    }
+
+    /** What the roadshow and campus programme pages add to a detail: organiser block, closed state, photo switch. */
+    private function programPage(?array $page): ?array
+    {
+        if (! $page) {
+            return null;
+        }
+        // Settings › Programmes switches the Photos and videos section on for these pages.
+        $page['showMedia'] = (bool) (Settings::get('programmes', [])['roadshow_media'] ?? false);
+        // The organiser sits under "About this programme" with its logo (public/media/partners/{slug}.svg), not in the facts card.
+        $page['facts'] = array_values(array_filter($page['facts'], fn ($f) => $f['label'] !== 'Organiser or partner'));
+        $partner = $page['program']['partner'];
+        $logo = $partner ? 'media/partners/'.Str::slug($partner).'.svg' : null;
+        $page['partner'] = $partner ? ['name' => $partner, 'logo' => is_file(public_path($logo)) ? "/{$logo}" : null] : null;
+        // "Registration closed" pill (and no Register button) once the programme is over or its registration has been switched off.
+        $p = $page['program'];
+        $over = $p['status'] === ProgramStatus::Completed->value || ($p['startsAt'] && Carbon::parse($p['startsAt'])->isPast());
+        $page['registrationClosed'] = $over || ($p['status'] === ProgramStatus::RegistrationOpen->value && ! $p['registrationOpen']);
+
+        return $page;
     }
 
     /** One directory page per programme type, filters synced to the URL (useDirectory). */
@@ -156,7 +246,7 @@ class JourneyPages
             return null;
         }
 
-        $date = $p['startsAt'] ? \Carbon\Carbon::parse($p['startsAt'])->timezone('Asia/Dhaka')->format('j F Y, g:i a') : null;
+        $date = $p['startsAt'] ? Carbon::parse($p['startsAt'])->timezone('Asia/Dhaka')->format('j F Y, g:i a') : null;
 
         return [
             '_page' => [

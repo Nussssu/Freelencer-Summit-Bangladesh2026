@@ -30,7 +30,6 @@ const en = {
         comingSoon: 'Coming soon',
         revealingSoon: 'Revealing soon',
         storySoon: 'Story coming soon',
-        sample: 'Sample data',
         provisional: 'Provisional',
         illustrative: 'Illustrative',
         previous: 'Previous',

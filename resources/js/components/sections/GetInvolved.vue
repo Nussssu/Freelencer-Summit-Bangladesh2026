@@ -42,14 +42,6 @@ useGsap(root, (reduced) => {
 
 <template>
     <section ref="root" aria-labelledby="gi-title" class="gi on-light flow section relative z-[1] overflow-hidden">
-        <span class="gi-pool" aria-hidden="true" />
-        <span class="gi-dome" aria-hidden="true" />
-        <svg class="gi-thread" viewBox="0 0 140 130" fill="none" aria-hidden="true">
-            <path d="M8 8C50 30 92 72 132 122" stroke="#7cc7d3" stroke-width="1.5" />
-            <circle cx="8" cy="8" r="7" fill="#e9b923" />
-            <circle cx="132" cy="122" r="6" fill="#1d9aa8" />
-        </svg>
-
         <div class="container-site">
             <div class="gi-head">
                 <h2 id="gi-title" class="gi-h2" data-reveal="lines" :aria-label="`${t('sections.giTitle')} ${t('sections.giEmphasis')}`">
@@ -93,37 +85,6 @@ useGsap(root, (reduced) => {
 <style scoped>
 .gi.section {
     padding-block: var(--section-gap);
-}
-/* Soft ice pool on the left, a pale dome top right and a thin thread with a gold and a teal bead */
-.gi-pool {
-    position: absolute;
-    left: -16rem;
-    top: 12%;
-    z-index: -1;
-    width: 40rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(214 232 242 / 0.85), transparent);
-    pointer-events: none;
-}
-.gi-dome {
-    position: absolute;
-    right: -20%;
-    top: -30%;
-    z-index: -1;
-    width: min(70vw, 1000px);
-    aspect-ratio: 1.3;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgb(222 238 245 / 0.9), rgb(222 238 245 / 0.3) 75%, transparent);
-    pointer-events: none;
-}
-.gi-thread {
-    position: absolute;
-    top: 9rem;
-    right: 10%;
-    z-index: -1;
-    width: 7rem;
-    display: none;
 }
 .gi-head {
     max-width: 62rem;
@@ -297,9 +258,6 @@ useGsap(root, (reduced) => {
     }
     .gi-text {
         font-size: 0.9375rem;
-    }
-    .gi-thread {
-        display: block;
     }
 }
 @media (prefers-reduced-motion: reduce) {

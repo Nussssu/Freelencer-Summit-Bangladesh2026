@@ -5,6 +5,7 @@ import AboutClosing from '@/components/about/AboutClosing.vue';
 import Glyph from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
+import SpeakerDialog from '@/components/speakers/SpeakerDialog.vue';
 import SpeakerHoverCard from '@/components/speakers/SpeakerHoverCard.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import Countdown from '@/components/ui/Countdown.vue';
@@ -31,6 +32,8 @@ const props = defineProps<{
     };
 }>();
 const { summit, site } = useShared();
+// Index of the speaker shown in the popup (null = closed).
+const speaker = ref<number | null>(null);
 const hero = ref<HTMLElement>();
 const root = ref<HTMLElement>();
 useReveal(hero);
@@ -133,7 +136,7 @@ const accent = (type: string) => accents[[...type].reduce((h, c) => (h * 31 + c.
                             <p class="in-meta">{{ s.day }}</p>
                         </div>
                         <div class="min-w-0">
-                            <p class="flex items-center gap-2 text-xs font-bold tracking-wide uppercase" :style="{ color: accent(s.type) }"><span class="h-0.5 w-5 rounded-full" :style="{ background: accent(s.type) }" aria-hidden="true" />{{ s.type }}</p>
+                            <p class="flex items-center gap-2 text-xs font-bold tracking-wide uppercase" :style="{ color: accent(s.type) }">{{ s.type }}</p>
                             <h3 class="mt-1.5 text-lg leading-snug font-extrabold text-night sm:text-xl">{{ s.title }}</h3>
                         </div>
                         <p class="in-meta sm:text-right">{{ s.hall }}</p>
@@ -142,13 +145,14 @@ const accent = (type: string) => accents[[...type].reduce((h, c) => (h * 31 + c.
             </div>
         </section>
 
-        <!-- Featured speakers: portrait cards linking to their profiles -->
+        <!-- Featured speakers: portrait cards; a click opens the speaker popup (no profile pages) -->
         <section class="in-section" aria-labelledby="gs-speakers">
             <div class="container-site">
                 <SectionHead :id="'gs-speakers'" :heading="content.headings.speakers"><InBtn href="/speakers" tone="ghost">All speakers</InBtn></SectionHead>
                 <ul class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                    <li v-for="s in content.speakers" :key="s.slug" data-reveal="fade"><SpeakerHoverCard :person="s" :href="`/speaker/${s.slug}`" /></li>
+                    <li v-for="(s, i) in content.speakers" :key="s.slug" data-reveal="fade"><SpeakerHoverCard :person="s" @click="speaker = i" /></li>
                 </ul>
+                <SpeakerDialog v-model:index="speaker" :people="content.speakers" />
             </div>
         </section>
 

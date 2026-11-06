@@ -16,7 +16,7 @@ useReveal(root);
 
 <template>
     <section ref="root" class="container-site" aria-labelledby="ab-pillars">
-        <div class="pt-14 md:pt-20">
+        <div class="py-12 md:py-14">
             <SplitHeading
                 id="ab-pillars"
                 :text="heading.title"

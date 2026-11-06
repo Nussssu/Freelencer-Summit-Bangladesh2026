@@ -104,13 +104,13 @@ const submit = () => form.post('/_kit/form', { preserveScroll: true, forceFormDa
     <section id="cards" class="section border-y border-line-light bg-snow">
         <div class="container-site space-y-10">
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <InfoCard v-for="p in programs" :key="p.slug" :title="p.title" :href="p.href" eyebrow="District roadshow" :meta="[p.startsAt ?? 'Date to be confirmed', p.location ?? 'Venue to be confirmed']" :status="{ value: p.status, label: p.statusLabel }" :image="p.image" :sample="p.sample" />
+                <InfoCard v-for="p in programs" :key="p.slug" :title="p.title" :href="p.href" eyebrow="District roadshow" :meta="[p.startsAt ?? 'Date to be confirmed', p.location ?? 'Venue to be confirmed']" :status="{ value: p.status, label: p.statusLabel }" :image="p.image" />
             </div>
             <div class="grid gap-6 lg:grid-cols-3">
-                <InfoCard v-for="n in news" :key="n.slug" :title="n.title" :href="n.href" :eyebrow="n.categoryLabel" :meta="[n.publishedAt?.slice(0, 10) ?? null]" :text="n.excerpt" :image="n.image" :sample="n.sample" />
+                <InfoCard v-for="n in news" :key="n.slug" :title="n.title" :href="n.href" :eyebrow="n.categoryLabel" :meta="[n.publishedAt?.slice(0, 10) ?? null]" :text="n.excerpt" :image="n.image" />
             </div>
             <div class="space-y-3">
-                <InfoCard v-for="e in exhibitors" :key="e.slug" layout="row" :title="e.name" :href="e.href" :meta="[e.booth ? `Booth ${e.booth}` : 'Booth to be assigned']" :tags="[e.sector]" :logo="e.logo" :sample="e.sample" />
+                <InfoCard v-for="e in exhibitors" :key="e.slug" layout="row" :title="e.name" :href="e.href" :meta="[e.booth ? `Booth ${e.booth}` : 'Booth to be assigned']" :tags="[e.sector]" :logo="e.logo" />
             </div>
             <div class="grid gap-6 md:grid-cols-3">
                 <TierCard :tier="{ slug: 'title', name: 'Title', benefits: ['Benefits to be confirmed by the organiser'], provisional: true }" :rank="1" featured><CtaLink href="/sponsorship-opportunity" tone="green">Enquire</CtaLink></TierCard>

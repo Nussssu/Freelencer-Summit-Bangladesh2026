@@ -12,7 +12,6 @@ import Glyph, { type GlyphName } from '@/components/inner/Glyph.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import InfoCard from '@/components/inner/InfoCard.vue';
 import InnerHero from '@/components/inner/InnerHero.vue';
-import SampleRibbon from '@/components/inner/SampleRibbon.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import ShareButton from '@/components/inner/ShareButton.vue';
 import StatusBadge from '@/components/inner/StatusBadge.vue';
@@ -55,7 +54,6 @@ const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en
             <div class="flex flex-wrap items-center gap-2">
                 <StatusBadge :status="content.program.status" :label="content.program.statusLabel" />
                 <span class="in-pill">{{ content.typeLabel }}</span>
-                <SampleRibbon v-if="content.program.sample" />
             </div>
         </template>
     </InnerHero>
@@ -131,7 +129,7 @@ const date = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en
             <template v-if="content.related.length" #related>
                 <SectionHead :heading="{ title: 'More programmes', emphasis: 'programmes' }" />
                 <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    <li v-for="r in content.related.slice(0, 3)" :key="r.slug"><InfoCard :title="r.title" :href="r.href" :image="r.image ?? '/media/photos/gallery-09.jpg'" :meta="[date(r.startsAt), r.location]" :status="{ value: r.status, label: r.statusLabel }" :sample="r.sample" /></li>
+                    <li v-for="r in content.related.slice(0, 3)" :key="r.slug"><InfoCard :title="r.title" :href="r.href" :image="r.image ?? '/media/photos/gallery-09.jpg'" :meta="[date(r.startsAt), r.location]" :status="{ value: r.status, label: r.statusLabel }" /></li>
                 </ul>
             </template>
         </DetailLayout>

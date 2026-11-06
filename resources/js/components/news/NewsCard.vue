@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import Icon from '@/components/ui/Icon.vue';
-import SampleRibbon from '@/components/inner/SampleRibbon.vue';
 
 // One news card in the reference press-release shape: photo on top, an off-white body rising over it with a raised
 // left tab and an S-curve down to the right, gold tag (date or topic), uppercase title, optional short description
 // and the teal "View more" pill. The whole card is the link. Width comes from the parent (grid cell or marquee slot);
 // attributes such as aria-hidden / tabindex fall through to the link.
-withDefaults(defineProps<{ title: string; href: string; tag: string; image: string; text?: string | null; sample?: boolean; lines?: 2 | 3 }>(), { text: null, sample: false, lines: 2 });
+withDefaults(defineProps<{ title: string; href: string; tag: string; image: string; text?: string | null; lines?: 2 | 3 }>(), { text: null, lines: 2 });
 </script>
 
 <template>
@@ -17,7 +16,6 @@ withDefaults(defineProps<{ title: string; href: string; tag: string; image: stri
     >
         <div class="relative aspect-[16/10] overflow-hidden bg-mist">
             <img :src="image" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105" />
-            <SampleRibbon v-if="sample" class="absolute top-4 left-4" />
         </div>
         <!-- Body rises over the photo: a raised left tab with a rounded corner, an S-curve down to the right -->
         <svg class="relative -mt-14 block h-14 w-full" viewBox="0 0 400 56" preserveAspectRatio="none" aria-hidden="true">

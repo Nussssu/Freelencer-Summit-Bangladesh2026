@@ -13,11 +13,11 @@ import StoriesIntro from '@/components/sections/StoriesIntro.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
 import HighlightsGrid from '@/components/sections/HighlightsGrid.vue';
 import JourneySection from '@/components/sections/JourneySection.vue';
+import NjFinder from '@/components/journey-page/NjFinder.vue';
 import JourneyCounters from '@/components/sections/journey/JourneyCounters.vue';
 import SpeakersSection from '@/components/sections/SpeakersSection.vue';
 import TrustStrip from '@/components/sections/TrustStrip.vue';
 import WhatIsSection from '@/components/sections/WhatIsSection.vue';
-import WhyAttend from '@/components/sections/WhyAttend.vue';
 import { gsap, ScrollTrigger, useGsap } from '@/composables/motion';
 import { useShared } from '@/composables/useShared';
 import type { HomeContent } from '@/types/content';
@@ -25,6 +25,7 @@ import type { HomeContent } from '@/types/content';
 // Exactly the client's 17 homepage sections, in brief order (17 = footer in the persistent layout).
 defineProps<{ content: HomeContent }>();
 const { summit } = useShared();
+const programmeFinderHeading = { title: 'Find a programme near you.', emphasis: 'near you.', intro: null };
 const title = computed(() => `Freelancer Summit Bangladesh ${summit.value.edition} · Grand Summit, Dhaka`);
 const description = computed(
     () => `The national flagship summit for Bangladeshi freelancers: ${summit.value.campuses} campus programmes, ${summit.value.districts} district roadshows and ${summit.value.divisions} divisional summits leading to the Grand Summit in Dhaka, late November ${summit.value.edition}.`,
@@ -108,7 +109,7 @@ useGsap(page5, (reduced) => {
         <div class="on-light flow relative">
             <JourneyCounters :counters="content.journey.counters" />
         </div>
-        <WhyAttend :audiences="content.audiences" :heading="content.headings.why" />
+        <NjFinder class="home-programme-finder" :heading="programmeFinderHeading" :directory="content.journey.directory" />
         <HighlightsGrid :highlights="content.highlights" />
     </div>
     <SpeakersSection :speakers="content.speakers" :heading="content.headings.speakers" />
@@ -117,9 +118,16 @@ useGsap(page5, (reduced) => {
     <!-- Page 5: exhibition & sponsorship, sliding over the held awards intro (as page 2 over the hero) -->
     <div ref="page5" class="relative z-[2] [background:var(--grad-site)_fixed]"><ExpoIntro /></div>
     <ForumIntro />
-    <StoriesIntro />
+    <StoriesIntro :cards="content.storyCards" />
     <PartnersWall :partners="content.partners" :heading="content.headings.partners" />
     <LatestNews :heading="content.headings.news" :news="content.latestNews" />
     <MediaGallery :media="content.media" :heading="content.headings.media" />
     <GetInvolved />
 </template>
+
+<style scoped>
+.home-programme-finder {
+    margin-top: var(--section-gap);
+    padding-block: 0 !important;
+}
+</style>

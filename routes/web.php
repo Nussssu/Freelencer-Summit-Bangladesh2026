@@ -54,8 +54,14 @@ Route::get('/agenda/summit-programme.pdf', AgendaDownloadController::class)->nam
 Route::get('/agenda/summit.ics', [CalendarController::class, 'summit'])->name('agenda.summit.ics');
 Route::get('/agenda/sessions/{index}.ics', [CalendarController::class, 'session'])->whereNumber('index')->name('agenda.ics');
 
+// Award applicants' private documents, for signed-in admins with the nominations view permission.
+Route::get('/admin/award-files/{file}', \App\Http\Controllers\Admin\AwardFileController::class)->name('admin.award-files.show');
+
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
 Route::get('/robots.txt', [SeoController::class, 'robots']);
+
+// Pages copied in the CMS live at their own URLs; anything else unknown is a 404.
+Route::fallback([InnerPageController::class, 'copy']);
 
 // Inner-page kit preview, local only (docs/inner-design-kit.md).
 if (app()->isLocal()) {

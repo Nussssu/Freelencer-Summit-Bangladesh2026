@@ -18,7 +18,7 @@ const parse = (v: string) => {
 </script>
 
 <template>
-    <section ref="root" class="container-site pt-10 md:pt-12" aria-labelledby="ab-overview">
+    <section ref="root" class="container-site py-12 md:py-14" aria-labelledby="ab-overview">
         <h2 id="ab-overview" class="sr-only">{{ heading.title }}</h2>
         <dl class="grid grid-cols-2 border-b border-line-light lg:grid-cols-4">
             <div

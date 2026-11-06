@@ -4,7 +4,6 @@ import CtaBand from '@/components/inner/CtaBand.vue';
 import FilterChips from '@/components/inner/FilterChips.vue';
 import InBtn from '@/components/inner/InBtn.vue';
 import InnerHero from '@/components/inner/InnerHero.vue';
-import SampleRibbon from '@/components/inner/SampleRibbon.vue';
 import SectionHead from '@/components/inner/SectionHead.vue';
 import SeoHead from '@/components/layout/SeoHead.vue';
 import { useReveal } from '@/composables/useReveal';
@@ -36,7 +35,7 @@ const tones = ['tone-sky', 'tone-sun', 'tone-mint'];
                         <article class="in-card is-washed h-full overflow-hidden" :class="tones[i % 3]">
                             <span class="in-media aspect-[4/3]">
                                 <img v-if="s.image" :src="s.image" :alt="s.name" loading="lazy" class="object-top" />
-                                <span class="absolute top-3 left-3 flex gap-2"><span class="in-pill bg-white/90!">{{ s.kind }}</span><SampleRibbon v-if="s.sample" /></span>
+                                <span class="absolute top-3 left-3 flex gap-2"><span class="in-pill bg-white/90!">{{ s.kind }}</span></span>
                             </span>
                             <div class="in-pad flex flex-1 flex-col">
                                 <h3 class="in-h3">{{ s.title }}</h3>

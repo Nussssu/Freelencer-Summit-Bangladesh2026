@@ -9,14 +9,24 @@ import { utm, withUtm } from '@/composables/useUtm';
 // After the forum: eyebrow, two-line headline (emphasis in teal) and a "view all" link, then a story carousel. The
 // featured card is large and the rest queue beside it, the arrow after them; the arrow or a dot brings another forward and the row re-flows
 // (FLIP) while the cards grow and shrink into place. Cards rise in from the right on first view. Sample people for now.
+// The cards are the first three published stories in Content Management › Success stories; a story with a YouTube
+// video opens it in a new tab, otherwise the card goes to /success-stories. The coded trio only stands in while that
+// list is empty (props.cards null).
+type Card = { id: string; title: string; name: string; role: string | null; image: string | null; url: string | null };
+const props = defineProps<{ cards?: Card[] | null }>();
 const { t } = useI18n();
 const root = ref<HTMLElement>();
 useReveal(root);
 
-const stories = ['s1', 's2', 's3'].map((id, i) => ({ id, image: `/media/photos/story-${i + 1}.jpg` }));
+const stories = computed<Card[]>(() =>
+    props.cards
+        ? props.cards
+        : ['s1', 's2', 's3'].map((id, i) => ({ id, title: t(`sections.stItems.${id}.title`), name: t(`sections.stItems.${id}.name`), role: t(`sections.stItems.${id}.role`), image: `/media/photos/story-${i + 1}.jpg`, url: null })),
+);
+const videoOf = (id: string) => stories.value.find((s) => s.id === id)?.url || null;
 const active = ref(0);
-const ordered = computed(() => stories.map((_, i) => stories[(active.value + i) % stories.length]));
-const go = (i: number) => (active.value = (i + stories.length) % stories.length);
+const ordered = computed(() => stories.value.map((_, i) => stories.value[(active.value + i) % stories.value.length]));
+const go = (i: number) => (active.value = (i + stories.value.length) % stories.value.length);
 
 useGsap(root, (reduced) => {
     const el = root.value?.querySelector<HTMLElement>('.st-track');
@@ -60,21 +70,28 @@ useGsap(root, (reduced) => {
             <div class="st-stage">
                 <div class="st-row">
                     <TransitionGroup tag="ul" name="st" class="st-track" aria-live="polite">
-                        <li v-for="(s, i) in ordered" :key="s.id" class="st-card" :class="i === 0 && 'is-active'" :aria-hidden="i !== 0 ? 'true' : undefined">
-                            <Link :href="withUtm('/success-stories', utm)" class="st-link" :tabindex="i === 0 ? undefined : -1">
+                        <li v-for="(s, i) in ordered" :key="s.id" class="st-card" :class="i === 0 ? 'is-active' : i === 1 ? 'is-mid' : 'is-small'" :aria-hidden="i !== 0 ? 'true' : undefined">
+                            <component
+                                :is="videoOf(s.id) ? 'a' : Link"
+                                :href="videoOf(s.id) ?? withUtm('/success-stories', utm)"
+                                :target="videoOf(s.id) ? '_blank' : undefined"
+                                :rel="videoOf(s.id) ? 'noopener noreferrer' : undefined"
+                                class="st-link"
+                                :tabindex="i === 0 ? undefined : -1"
+                            >
                                 <span class="st-media">
-                                    <img :src="s.image" alt="" loading="lazy" />
+                                    <img v-if="s.image" :src="s.image" alt="" loading="lazy" />
                                     <span class="st-play" aria-hidden="true">
                                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" /></svg>
                                     </span>
                                 </span>
                                 <span class="st-body">
-                                    <span class="st-title">{{ t(`sections.stItems.${s.id}.title`) }}</span>
+                                    <span class="st-title">{{ s.title }}</span>
                                     <span class="st-dash" aria-hidden="true" />
-                                    <span class="st-name">{{ t(`sections.stItems.${s.id}.name`) }}</span>
-                                    <span class="st-role">{{ t(`sections.stItems.${s.id}.role`) }}</span>
+                                    <span class="st-name">{{ s.name }}</span>
+                                    <span v-if="s.role" class="st-role">{{ s.role }}</span>
                                 </span>
-                            </Link>
+                            </component>
                         </li>
                     </TransitionGroup>
                     <button type="button" class="st-next" :aria-label="t('sections.stNext')" @click="go(active + 1)">
@@ -168,23 +185,37 @@ useGsap(root, (reduced) => {
 .st-row {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1rem;
+}
+.st-next svg {
+    width: 20px;
+    height: 20px;
 }
 .st-track {
     position: relative;
     display: flex;
+    flex: 1 1 auto;
     min-width: 0;
     align-items: center;
     gap: 1.25rem;
 }
+/* Three fixed sizes in sequence: large (active), medium, small. Shares of the track (after its two 1.25rem gaps),
+   so the three cards and the arrow always fit the row */
 .st-card {
     flex-shrink: 0;
-    width: clamp(12rem, 13.5vw, 17rem);
+    width: calc((100% - 2.5rem) * 0.23);
+    max-width: 15rem;
     transition: width 0.7s var(--ease-out);
 }
-.st-card.is-active {
-    width: clamp(18rem, 25vw, 29rem);
+.st-card.is-mid {
+    width: calc((100% - 2.5rem) * 0.32);
+    max-width: 21.5rem;
 }
+.st-card.is-active {
+    width: calc((100% - 2.5rem) * 0.45);
+    max-width: 29rem;
+}
+/* The card's height follows its width only: the photo keeps its ratio and the copy below has a fixed line count */
 .st-link {
     display: flex;
     flex-direction: column;
@@ -201,9 +232,11 @@ useGsap(root, (reduced) => {
     transform: translateY(-4px);
     box-shadow: 0 36px 70px -30px rgb(7 20 17 / 0.65);
 }
+/* The photo keeps its own proportions (≈1.12:1) at every card size, so it is never cropped */
 .st-media {
     position: relative;
     display: block;
+    flex: none;
     aspect-ratio: 1.12;
 }
 .st-media img {
@@ -270,6 +303,7 @@ useGsap(root, (reduced) => {
 }
 .st-body {
     position: relative;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -281,7 +315,26 @@ useGsap(root, (reduced) => {
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.01em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    /* always two lines tall, so every card of a size has the same height; longer titles end in "…" */
+    min-height: calc(2 * 1.15em);
     transition: font-size 0.7s var(--ease-out);
+}
+.st-name,
+.st-role {
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.is-small .st-title {
+    font-size: 1.0625rem;
+}
+.is-small .st-body {
+    padding: 0 1.125rem 1.125rem;
 }
 .st-dash {
     width: 2.25rem;
@@ -315,7 +368,7 @@ useGsap(root, (reduced) => {
     flex-shrink: 0;
     display: grid;
     place-items: center;
-    width: 4.5rem;
+    width: 3.25rem;
     aspect-ratio: 1;
     border: 1px solid rgb(7 20 17 / 0.14);
     border-radius: 50%;
@@ -367,7 +420,7 @@ useGsap(root, (reduced) => {
         width: 100%;
     }
     .st-next {
-        width: 3.5rem;
+        width: 3rem;
     }
     .st-dots {
         justify-content: flex-start;

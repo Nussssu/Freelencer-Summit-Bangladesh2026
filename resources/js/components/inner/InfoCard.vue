@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import SampleRibbon from './SampleRibbon.vue';
 import StatusBadge from './StatusBadge.vue';
 
 /**
@@ -19,7 +18,6 @@ withDefaults(
         imageRatio?: string;
         logo?: string | null;
         status?: { value: string; label: string };
-        sample?: boolean;
         layout?: 'stack' | 'row';
         headingLevel?: 'h2' | 'h3';
         tone?: string;
@@ -38,10 +36,9 @@ withDefaults(
             <span v-else class="text-2xl font-extrabold uppercase" :style="{ color: 'var(--tint)' }" aria-hidden="true">{{ title.slice(0, 2) }}</span>
         </div>
         <div class="flex min-w-0 flex-1 flex-col" :class="layout === 'stack' && 'in-pad'">
-            <div v-if="eyebrow || status || sample" class="flex flex-wrap items-center gap-2">
+            <div v-if="eyebrow || status" class="flex flex-wrap items-center gap-2">
                 <span v-if="eyebrow" class="in-pill">{{ eyebrow }}</span>
                 <StatusBadge v-if="status" :status="status.value" :label="status.label" />
-                <SampleRibbon v-if="sample" />
             </div>
             <component :is="headingLevel" class="in-h3 mt-3 text-balance">
                 <Link v-if="href" :href="href" class="after:absolute after:inset-0">{{ title }}</Link>

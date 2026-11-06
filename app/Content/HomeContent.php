@@ -67,8 +67,8 @@ class HomeContent
                 'Award nominations: opening soon',
                 'Exhibition enquiries: open now',
             ],
-            // shortcut: invented partner names, same as partners(); replace with confirmed partners.
-            'groups' => array_map(fn ($label, $names) => ['label' => $label, 'slots' => count($names), 'partners' => array_map(fn ($n) => ['name' => $n, 'logo' => self::sponsorLogo($n)], $names)],
+            // Content › Partners; the coded names below only stand in while that table is empty.
+            'groups' => CmsData::partnerGroups() ?? array_map(fn ($label, $names) => ['label' => $label, 'slots' => count($names), 'partners' => array_map(fn ($n) => ['name' => $n, 'logo' => self::sponsorLogo($n)], $names)],
                 ['Government & development partners', 'Strategic partners', 'Supporting organisations'],
                 [['Digital Growth Agency', 'Skills for Jobs Programme', 'Asia Development Fund'], ['Global BPO Partners', 'TechCorp IT', 'Bangla Talent Hub'], ['Freelance Pro Network', 'CodeNest Labs', 'Future Skills Academy', 'PayLink BD']],
             ),
@@ -102,6 +102,23 @@ class HomeContent
     }
 
     public function journey(): array
+    {
+        $journey = $this->codedJourney();
+        // Counters from the held programmes (Event Management), a Grand Summit figure above 0 overriding.
+        if ($counts = CmsData::journeyCounters($this->summit['counters'])) {
+            foreach ($journey['counters'] as &$c) {
+                $c['value'] = $counts[$c['id']];
+            }
+            unset($c);
+        }
+        if (($rows = CmsData::directoryRows()) !== null) {
+            $journey['directory'] = ['sample' => false, 'rows' => $rows];
+        }
+
+        return $journey;
+    }
+
+    private function codedJourney(): array
     {
         [$div, $dist, $camp] = $this->counts();
         $edition = $this->summit['edition'];
@@ -186,8 +203,14 @@ class HomeContent
         ];
     }
 
-    // shortcut: guests and speakers of BPO Summit 2026 (bposummit.org.bd/speakers), not confirmed for this summit; replace before launch.
+    /** Event Management › Speakers & experts (the coded list below only stands in while that table is empty). */
     public function speakers(): array
+    {
+        return CmsData::speakers() ?? $this->codedSpeakers();
+    }
+
+    // shortcut: guests and speakers of BPO Summit 2026 (bposummit.org.bd/speakers), not confirmed for this summit; imported into the speakers table.
+    public function codedSpeakers(): array
     {
         $people = [
             ['Chief Guest', 'Mir Mohammed Helal Uddin, MP', 'Honorable State Minister', 'Ministry of Land and Ministry of Chittagong Hill Tracts Affairs', 'helal-uddin.jpg'],
@@ -217,7 +240,13 @@ class HomeContent
         ], $people, array_keys($people));
     }
 
+    /** Event Management › Agenda & sessions (the coded rows below only stand in while that table is empty). */
     public function agenda(): array
+    {
+        return CmsData::agenda() ?? $this->codedAgenda();
+    }
+
+    public function codedAgenda(): array
     {
         $s = fn (string $type, string $title, string $time, string $hall) => [
             'type' => $type, 'title' => $title, 'day' => 'Day 1', 'time' => $time, 'hall' => $hall, 'speaker' => null,
@@ -237,6 +266,21 @@ class HomeContent
     }
 
     public function awards(): array
+    {
+        $awards = $this->codedAwards();
+        if ($categories = CmsData::awardCategories()) {
+            $open = $categories->where('is_open', true);
+            $deadline = $open->pluck('deadline')->filter()->sort()->first();
+            $awards['categories'] = $categories->pluck('name')->all();
+            // Provisional until every category has its published eligibility.
+            $awards['categoriesProvisional'] = $categories->contains(fn ($c) => blank($c->eligibility));
+            $awards['deadline'] = $deadline?->format('j F Y');
+        }
+
+        return $awards;
+    }
+
+    public function codedAwards(): array
     {
         return [
             'headline' => 'Your work deserves a stage.',
@@ -264,6 +308,10 @@ class HomeContent
 
     public function sponsorship(): array
     {
+        if ($packages = CmsData::sponsorPackages()) {
+            return ['tiers' => array_column($packages, 'name'), 'provisional' => in_array(true, array_column($packages, 'provisional'), true), 'prospectus' => null];
+        }
+
         return [
             'tiers' => ['Title', 'Platinum', 'Gold', 'Silver', 'Strategic Partner', 'Technology Partner', 'Knowledge Partner', 'Media Partner'],
             'provisional' => true,
@@ -312,7 +360,13 @@ class HomeContent
         ];
     }
 
+    /** Content › Sponsors by tier (the coded wall below only stands in while that table is empty). */
     public function partners(): array
+    {
+        return CmsData::sponsorTiers() ?? $this->codedPartners();
+    }
+
+    public function codedPartners(): array
     {
         // shortcut: invented sponsors with generated SVG logos (public/media/sponsors), so the wall looks filled; replace with confirmed sponsors.
         $tier = fn (string $name, array $sponsors) => ['name' => $name, 'slots' => count($sponsors), 'sponsors' => array_map(fn ($s) => ['name' => $s, 'logo' => self::sponsorLogo($s)], $sponsors)];
@@ -395,6 +449,7 @@ class HomeContent
             'sponsorship' => $this->sponsorship(),
             'forum' => $this->forum(),
             'stories' => $this->stories(),
+            'storyCards' => CmsData::storyCards(),
             'partners' => $this->partners(),
             'media' => $this->media(),
             'finalCta' => $this->finalCta(),

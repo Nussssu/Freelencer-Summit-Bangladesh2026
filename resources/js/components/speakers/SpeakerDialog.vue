@@ -8,7 +8,14 @@ import type { SpeakerCard } from '@/types/inner';
 // Speaker popup for the Speakers & Experts grid: just the person (portrait, role, name, designation, organisation,
 // biography or a note until it is published, expertise) and a close button that is always in view.
 // Same modal mechanics as ui/Dialog: focus trap, Escape closes, scroll paused, focus returns to the opener.
-const props = defineProps<{ people: SpeakerCard[]; pillClass: (role: string | null) => string }>();
+// Any speaker list fits: the inner-page cards and the landing/Grand Summit speakers, whose name may still be unrevealed.
+// Without `pillClass` the role pill uses the Speakers page colours.
+type Person = Pick<SpeakerCard, 'photo' | 'role' | 'designation' | 'organisation' | 'expertise'> & { name: string | null };
+const props = withDefaults(defineProps<{ people: Person[]; pillClass?: (role: string | null) => string }>(), {
+    pillClass: (role: string | null) =>
+        (role && ({ 'Chief Guest': 'bg-gold text-night', 'Special Guest': 'bg-[#e8506b] text-white', Guest: 'bg-[#2f8fdc] text-white', Speaker: 'bg-[#7b5cd6] text-white' } as Record<string, string>)[role]) || 'bg-gold text-night',
+});
+const nameOf = (p: Person) => p.name ?? t('common.revealingSoon');
 const index = defineModel<number | null>('index', { required: true });
 const { t } = useI18n();
 
@@ -38,7 +45,7 @@ watch(open, (v) => {
                 ref="panel"
                 role="dialog"
                 aria-modal="true"
-                :aria-label="person.name"
+                :aria-label="nameOf(person)"
                 data-lenis-prevent
                 class="fixed inset-x-4 top-1/2 z-[76] mx-auto max-h-[90svh] max-w-3xl -translate-y-1/2 overflow-y-auto rounded-2xl bg-white text-night shadow-[0_30px_70px_-30px_rgb(7_20_17/0.55)]"
             >
@@ -54,11 +61,11 @@ watch(open, (v) => {
 
                 <div class="grid sm:grid-cols-[15rem_1fr]">
                     <div class="aspect-[4/5] bg-green/10 sm:aspect-auto">
-                        <img v-if="person.photo" :src="person.photo" :alt="person.name" class="h-full w-full object-cover object-top" />
+                        <img v-if="person.photo" :src="person.photo" :alt="nameOf(person)" class="h-full w-full object-cover object-top" />
                     </div>
                     <div class="p-6 sm:p-8">
                         <span v-if="person.role" class="inline-block rounded-full px-3 py-1 text-xs font-semibold" :class="pillClass(person.role)">{{ person.role }}</span>
-                        <h2 class="mt-3 pr-8 text-2xl leading-tight font-extrabold md:text-3xl">{{ person.name }}</h2>
+                        <h2 class="mt-3 pr-8 text-2xl leading-tight font-extrabold md:text-3xl">{{ nameOf(person) }}</h2>
                         <p v-if="person.designation" class="mt-2 text-ink-2">{{ person.designation }}</p>
                         <p v-if="person.organisation" class="mt-1 font-bold text-green">{{ person.organisation }}</p>
 
