@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Submissions;
 use App\Enums\AttendeeType;
 use App\Enums\Interest;
 use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
+use App\Models\District;
 use App\Models\SummitRegistration;
+use App\Filament\Support\SubmissionCsvImport;
 use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\CheckboxList;
@@ -18,6 +20,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class SummitRegistrationResource extends SubmissionResource
@@ -48,6 +51,21 @@ class SummitRegistrationResource extends SubmissionResource
         return ['Reference' => 'reference', 'Received' => 'created_at', 'Name' => 'name', 'Email' => 'email', 'Organisation' => 'organisation', 'Designation' => 'designation', 'District' => 'district.name', 'Attendee type' => 'attendee_type', 'Interests' => 'interests', 'UTM source' => 'utm_source'];
     }
 
+    public static function importColumns(): array
+    {
+        return [
+            'Organisation' => 'organisation', 'Designation' => 'designation',
+            'District' => fn (string $v) => ['district_id' => District::query()->where('name', $v)->orWhere('slug', Str::slug($v))->value('id')],
+            'Attendee type' => fn (string $v) => ['attendee_type' => SubmissionCsvImport::pick(array_column(AttendeeType::options(), 'label', 'value'), $v)],
+            'Interests' => fn (string $v) => ['interests' => SubmissionCsvImport::pickMany(array_column(Interest::options(), 'label', 'value'), $v)],
+        ];
+    }
+
+    public static function importDefaults(): array
+    {
+        return ['edition' => (string) config('summit.edition'), 'attendee_type' => AttendeeType::cases()[0]->value];
+    }
+
     protected static function columns(): array
     {
         return [
@@ -67,8 +85,9 @@ class SummitRegistrationResource extends SubmissionResource
     {
         return parent::table($table)->filters([
             static::statusFilter(),
-            SelectFilter::make('attendee_type')->label('Attendee type')->options(array_column(AttendeeType::options(), 'label', 'value')),
-            SelectFilter::make('district')->relationship('district', 'name')->searchable(),
+            SelectFilter::make('attendee_type')->label('Attendee type')->options(array_column(AttendeeType::options(), 'label', 'value'))->native(false)->selectablePlaceholder(),
+            static::districtFilter(),
+            static::receivedFilter(),
         ]);
     }
 

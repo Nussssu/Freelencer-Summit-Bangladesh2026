@@ -33,7 +33,6 @@ use App\Filament\Resources\Submissions\ExhibitionInquiryResource;
 use App\Filament\Resources\Submissions\ForumMembershipResource;
 use App\Filament\Resources\Submissions\Pages\ListAwardNominations;
 use App\Filament\Resources\Submissions\Pages\ListSummitRegistrations;
-use App\Filament\Resources\Submissions\ProgrammeRegistrationResource;
 use App\Filament\Resources\Submissions\SponsorshipEnquiryResource;
 use App\Filament\Resources\Submissions\SummitRegistrationResource;
 use App\Models\AgendaSession;
@@ -89,7 +88,7 @@ class AdminModulesTest extends TestCase
         $this->actingAs($this->admin());
 
         $resources = [
-            SummitRegistrationResource::class, ForumMembershipResource::class, CampusAmbassadorResource::class, ProgrammeRegistrationResource::class,
+            SummitRegistrationResource::class, ForumMembershipResource::class, CampusAmbassadorResource::class,
             AwardCategoryResource::class, AwardNominationResource::class,
             LeadResource::class, SponsorshipEnquiryResource::class, ExhibitionInquiryResource::class, BoothApplicationResource::class,
             ContactMessageResource::class, MessageLogResource::class, EmailTemplateResource::class,
@@ -112,7 +111,7 @@ class AdminModulesTest extends TestCase
     public function test_the_sidebar_has_the_nine_groups_in_order(): void
     {
         $this->actingAs($this->admin());
-        $this->get('/admin')->assertOk()->assertSeeInOrder(['Overview', 'Registrations', 'Awards Management', 'Leads &amp; CRM', 'Messages', 'Event Management', 'Content Management', 'Configuration', 'Access Control'], false);
+        $this->get('/admin')->assertOk()->assertSeeInOrder(['Overview', 'Leads &amp; CRM', 'Registrations', 'Awards Management', 'Messages', 'Event Management', 'Content Management', 'Configuration', 'Access Control'], false);
     }
 
     public function test_the_import_is_repeatable_and_keeps_the_site_unchanged(): void

@@ -36,7 +36,9 @@ const duration = computed(() => row.value.length * 7);
             <p v-if="heading.intro" class="mt-4 text-xl font-semibold text-ink-2 md:text-2xl" data-reveal="fade">{{ heading.intro }}</p>
         </div>
 
-        <div class="track mt-12 md:mt-16" data-reveal="fade">
+        <!-- Padding gives the card shadows room inside the masked track (a mask clips to the box, which drew a hard
+             line under the cards); the margins cancel it, so the spacing stays as it was. -->
+        <div class="track mt-0 -mb-16 pt-12 pb-16 md:mt-4" data-reveal="fade">
             <div class="marquee gap-6 px-3" :style="{ '--marquee-dur': `${duration}s` }">
                 <template v-for="copy in 2" :key="copy">
                     <NewsCard

@@ -3,7 +3,9 @@
 namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Resources\Submissions\Pages\ListForumMemberships;
+use App\Filament\Support\SubmissionCsvImport;
 use App\Http\Controllers\SubmissionController;
+use App\Models\District;
 use App\Models\ForumApplication;
 use App\Support\Statuses;
 use BackedEnum;
@@ -17,6 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 /** BACCO Freelancer Forum membership applications (/forum/register): review and approve. NID stays encrypted. */
@@ -40,9 +43,31 @@ class ForumMembershipResource extends SubmissionResource
 
     protected static ?int $navigationSort = 2;
 
+    /** One-click Approve (emails the applicant this template) and Reject. */
+    protected static ?string $approvalTemplate = 'forum_approved';
+
     protected static function statuses(): ?array
     {
         return Statuses::APPLICATION;
+    }
+
+    public static function importColumns(): array
+    {
+        return [
+            'District' => fn (string $v) => ['district_id' => District::query()->where('name', $v)->orWhere('slug', Str::slug($v))->value('id')],
+            'Nationality' => fn (string $v) => ['nationality' => SubmissionCsvImport::pick(SubmissionController::NATIONALITIES, $v)],
+            'Profile type' => fn (string $v) => ['profile_type' => SubmissionCsvImport::pick(SubmissionController::PROFILE_TYPES, $v)],
+            'Experience' => fn (string $v) => ['experience_level' => SubmissionCsvImport::pick(SubmissionController::EXPERIENCE, $v)],
+            'Skills' => fn (string $v) => ['skills' => SubmissionCsvImport::pickMany(SubmissionController::SKILLS, $v)],
+            'Services' => 'services',
+            'Availability' => fn (string $v) => ['availability' => SubmissionCsvImport::pick(SubmissionController::AVAILABILITY, $v)],
+            'Marketplace profiles' => fn (string $v) => ['marketplace_profiles' => array_values(array_filter(preg_split('/\s*;\s*/', $v)))],
+        ];
+    }
+
+    public static function importDefaults(): array
+    {
+        return ['experience_level' => array_key_first(SubmissionController::EXPERIENCE)];
     }
 
     protected static function exportColumns(): array
@@ -77,9 +102,10 @@ class ForumMembershipResource extends SubmissionResource
     {
         return parent::table($table)->filters([
             static::statusFilter(),
-            SelectFilter::make('profile_type')->label('Profile type')->options(SubmissionController::PROFILE_TYPES),
-            SelectFilter::make('experience_level')->label('Experience')->options(SubmissionController::EXPERIENCE),
-            SelectFilter::make('district')->relationship('district', 'name')->searchable(),
+            SelectFilter::make('profile_type')->label('Profile type')->options(SubmissionController::PROFILE_TYPES)->native(false)->selectablePlaceholder(),
+            SelectFilter::make('experience_level')->label('Experience')->options(SubmissionController::EXPERIENCE)->native(false)->selectablePlaceholder(),
+            static::districtFilter(),
+            static::receivedFilter(),
         ]);
     }
 

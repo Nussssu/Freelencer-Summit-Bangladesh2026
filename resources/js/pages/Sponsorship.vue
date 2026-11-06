@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -36,6 +37,7 @@ defineProps<{
     };
 }>();
 const { t } = useI18n();
+const ph = usePlaceholder();
 const root = ref<HTMLElement>();
 useReveal(root);
 
@@ -88,13 +90,13 @@ const fields: { key: TextKey; label: string; icon: GlyphName; type?: string; aut
                     <Field v-for="f in fields" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                         <div class="relative">
                             <BdPrefix v-if="f.type === 'tel'" />
-                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
+                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :placeholder="ph(f.key)" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                         </div>
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" label="Sponsorship Interest" name="interest" required :error="form.errors.interest">
                         <div class="relative">
                             <select :id="id" v-model="form.interest" name="interest" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.interest && 'text-ink-2/80']">
-                                <option value="">Select sponsorship package / area</option>
+                                <option value="">{{ ph('interest') }}</option>
                                 <option v-for="o in content.form.interests" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                             </select>
                             <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
@@ -103,7 +105,7 @@ const fields: { key: TextKey; label: string; icon: GlyphName; type?: string; aut
                     <Field v-slot="{ id, describedby, invalid }" label="Estimated Budget / Range" name="budget" :error="form.errors.budget">
                         <div class="relative">
                             <select :id="id" v-model="form.budget" name="budget" :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.budget && 'text-ink-2/80']">
-                                <option value="">Select your budget range</option>
+                                <option value="">{{ ph('budget') }}</option>
                                 <option v-for="o in content.form.budgets" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                             </select>
                             <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
@@ -111,12 +113,12 @@ const fields: { key: TextKey; label: string; icon: GlyphName; type?: string; aut
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" label="Specific Requirements" name="requirements" :error="form.errors.requirements">
                         <div class="relative">
-                            <input :id="id" v-model.trim="form.requirements" type="text" name="requirements" maxlength="255" :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                            <input :id="id" v-model.trim="form.requirements" type="text" name="requirements" :placeholder="ph('requirements')" maxlength="255" :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                         </div>
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" label="Additional Message" name="message" :error="form.errors.message" class="sm:col-span-2">
                         <div class="relative">
-                            <textarea :id="id" v-model="form.message" name="message" rows="3" maxlength="500" placeholder="Write your message or any additional details" :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'min-h-24 py-3']" />
+                            <textarea :id="id" v-model="form.message" name="message" rows="3" maxlength="500" :placeholder="ph('message')" :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'min-h-24 py-3']" />
                         </div>
                         <p class="mt-1.5 text-right text-sm text-ink-2 tabular-nums">{{ form.message.length }} / 500</p>
                     </Field>

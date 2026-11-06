@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { useForm } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -31,6 +32,7 @@ const props = defineProps<{
     content: { categories: Option[]; provisional: boolean; districts: OptionGroup[]; platforms: Option[]; experience: Option[]; consent: Consent; declaration: string; steps: string[] };
 }>();
 const { t } = useI18n();
+const ph = usePlaceholder();
 
 const step = ref(0);
 const form = useForm({
@@ -153,13 +155,13 @@ function saveDraft() {
                 <Field v-for="f in profile" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                     <div class="relative">
                         <BdPrefix v-if="f.type === 'tel'" />
-                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
+                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :placeholder="ph(f.key)" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Current Location (City)" name="district" required :error="form.errors.district">
                     <div class="relative">
                         <select :id="id" v-model="form.district" name="district" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.district && 'text-ink-2/80']">
-                            <option value="">Select your city</option>
+                            <option value="">{{ ph('district') }}</option>
                             <optgroup v-for="g in content.districts" :key="g.label" :label="g.label">
                                 <option v-for="o in g.options" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                             </optgroup>
@@ -169,13 +171,13 @@ function saveDraft() {
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" :label="headline.label" name="headline" required :error="form.errors.headline">
                     <div class="relative">
-                        <input :id="id" v-model.trim="form.headline" type="text" name="headline" maxlength="160" :autocomplete="headline.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <input :id="id" v-model.trim="form.headline" type="text" name="headline" :placeholder="ph('headline')" maxlength="160" :autocomplete="headline.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Years of Freelancing Experience" name="experience" required :error="form.errors.experience">
                     <div class="relative">
                         <select :id="id" v-model="form.experience" name="experience" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.experience && 'text-ink-2/80']">
-                            <option value="">Select experience</option>
+                            <option value="">{{ ph('experience') }}</option>
                             <option v-for="o in content.experience" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                         </select>
                         <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
@@ -189,7 +191,7 @@ function saveDraft() {
                         rows="3"
                         maxlength="300"
                         required
-                        placeholder="Write a brief introduction about yourself (max 300 characters)"
+                        :placeholder="ph('bio')"
                         :aria-invalid="invalid"
                         :aria-describedby="describedby"
                         :class="[iconInputClass(invalid), 'min-h-24 py-3 pl-4!']"
@@ -207,7 +209,7 @@ function saveDraft() {
                     <Field v-for="f in nominator" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                         <div class="relative">
                             <BdPrefix v-if="f.type === 'tel'" />
-                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
+                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :placeholder="ph(f.key)" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                         </div>
                     </Field>
                 </fieldset>

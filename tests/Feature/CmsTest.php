@@ -58,7 +58,7 @@ class CmsTest extends TestCase
         $this->assertTrue(Media::where('path', 'photos/gallery-01.jpg')->exists());
         $this->assertSame('/media/photos/gallery-01.jpg', Media::where('path', 'photos/gallery-01.jpg')->first()->url);
         $this->assertTrue(Page::where('slug', '/national-journey')->exists());
-        $this->assertSame(3, EmailTemplate::count());
+        $this->assertSame(4, EmailTemplate::count()); // admin alert, enquiry received, registration confirmed, forum approved
     }
 
     public function test_form_submission_becomes_a_lead_and_queues_both_emails(): void

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -7,6 +8,7 @@ import type { SharedProps } from '@/types/content';
 
 // BPO's 2-step "Enquire to Exhibit" (B7): company info, then personal info. Posts to Laravel; errors render inline.
 const { t } = useI18n();
+const ph = usePlaceholder();
 const page = usePage<SharedProps>();
 const step = ref<1 | 2 | 'done'>(1);
 const root = ref<HTMLElement>();
@@ -81,6 +83,7 @@ function submit() {
                         v-model="form[f.key as Key]"
                         :type="f.type"
                         :name="f.key"
+                        :placeholder="ph(f.key)"
                         :autocomplete="f.auto"
                         :required="f.required"
                         :aria-invalid="!!form.errors[f.key as Key]"

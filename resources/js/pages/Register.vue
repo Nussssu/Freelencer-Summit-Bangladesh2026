@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -26,6 +27,7 @@ const props = defineProps<{
     content: { districts: OptionGroup[]; attendeeTypes: Option[]; interests: Option[]; consent: Consent };
 }>();
 const { t } = useI18n();
+const ph = usePlaceholder();
 const { summit } = useShared();
 
 const form = useForm({ name: '', email: '', mobile: '', organisation: '', designation: '', district: '', attendee_type: '', interests: [] as string[], consent: false, hp_company: '' });
@@ -81,6 +83,7 @@ const consentParts = computed(() => props.content.consent.text.split('Privacy Po
                             v-model.trim="form[f.key]"
                             :type="f.type ?? 'text'"
                             :name="f.key"
+                            :placeholder="ph(f.key)"
                             :inputmode="f.key === 'mobile' ? 'tel' : undefined"
                             :autocomplete="f.autocomplete"
                             required
@@ -93,7 +96,7 @@ const consentParts = computed(() => props.content.consent.text.split('Privacy Po
                 <Field v-slot="{ id, describedby, invalid }" label="City" name="district" required :error="form.errors.district">
                     <div class="relative">
                         <select :id="id" v-model="form.district" name="district" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[input(invalid), 'appearance-none pr-11', !form.district && 'text-ink-2/80']">
-                            <option value="">Select your city</option>
+                            <option value="">{{ ph('district') }}</option>
                             <optgroup v-for="g in content.districts" :key="g.label" :label="g.label">
                                 <option v-for="o in g.options" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                             </optgroup>

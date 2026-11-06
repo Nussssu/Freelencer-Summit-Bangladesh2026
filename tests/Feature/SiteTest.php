@@ -66,6 +66,20 @@ class SiteTest extends TestCase
         $this->get('/awards')->assertInertia(fn (Assert $p) => $p->has('content.awards.categories')->has('content.steps', 4)->has('content.faq')->where('content.downloads.0.kind', 'guidelines'));
     }
 
+    public function test_legal_pages_are_plain_text(): void
+    {
+        foreach (['/privacy-policy', '/terms'] as $path) {
+            $this->get($path)->assertInertia(fn (Assert $p) => $p->component('Legal')->missing('page.hero.image')->has('content.sections')->whereType('content.updated', 'string'));
+        }
+    }
+
+    public function test_form_placeholders_are_shared_and_editable(): void
+    {
+        $this->get('/contact')->assertInertia(fn (Assert $p) => $p->where('placeholders.email', 'name@example.com'));
+        \App\Support\Settings::put('form_placeholders', ['email' => 'you@company.com', 'unknown' => 'ignored']);
+        $this->get('/contact')->assertInertia(fn (Assert $p) => $p->where('placeholders.email', 'you@company.com')->missing('placeholders.unknown'));
+    }
+
     public function test_route_count_matches_brief(): void
     {
         $this->assertCount(28, self::routes(), '"/" + 27 brief URLs');
@@ -76,7 +90,7 @@ class SiteTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $page) => $page
             ->component('Home')
             ->has('content', fn (Assert $c) => $c
-                ->has('headings', 11)
+                ->has('headings', 10)
                 ->has('hero.messages', 4)
                 ->has('trust.ticker')
                 ->has('trust.groups', 3)
@@ -86,7 +100,7 @@ class SiteTest extends TestCase
                 ->has('journey.counters', 4)
                 ->has('journey.directory.rows', 6)
                 ->has('audiences', 9)
-                ->has('highlights', 9)
+                ->missing('highlights')
                 ->has('speakers')
                 ->has('agenda.sessions', 5)
                 ->has('awards.categories', 6)

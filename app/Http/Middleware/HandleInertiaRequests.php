@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Content\SiteContent;
+use App\Support\FormPlaceholders;
 use App\Support\Seo;
 use App\Support\Settings;
 use Illuminate\Http\Request;
@@ -47,6 +48,7 @@ class HandleInertiaRequests extends Middleware
                 'importantLinks' => $site->importantLinks(),
                 'url' => rtrim(config('app.url'), '/'),
             ],
+            'placeholders' => FormPlaceholders::all(),
             'seo' => fn () => Seo::overrides($request->route()?->uri()),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

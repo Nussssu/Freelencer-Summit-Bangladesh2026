@@ -54,7 +54,7 @@ class InnerPageController extends Controller
             'description' => $description,
             'path' => $path,
             'crumbs' => $copy ? [['label' => $title]] : ($config['crumbs'] ?? [['label' => $title]]),
-            'hero' => PageBlocks::hero($copy ? $path : $pattern, array_diff_key($config, ['component' => 0, 'content' => 0, 'crumbs' => 0]), $copy?->source),
+            'hero' => PageBlocks::hero($copy ? $path : $pattern, array_diff_key($config, ['component' => 0, 'content' => 0, 'crumbs' => 0, 'plain' => 0]), $copy?->source),
         ];
         if (isset($content['_page'])) {
             $over = $content['_page'];

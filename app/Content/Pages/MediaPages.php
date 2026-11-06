@@ -115,38 +115,110 @@ class MediaPages
         ];
     }
 
-    public function privacy(ContentQuery $content): array
+    /** Standard privacy policy, plain text. Every heading and paragraph is editable in Pages › Privacy Policy. */
+    public function privacy(): array
     {
-        return $this->legal($content, 'privacy-policy', [
-            ['h' => 'What this page covers', 'p' => ['This page explains how the Freelancer Summit Bangladesh website handles the information you give in its forms: summit registration, award nominations, sponsorship and exhibition enquiries, BACCO Freelancer Forum applications, programme registrations and contact messages.']],
-            ['h' => 'What we collect', 'p' => ['Only the details each form asks for, such as your name, email, mobile number, organisation and the information needed for that journey. Award applications may include portfolio links, marketplace profiles and supporting documents.']],
-            ['h' => 'How it is protected', 'p' => ['Mobile numbers are stored encrypted. Uploaded documents are kept in private storage that is never published on the website. We store a one-way hash of your IP address, not the address itself, to prevent abuse.']],
-            ['h' => 'Consent', 'p' => ['Every form asks for your consent, and we record the version of the consent wording you agreed to and when.']],
-            ['h' => 'Who sees it', 'p' => ['The organising team, and for award applications the jury, see submissions only to handle your request.']],
-            ['h' => 'Contact', 'p' => ['Questions about your information can be sent through the contact page.']],
-        ]);
-    }
-
-    public function terms(ContentQuery $content): array
-    {
-        return $this->legal($content, 'terms', [
-            ['h' => 'Using this website', 'p' => ['This website gives information about Freelancer Summit Bangladesh and lets you register, apply and send enquiries.']],
-            ['h' => 'Registrations and applications', 'p' => ['Submitting a form does not guarantee a place, an award, a booth or a sponsorship. The organising team confirms each one by email.']],
-            ['h' => 'Event details', 'p' => ['Dates, venues, speakers and sessions may change. The latest information is always on this website.']],
-            ['h' => 'Contact', 'p' => ['Questions about these terms can be sent through the contact page.']],
-        ]);
-    }
-
-    /** The organiser's approved text when it exists (pages table), otherwise a clearly marked draft summary. */
-    private function legal(ContentQuery $content, string $slug, array $draft): array
-    {
-        $page = $content->page($slug);
-
         return [
-            'sections' => $page['sections'] ?? $draft,
-            'draft' => $page ? (bool) $page['draft'] : true,
-            'draftNote' => 'Draft summary. The final text will be published once the organiser approves it.',
-            'updatedAt' => $page['updatedAt'] ?? null,
+            'updated' => '6 November 2026',
+            'sections' => [
+                ['h' => 'Introduction', 'p' => [
+                    'Freelancer Summit Bangladesh ("we", "us" or "our") is organised by the Bangladesh Association of Contact Center & Outsourcing (BACCO) with the Department of ICT, Government of Bangladesh. We respect your privacy and are committed to protecting the personal information you share with us.',
+                    'This Privacy Policy explains what information we collect when you visit this website or use its forms, how we use it, who we share it with, and the choices and rights you have. By using this website, you agree to the practices described in this policy.',
+                ]],
+                ['h' => 'Information we collect', 'p' => [
+                    'Information you give us: when you register for the summit, nominate for an award, apply to exhibit, enquire about sponsorship, join the BACCO Freelancer Forum, register for a programme or contact us, we collect the details the form asks for. This may include your name, email address, mobile number, organisation, designation, city, professional details, portfolio and marketplace profile links, and any documents you upload.',
+                    'Information collected automatically: when you browse the website we may collect technical information such as your browser type, device, pages visited, referring page and the date and time of your visit. We store a one-way hash of your IP address rather than the address itself, to help prevent spam and abuse.',
+                    'Cookies: we use essential cookies to keep the website secure and working, for example to remember your language choice and protect forms. You can control cookies through your browser settings, but some parts of the website may not work properly without them.',
+                ]],
+                ['h' => 'How we use your information', 'p' => [
+                    'We use your information to process your registrations, applications, nominations and enquiries; to send confirmations, reference numbers, e-tickets and event updates; to evaluate award nominations with the jury; to respond to your messages; to plan and improve the summit and this website; and to protect the website and its users against fraud and misuse.',
+                    'We will only send you promotional messages where you have agreed to receive them. You can opt out at any time using the link in the message or by contacting us.',
+                ]],
+                ['h' => 'Legal basis and consent', 'p' => [
+                    'We process your information on the basis of your consent, to fulfil the request you make through a form, and for our legitimate interest in running and securing the event. Every form asks for your consent, and we record the version of the consent wording you agreed to and when you agreed to it.',
+                ]],
+                ['h' => 'Sharing your information', 'p' => [
+                    'We do not sell or rent your personal information. We share it only with the organising team; with award jury members, for award applications; with trusted service providers who help us run the website, send emails and deliver the event, under obligations to keep it confidential; and with authorities where we are required to do so by law.',
+                    'Where you choose to be listed publicly, for example as a speaker, exhibitor, nominee or award winner, the details you approve may be shown on this website.',
+                ]],
+                ['h' => 'Data security', 'p' => [
+                    'We use appropriate technical and organisational measures to protect your information against unauthorised access, loss or misuse. Contact details such as mobile numbers are stored encrypted, and uploaded documents are kept in private storage that is never published on the website.',
+                    'No method of transmission over the internet is completely secure, so we cannot guarantee absolute security, but we work to protect your information and review our safeguards regularly.',
+                ]],
+                ['h' => 'Data retention', 'p' => [
+                    'We keep your information only for as long as it is needed for the purpose it was collected for, including running the current and related future editions of the summit, and to meet legal, accounting or reporting requirements. When it is no longer needed, we delete or anonymise it.',
+                ]],
+                ['h' => 'Your rights', 'p' => [
+                    'You may ask to access the personal information we hold about you, to correct information that is inaccurate, to delete your information, or to withdraw your consent at any time. Withdrawing consent does not affect processing that took place before you withdrew it. To make a request, contact us using the details below.',
+                ]],
+                ['h' => 'Third-party links', 'p' => [
+                    'This website may link to other websites, such as partner, sponsor, marketplace or social media pages. We are not responsible for the privacy practices or content of those websites, and we encourage you to read their privacy policies.',
+                ]],
+                ['h' => 'Children’s privacy', 'p' => [
+                    'This website is intended for users aged 16 and over. We do not knowingly collect personal information from children under 16 without the consent of a parent or guardian. If you believe a child has given us personal information, please contact us and we will delete it.',
+                ]],
+                ['h' => 'Changes to this policy', 'p' => [
+                    'We may update this Privacy Policy from time to time. The updated version will be posted on this page with a new "last updated" date. We encourage you to review this page periodically.',
+                ]],
+                ['h' => 'Contact us', 'p' => [
+                    'If you have any questions about this Privacy Policy or how we handle your information, please contact the Freelancer Summit Bangladesh team through the contact page of this website.',
+                ]],
+            ],
+        ];
+    }
+
+    /** Standard terms of use, plain text. Every heading and paragraph is editable in Pages › Terms. */
+    public function terms(): array
+    {
+        return [
+            'updated' => '6 November 2026',
+            'sections' => [
+                ['h' => 'Acceptance of terms', 'p' => [
+                    'These Terms of Use govern your access to and use of the Freelancer Summit Bangladesh website, organised by the Bangladesh Association of Contact Center & Outsourcing (BACCO) with the Department of ICT, Government of Bangladesh. By accessing or using this website, you agree to be bound by these terms. If you do not agree, please do not use the website.',
+                ]],
+                ['h' => 'Use of the website', 'p' => [
+                    'You may use this website for lawful purposes only. You agree not to use it in a way that breaks any applicable law, infringes the rights of others, or restricts anyone else’s use of the website.',
+                    'You must not attempt to gain unauthorised access to the website, its servers or databases; introduce viruses or other harmful code; submit spam or automated submissions; or copy, scrape or reproduce the website’s content for commercial purposes without our written permission.',
+                ]],
+                ['h' => 'Registrations, applications and nominations', 'p' => [
+                    'When you submit a form, you confirm that the information you provide is true, accurate and complete, and that you have the right to share it. Submitting a form does not guarantee a place at the event, an award, a booth, a forum membership or a sponsorship. Each one is confirmed by the organising team by email.',
+                    'We may refuse, cancel or withdraw any registration, application or nomination that contains false information, breaks these terms or the event rules, or for operational reasons.',
+                ]],
+                ['h' => 'Event information and changes', 'p' => [
+                    'We aim to keep event information accurate and up to date, but dates, venues, speakers, sessions and programmes may change. The organisers may change, postpone or cancel any part of the event. The latest information is always published on this website.',
+                ]],
+                ['h' => 'Event attendance and conduct', 'p' => [
+                    'Attendees, speakers, exhibitors and sponsors are expected to behave respectfully and follow the instructions of the organisers and venue staff. The organisers may refuse entry to, or remove, anyone whose behaviour is unsafe, disruptive or unlawful.',
+                    'Photographs and video may be taken at summit events and used by the organisers in event reporting, on this website and on social media. By attending, you agree to appear in such material.',
+                ]],
+                ['h' => 'Intellectual property', 'p' => [
+                    'All content on this website, including text, graphics, logos, photographs, videos and design, belongs to the organisers or their licensors and is protected by intellectual property laws. Partner and sponsor names and logos belong to their respective owners. You may view and share pages for personal, non-commercial use, but you may not reproduce, modify or distribute content without prior written permission.',
+                ]],
+                ['h' => 'Content you submit', 'p' => [
+                    'By submitting content such as profiles, portfolio links, biographies, photographs or documents, you grant the organisers a non-exclusive licence to use that content to process your submission and, where you have agreed to it, to display it on this website and in event materials. You remain the owner of your content.',
+                ]],
+                ['h' => 'Third-party links', 'p' => [
+                    'This website may contain links to websites operated by third parties. These links are provided for convenience only. We do not control and are not responsible for the content, policies or practices of any third-party website.',
+                ]],
+                ['h' => 'Disclaimer', 'p' => [
+                    'This website and its content are provided on an "as is" and "as available" basis. While we work to keep the website accurate and available, we make no warranties that it will be error-free, uninterrupted or free of harmful components.',
+                ]],
+                ['h' => 'Limitation of liability', 'p' => [
+                    'To the fullest extent permitted by law, the organisers and their partners are not liable for any direct, indirect or consequential loss or damage arising from your use of, or inability to use, this website or from your reliance on any information on it.',
+                ]],
+                ['h' => 'Privacy', 'p' => [
+                    'Your use of this website is also governed by our Privacy Policy, which explains how we collect, use and protect your personal information.',
+                ]],
+                ['h' => 'Changes to these terms', 'p' => [
+                    'We may update these Terms of Use at any time. The updated version will be posted on this page with a new "last updated" date. Your continued use of the website after changes are published means you accept the updated terms.',
+                ]],
+                ['h' => 'Governing law', 'p' => [
+                    'These terms are governed by the laws of the People’s Republic of Bangladesh. Any dispute relating to these terms or this website is subject to the jurisdiction of the courts of Bangladesh.',
+                ]],
+                ['h' => 'Contact us', 'p' => [
+                    'If you have any questions about these Terms of Use, please contact the Freelancer Summit Bangladesh team through the contact page of this website.',
+                ]],
+            ],
         ];
     }
 }

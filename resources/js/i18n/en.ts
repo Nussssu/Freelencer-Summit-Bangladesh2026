@@ -57,8 +57,6 @@ const en = {
         why: 'Why attend',
         whyLead: "Discover opportunities to learn, connect, collaborate, and grow within Bangladesh's digital economy.",
         highlights: 'Summit highlights',
-        hgTitle: 'Ideas. Talent.',
-        hgEmphasis: 'Opportunities.',
         speakers: 'Featured speakers',
         announcement: 'Announcement: TBA',
         agenda: 'Agenda preview',

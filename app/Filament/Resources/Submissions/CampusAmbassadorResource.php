@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Submissions;
 
 use App\Filament\Resources\Submissions\Pages\ListCampusAmbassadors;
 use App\Models\AmbassadorLead;
+use App\Models\Campus;
 use App\Support\Statuses;
 use BackedEnum;
 use Filament\Forms\Components\Select;
@@ -50,6 +51,15 @@ class CampusAmbassadorResource extends SubmissionResource
         return Statuses::APPLICATION;
     }
 
+    /** Institution is required; a name matching a listed campus also links that campus. */
+    public static function importColumns(): array
+    {
+        return [
+            'Institution' => fn (string $v) => ['institution' => $v, 'campus_id' => Campus::query()->where('name', $v)->value('id')],
+            'Department' => 'department', 'Motivation' => 'motivation',
+        ];
+    }
+
     protected static function exportColumns(): array
     {
         return [
@@ -83,7 +93,8 @@ class CampusAmbassadorResource extends SubmissionResource
     {
         return parent::table($table)->filters([
             static::statusFilter(),
-            SelectFilter::make('campus')->relationship('campus', 'name')->searchable()->preload(),
+            SelectFilter::make('campus')->relationship('campus', 'name')->searchable()->preload()->native(false)->selectablePlaceholder(),
+            static::receivedFilter(),
         ]);
     }
 

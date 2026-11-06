@@ -260,8 +260,9 @@ class InnerPageContent
             'intro' => 'Choose a topic so your message reaches the right person. We reply by email.',
             'image' => '/media/photos/gallery-12.jpg',
         ],
-        '/privacy-policy' => ['component' => 'Legal', 'content' => [Pages\MediaPages::class, 'privacy'], 'title' => 'Privacy policy', 'emphasis' => 'policy', 'intro' => 'How Freelancer Summit Bangladesh collects, uses and protects personal information.', 'image' => '/media/photos/gallery-13.jpg'],
-        '/terms' => ['component' => 'Legal', 'content' => [Pages\MediaPages::class, 'terms'], 'title' => 'Terms of use', 'emphasis' => 'use', 'intro' => 'The terms for using this website and its registration forms.', 'image' => '/media/photos/gallery-14.jpg'],
+        // Plain text pages: no hero image or buttons (`plain` also hides the image field in Pages).
+        '/privacy-policy' => ['component' => 'Legal', 'content' => [Pages\MediaPages::class, 'privacy'], 'plain' => true, 'title' => 'Privacy Policy', 'emphasis' => '', 'intro' => 'How Freelancer Summit Bangladesh collects, uses and protects your personal information.'],
+        '/terms' => ['component' => 'Legal', 'content' => [Pages\MediaPages::class, 'terms'], 'plain' => true, 'title' => 'Terms of Use', 'emphasis' => '', 'intro' => 'The terms that apply when you use this website and its registration forms.'],
     ];
 
     /**

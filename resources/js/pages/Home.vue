@@ -11,7 +11,6 @@ import LatestNews from '@/components/sections/LatestNews.vue';
 import PartnersWall from '@/components/sections/PartnersWall.vue';
 import StoriesIntro from '@/components/sections/StoriesIntro.vue';
 import HeroSection from '@/components/sections/HeroSection.vue';
-import HighlightsGrid from '@/components/sections/HighlightsGrid.vue';
 import JourneySection from '@/components/sections/JourneySection.vue';
 import NjFinder from '@/components/journey-page/NjFinder.vue';
 import JourneyCounters from '@/components/sections/journey/JourneyCounters.vue';
@@ -110,7 +109,6 @@ useGsap(page5, (reduced) => {
             <JourneyCounters :counters="content.journey.counters" />
         </div>
         <NjFinder class="home-programme-finder" :heading="programmeFinderHeading" :directory="content.journey.directory" />
-        <HighlightsGrid :highlights="content.highlights" />
     </div>
     <SpeakersSection :speakers="content.speakers" :heading="content.headings.speakers" />
     <AgendaPreview :agenda="content.agenda" :heading="content.headings.agenda" />

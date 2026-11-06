@@ -39,8 +39,8 @@ class PageContent
         '/media' => ['Media Gallery', 'Photos and videos from divisional, district and campus programmes.', 'Photo and video galleries by programme'],
         '/partners' => ['Partners', 'Government, development, strategic and supporting partners.', 'All partners by category'],
         '/contact' => ['Contact', 'Contact the Freelancer Summit Bangladesh team.', 'Contacts for each journey and the organisers'],
-        '/privacy-policy' => ['Privacy Policy', 'How Freelancer Summit Bangladesh handles personal data.', 'The privacy policy (awaiting the organiser\'s approved text)'],
-        '/terms' => ['Terms', 'Terms of use for this website and its registrations.', 'Terms of use (awaiting the organiser\'s approved text)'],
+        '/privacy-policy' => ['Privacy Policy', 'How Freelancer Summit Bangladesh collects, uses and protects personal information.', 'The privacy policy'],
+        '/terms' => ['Terms of Use', 'The terms for using the Freelancer Summit Bangladesh website and its registration forms.', 'The terms of use'],
     ];
 
     public static function for(string $pattern): array

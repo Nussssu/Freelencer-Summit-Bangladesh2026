@@ -37,7 +37,7 @@ class PageForm
             Section::make('Content blocks')->columnSpanFull()->visible($editable)
                 ->description('One block per page section, in the exact shape the page uses: the hero (title, image, buttons) first, then each section. Remove a block to fall back to the coded content for that section.')
                 ->schema([
-                    Builder::make('sections')->hiddenLabel()->blocks([...($hero ? [self::hero($hero)] : []), ...BlockFields::blocks($blocks)])
+                    Builder::make('sections')->hiddenLabel()->blocks([...($hero ? [self::hero($hero, PageBlocks::plain($slug))] : []), ...BlockFields::blocks($blocks)])
                         ->blockNumbers(false)->reorderable(false)->collapsible()->collapsed()->addActionLabel('Add a section block'),
                 ]),
             Section::make('Search & social')->description('Blank fields keep the title, description and share image set in the site code.')->columnSpanFull()->schema([
@@ -51,16 +51,16 @@ class PageForm
     }
 
     /** The page hero: title (with the part shown in colour), intro, background image and buttons. */
-    private static function hero(array $coded): Block
+    private static function hero(array $coded, bool $plain = false): Block
     {
         return Block::make('hero')->label('Hero')->maxItems(1)->columns(2)->schema([
             TextInput::make('title')->label('Title')->required()->default($coded['title'])->columnSpanFull(),
             TextInput::make('emphasis')->label('Coloured part of the title')->default($coded['emphasis'])
                 ->helperText('Words from the title shown in colour, e.g. "Roadshows".'),
-            MediaPicker::make('image')->label('Background image')->default($coded['image']),
+            MediaPicker::make('image')->label('Background image')->default($coded['image'])->hidden($plain),
             Textarea::make('intro')->label('Intro')->rows(2)->autosize()->default($coded['intro'])->columnSpanFull()
                 ->helperText('Shown on pages whose hero has an intro line.'),
-            Repeater::make('actions')->label('Buttons')->default($coded['actions'])->columns(3)->columnSpanFull()
+            Repeater::make('actions')->label('Buttons')->default($coded['actions'])->columns(3)->columnSpanFull()->hidden($plain)
                 ->reorderable()->collapsible()->addActionLabel('Add a button')
                 ->itemLabel(fn (array $state) => $state['label'] ?? null)
                 ->schema([

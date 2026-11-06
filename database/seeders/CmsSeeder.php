@@ -39,10 +39,11 @@ class CmsSeeder extends Seeder
         ]);
         EmailTemplate::firstOrCreate(['key' => 'registration_confirmed'], [
             'name' => 'Registration confirmed',
-            'subject' => 'You are registered for {site} · {reference}',
-            'heading' => 'See you in Dhaka, {name}',
-            'body' => "Your registration for {site} is confirmed.\n\nYour reference number is **{reference}**. Bring it (on your phone is fine) to check in on the day.\n\nWe will email the final venue, timings and your e-ticket before the event.",
+            'subject' => EmailTemplate::REGISTRATION_SUBJECT,
+            'heading' => EmailTemplate::REGISTRATION_HEADING,
+            'body' => EmailTemplate::REGISTRATION_BODY,
         ]);
+        EmailTemplate::firstOrCreate(['key' => 'forum_approved'], EmailTemplate::FORUM_APPROVED);
         EmailTemplate::firstOrCreate(['key' => 'user_confirmation'], [
             'name' => 'Enquiry received',
             'subject' => 'We received your {type} · {reference}',

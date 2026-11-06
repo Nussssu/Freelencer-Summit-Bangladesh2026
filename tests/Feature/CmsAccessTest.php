@@ -94,7 +94,7 @@ class CmsAccessTest extends TestCase
             if ($b['type'] === 'hero') {
                 $b['data']['eyebrow'] = 'From the CMS';
             }
-            if ($b['type'] === 'highlights') {
+            if ($b['type'] === 'audiences') {
                 $b['data']['items'] = array_slice($b['data']['items'], 0, 1);
             }
 
@@ -105,7 +105,7 @@ class CmsAccessTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $p) => $p
             ->where('content.hero.eyebrow', 'From the CMS')
             ->where('content.hero.video.src', '/media/delta-flow.webm')
-            ->has('content.highlights', 1)
+            ->has('content.audiences', 1)
             ->where('content.exhibition.enquiryFields', app(HomeContent::class)->exhibition()['enquiryFields']));
 
         $page->update(['is_draft' => true]);
@@ -257,7 +257,118 @@ class CmsAccessTest extends TestCase
     {
         Mail::fake();
         SummitRegistration::factory()->create(['email' => 'r@x.test']);
-        Mail::assertQueued(LeadMail::class, fn (LeadMail $m) => $m->hasTo('r@x.test') && $m->template->key === 'registration_confirmed');
+        app()->terminate(); // sent right after the response, without the queue
+        Mail::assertSent(LeadMail::class, fn (LeadMail $m) => $m->hasTo('r@x.test') && $m->template->key === 'registration_confirmed');
+        Mail::assertNotQueued(LeadMail::class, fn (LeadMail $m) => $m->hasTo('r@x.test'));
+    }
+
+    public function test_registration_confirmed_template_previews_with_details(): void
+    {
+        $this->seed(CmsSeeder::class);
+        $html = \App\Filament\Resources\EmailTemplates\EmailPreview::html(\App\Models\EmailTemplate::where('key', 'registration_confirmed')->firstOrFail());
+        $this->assertStringContainsString('FSB-REG-2026-00001', $html);
+        $this->assertStringContainsString('Sample Person', $html);
+        $this->assertStringContainsString('University of Dhaka', $html);
+    }
+
+    public function test_admin_screens_show_preview_import_reply_and_back(): void
+    {
+        $this->seed(CmsSeeder::class);
+        $this->actingAs($this->user('Admin'));
+        \App\Models\Lead::create(['type' => 'contact_message', 'name' => 'Ana', 'email' => 'ana@x.test', 'data' => []]);
+
+        $this->get('/admin/email-templates')->assertOk()->assertSee('Registration confirmed')->assertSee('Preview');
+        $id = \App\Models\EmailTemplate::where('key', 'registration_confirmed')->value('id');
+        $this->get("/admin/email-templates/{$id}/edit")->assertOk()->assertSee('Preview')->assertSee('class="fs-back"', false);
+        $this->get('/admin/leads')->assertOk()->assertSee('Import CSV')->assertSee('Export CSV')->assertSee('mailto:ana@x.test', false)->assertSee('class="fs-back"', false);
+        $this->get('/admin')->assertOk()->assertDontSee('class="fs-back"', false);
+    }
+
+    public function test_registrations_import_csv_quietly_and_filter_by_date(): void
+    {
+        Mail::fake();
+        $district = \App\Models\District::query()->value('name');
+        $path = tempnam(sys_get_temp_dir(), 'csv');
+        file_put_contents($path, "\xEF\xBB\xBFReceived,Name,Email,Phone,Organisation,District,Attendee type,Interests,Status\n"
+            ."2026-10-01 10:00,Rina Akter,rina@x.test,01711000000,BUET,{$district},Student,,Registered\n"
+            ."2026-10-02 10:00,No Phone,nophone@x.test,,,,,,\n"
+            ."2026-10-03 10:00,Rina Again,RINA@x.test,01711000001,,,,,\n");
+        [$created, $skipped] = \App\Filament\Support\SubmissionCsvImport::import(\App\Filament\Resources\Submissions\SummitRegistrationResource::class, $path);
+        app()->terminate();
+
+        $this->assertSame([1, 2], [$created, $skipped]); // missing phone, duplicate email
+        $reg = SummitRegistration::firstOrFail();
+        $this->assertSame(['Rina Akter', '+8801711000000', 'student', '2026-10-01'], [$reg->name, $reg->phone, $reg->attendee_type->value, $reg->created_at->toDateString()]);
+        $this->assertNotNull($reg->reference);
+        Mail::assertNothingSent();
+        Mail::assertNothingQueued();
+
+        $newer = SummitRegistration::factory()->create(['created_at' => now()]);
+        $this->actingAs($this->user('Admin'));
+        Livewire::test(ListSummitRegistrations::class)
+            ->filterTable('received', ['from' => '2026-09-30', 'until' => '2026-10-01'])
+            ->assertCanSeeTableRecords([$reg])->assertCanNotSeeTableRecords([$newer]);
+    }
+
+    public function test_forum_approve_emails_the_applicant_and_reject_does_not(): void
+    {
+        $this->seed(CmsSeeder::class);
+        Mail::fake();
+        $make = fn (string $email) => \App\Models\ForumApplication::create(['name' => 'Forum Person', 'email' => $email, 'phone' => '+8801711000000',
+            'experience_level' => 'new', 'consent_version' => 'test', 'consented_at' => now()]);
+        $a = $make('approve@x.test');
+        $b = $make('reject@x.test');
+        Mail::fake(); // ignore the submission emails
+
+        $this->actingAs($this->user('Admin'));
+        Livewire::test(\App\Filament\Resources\Submissions\Pages\ListForumMemberships::class)
+            ->callAction(TestAction::make('approve')->table($a))
+            ->callAction(TestAction::make('reject')->table($b));
+
+        $this->assertSame(['approved', 'rejected'], [$a->fresh()->status, $b->fresh()->status]);
+        Mail::assertSent(LeadMail::class, fn (LeadMail $m) => $m->hasTo('approve@x.test') && $m->template->key === 'forum_approved');
+        Mail::assertNotSent(LeadMail::class, fn (LeadMail $m) => $m->hasTo('reject@x.test'));
+    }
+
+    public function test_nominations_import_csv_and_filter_by_date(): void
+    {
+        Mail::fake();
+        $category = \App\Models\AwardCategory::factory()->create(['name' => 'Rising Star CSV']);
+        $path = tempnam(sys_get_temp_dir(), 'csv');
+        file_put_contents($path, "Received,Category,Nominee,Nominee email,Nominee phone,Self-nominated,Status,Score\n"
+            ."2026-10-05 09:00,Rising Star CSV,Karim Uddin,karim@x.test,01811000000,Yes,Shortlisted,88\n"
+            ."2026-10-05 09:00,Rising Star CSV,Karim Uddin,karim@x.test,01811000000,Yes,,\n"   // same nominee, category, edition
+            ."2026-10-05 09:00,Unknown Category,Someone,someone@x.test,01811000001,Yes,,\n"); // no such category
+        [$created, $skipped] = \App\Filament\Support\SubmissionCsvImport::import(\App\Filament\Resources\Submissions\AwardNominationResource::class, $path);
+        app()->terminate();
+
+        $this->assertSame([1, 2], [$created, $skipped]);
+        $nom = \App\Models\AwardApplication::firstOrFail();
+        $this->assertSame([$category->id, '+8801811000000', 'shortlisted', 88, (string) config('summit.edition'), '2026-10-05'],
+            [$nom->award_category_id, $nom->nominee_phone, $nom->status->value, $nom->score, $nom->edition, $nom->created_at->toDateString()]);
+        Mail::assertNothingSent();
+        Mail::assertNothingQueued();
+
+        $newer = \App\Models\AwardApplication::factory()->create(['award_category_id' => $category->id, 'edition' => (string) config('summit.edition'), 'created_at' => now()]);
+        $this->actingAs($this->user('Admin'));
+        Livewire::test(\App\Filament\Resources\Submissions\Pages\ListAwardNominations::class)
+            ->assertActionVisible(TestAction::make('import')->table())
+            ->filterTable('received', ['from' => '2026-10-01', 'until' => '2026-10-31'])
+            ->assertCanSeeTableRecords([$nom])->assertCanNotSeeTableRecords([$newer]);
+    }
+
+    public function test_leads_import_csv_skips_duplicates(): void
+    {
+        $path = tempnam(sys_get_temp_dir(), 'csv');
+        file_put_contents($path, "ï»¿Received,Type,Reference,Name,Email,Status,Follow up,Notes
+2026-11-01 10:00,Contact Message,CON-1,Ana Rahman,ana@x.test,Contacted,,Called
+,,,,,,,
+2026-11-01 10:00,Contact Message,CON-1,Ana Rahman,ana@x.test,Contacted,,Called
+");
+        [$created, $skipped] = \App\Filament\Resources\Leads\LeadCsvImport::import($path);
+        $this->assertSame([1, 2], [$created, $skipped]);
+        $lead = \App\Models\Lead::firstOrFail();
+        $this->assertSame(['contact_message', 'contacted', 'ana@x.test'], [$lead->type, $lead->status, $lead->email]);
     }
 
     public function test_identity_and_seo_defaults_reach_the_site(): void

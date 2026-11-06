@@ -74,6 +74,12 @@ class PageBlocks
         return rescue(fn () => app()->call([app($class), $method]), report: false);
     }
 
+    /** Text-only pages (privacy, terms): no hero image. */
+    public static function plain(string $slug): bool
+    {
+        return (bool) (InnerPageContent::PAGES[$slug]['plain'] ?? false);
+    }
+
     /** Deleted in Pages (trashed): the page is offline until it is restored. */
     public static function offline(string $slug): bool
     {
@@ -143,7 +149,7 @@ class PageBlocks
         if (! is_array($block)) {
             return $coded;
         }
-        foreach (['title', 'image'] as $k) {
+        foreach (static::plain($source ?? $slug) ? ['title'] : ['title', 'image'] as $k) { // text-only pages never take an image
             if (is_string($block[$k] ?? null) && $block[$k] !== '') {
                 $coded[$k] = $block[$k];
             }

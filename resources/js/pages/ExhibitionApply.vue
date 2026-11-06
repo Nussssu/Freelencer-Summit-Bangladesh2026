@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -25,6 +26,7 @@ import type { Consent, InnerPage, Option } from '@/types/inner';
 // then booth, products and needs, then a review with consent. Each step is validated here first; the server validates all.
 const props = defineProps<{ page: InnerPage; content: { sectors: Option[]; booths: Option[]; consent: Consent; steps: string[] } }>();
 const { t } = useI18n();
+const ph = usePlaceholder();
 
 const step = ref(0);
 const form = useForm({ organisation: '', sector: '', contact_person: '', designation: '', email: '', mobile: '', booth_requirement: '', products: '', branding_needs: '', requirements: '', consent: false, hp_company: '' });
@@ -93,13 +95,13 @@ const label = (options: Option[], value: string) => options.find((o) => o.value 
             <div v-show="step === 0" class="mt-7 grid gap-x-9 gap-y-6 border-b border-line-light pb-9 sm:grid-cols-2">
                 <Field v-slot="{ id, describedby, invalid }" label="Organization / Company Name" name="organisation" required :error="form.errors.organisation">
                     <div class="relative">
-                        <input :id="id" v-model.trim="form.organisation" type="text" name="organisation" autocomplete="organization" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                        <input :id="id" v-model.trim="form.organisation" type="text" name="organisation" :placeholder="ph('organisation')" autocomplete="organization" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                     </div>
                 </Field>
                 <Field v-slot="{ id, describedby, invalid }" label="Industry / Sector" name="sector" required :error="form.errors.sector">
                     <div class="relative">
                         <select :id="id" v-model="form.sector" name="sector" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.sector && 'text-ink-2/80']">
-                            <option value="">Select your industry or sector</option>
+                            <option value="">{{ ph('sector') }}</option>
                             <option v-for="o in content.sectors" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                         </select>
                         <Icon name="chevron" :size="18" class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-night" />
@@ -108,7 +110,7 @@ const label = (options: Option[], value: string) => options.find((o) => o.value 
                 <Field v-for="f in contact" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                     <div class="relative">
                         <BdPrefix v-if="f.type === 'tel'" />
-                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
+                        <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :placeholder="ph(f.key)" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                     </div>
                 </Field>
             </div>

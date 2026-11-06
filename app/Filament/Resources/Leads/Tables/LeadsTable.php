@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources\Leads\Tables;
 
+use App\Filament\Resources\Leads\LeadCsvImport;
 use App\Filament\Support\CsvExport;
 use App\Models\Lead;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -42,8 +44,14 @@ class LeadsTable
                 Filter::make('follow_up_due')->label('Follow-up due')->toggle()
                     ->query(fn ($query) => $query->whereNotNull('follow_up_at')->where('follow_up_at', '<=', now())->whereNotIn('status', ['closed', 'spam'])),
             ])
-            ->headerActions([CsvExport::action('Leads', self::EXPORT)])
-            ->recordActions([EditAction::make()->label('Open')])
+            ->headerActions([CsvExport::action('Leads', self::EXPORT), LeadCsvImport::action()])
+            ->recordActions([
+                Action::make('reply')->label('Reply')->icon('heroicon-o-arrow-uturn-left')->iconButton()->color('primary')
+                    ->tooltip(fn (Lead $r) => 'Reply to '.$r->email)
+                    ->visible(fn (Lead $r) => filled($r->email))
+                    ->url(fn (Lead $r) => 'mailto:'.$r->email.'?subject='.rawurlencode('Re: '.$r->typeLabel().($r->reference ? ' ('.$r->reference.')' : '').' · '.config('summit.name'))),
+                EditAction::make()->label('Open'),
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('status')->label('Set status')->icon('heroicon-o-tag')

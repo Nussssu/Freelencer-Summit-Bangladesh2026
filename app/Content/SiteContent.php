@@ -99,7 +99,6 @@ class SiteContent
         return Settings::get('legal', [
             ['label' => 'Privacy Policy', 'href' => '/privacy-policy'],
             ['label' => 'Terms', 'href' => '/terms'],
-            ['label' => 'Sitemap', 'href' => '/sitemap.xml'],
         ]);
     }
 

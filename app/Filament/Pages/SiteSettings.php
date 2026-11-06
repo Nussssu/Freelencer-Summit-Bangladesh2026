@@ -6,6 +6,7 @@ use App\Filament\Fields\MediaPicker;
 use App\Filament\Resources\EmailTemplates\EmailTemplateResource;
 use App\Models\AuditLog;
 use App\Support\Access;
+use App\Support\FormPlaceholders;
 use App\Support\Settings;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -64,6 +65,7 @@ class SiteSettings extends Page
             'recaptcha' => $recaptcha + ['enabled' => false, 'version' => 'v3', 'threshold' => 0.5],
             'mail' => $mail + ['admin_emails' => [], 'from_address' => config('mail.from.address'), 'from_name' => config('mail.from.name')],
             'programmes' => Settings::get('programmes', []) + ['roadshow_media' => false],
+            'placeholders' => FormPlaceholders::all(),
         ]);
     }
 
@@ -110,6 +112,13 @@ class SiteSettings extends Page
                         Toggle::make('programmes.roadshow_media')->label('Show "Photos and videos" on roadshow pages')
                             ->helperText('Off hides the section on every roadshow page.'),
                     ]),
+                ]),
+                Tab::make('Form placeholders')->icon(Heroicon::OutlinedPencilSquare)->schema([
+                    Text::make('The grey hint text shown inside empty fields on the website forms. A field used by several forms (name, email, mobile…) shares one placeholder. Clear a field to restore its default.')->color('gray'),
+                    ...array_map(fn (string $group, array $fields) => Section::make($group)->collapsible()->columns(2)->schema(
+                        array_map(fn (string $key, array $f) => TextInput::make("placeholders.{$key}")->label($f[0])->maxLength(160)
+                            ->placeholder($f[1])->helperText("Default: {$f[1]}"), array_keys($fields), $fields),
+                    ), array_keys(FormPlaceholders::GROUPS), FormPlaceholders::GROUPS),
                 ]),
                 Tab::make('Security')->icon(Heroicon::OutlinedShieldCheck)->schema([
                     Section::make('Google reCAPTCHA')->description('Protects the public forms. Keys come from google.com/recaptcha/admin; the key type must match the version.')->columns(2)->schema([
@@ -168,6 +177,11 @@ class SiteSettings extends Page
         Settings::put('social', array_map(fn ($v) => $v ?: null, $data['social'] ?? []));
         Settings::put('identity', $data['identity'] ?? []);
         Settings::put('seo', array_filter($data['seo'] ?? []));
+        $defaults = FormPlaceholders::defaults();
+        Settings::put('form_placeholders', array_filter(
+            array_intersect_key(array_map(fn ($v) => trim((string) $v), $data['placeholders'] ?? []), $defaults),
+            fn ($v, $k) => $v !== '' && $v !== $defaults[$k], ARRAY_FILTER_USE_BOTH,
+        ));
         Settings::put('programmes', ['roadshow_media' => (bool) ($data['programmes']['roadshow_media'] ?? false)]);
 
         $recaptcha = $data['recaptcha'] ?? [];

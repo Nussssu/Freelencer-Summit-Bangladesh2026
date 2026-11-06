@@ -418,7 +418,6 @@ class HomeContent
 
         return [
             'why' => $h('Built for every ambition.', 'every ambition.'),
-            'highlights' => $h('Nine reasons Dhaka will be loud.', 'loud.'),
             'speakers' => $h('The people on stage.', 'on stage.'),
             'agenda' => $h('A day built for doing.', 'doing.'),
             'exhibition' => $h('Put your booth where the talent is.', 'talent'),
@@ -441,7 +440,6 @@ class HomeContent
             'about' => $this->about(),
             'journey' => $this->journey(),
             'audiences' => $this->audiences(),
-            'highlights' => $this->highlights(),
             'speakers' => $this->speakers(),
             'agenda' => $this->agenda(),
             'awards' => $this->awards(),

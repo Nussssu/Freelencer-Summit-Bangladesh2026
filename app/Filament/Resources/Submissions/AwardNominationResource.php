@@ -6,7 +6,11 @@ use App\Enums\AwardStatus;
 use App\Filament\Resources\Submissions\Pages\ListAwardNominations;
 use App\Http\Controllers\SubmissionController;
 use App\Filament\Fields\MediaPicker;
+use App\Filament\Support\SubmissionCsvImport;
 use App\Models\AwardApplication;
+use App\Models\AwardCategory;
+use App\Models\District;
+use App\Rules\BdMobile;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -24,6 +28,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class AwardNominationResource extends SubmissionResource
@@ -45,6 +50,50 @@ class AwardNominationResource extends SubmissionResource
     protected static ?int $navigationSort = 2;
 
     protected static ?string $modelLabel = 'nomination';
+
+    protected static bool $inlineFilters = true;
+
+    public static function importIdentity(): array
+    {
+        return [
+            'Nominee' => 'nominee_name', 'Nominee email' => 'nominee_email',
+            'Nominee phone' => fn (string $v) => ['nominee_phone' => BdMobile::normalize($v)],
+        ];
+    }
+
+    /** Category must match an award category's name. */
+    public static function importRequired(): array
+    {
+        return ['nominee_name', 'nominee_email', 'nominee_phone', 'award_category_id'];
+    }
+
+    /** The same nominee in the same category and edition is already in the list. */
+    public static function importDuplicate(array $attributes): bool
+    {
+        return AwardApplication::withTrashed()->where('nominee_email', $attributes['nominee_email'])
+            ->where('award_category_id', $attributes['award_category_id'])->where('edition', $attributes['edition'])->exists();
+    }
+
+    public static function importColumns(): array
+    {
+        return [
+            'Edition' => 'edition',
+            'Category' => fn (string $v) => ['award_category_id' => AwardCategory::query()->where('name', $v)->orWhere('slug', Str::slug($v))->value('id')],
+            'Self-nominated' => fn (string $v) => ['self_nominated' => SubmissionCsvImport::yes($v)],
+            'Nominator' => 'nominator_name', 'Nominator email' => 'nominator_email',
+            'Nominator phone' => fn (string $v) => ['nominator_phone' => BdMobile::normalize($v)],
+            'District' => fn (string $v) => ['district_id' => District::query()->where('name', $v)->orWhere('slug', Str::slug($v))->value('id')],
+            'Headline' => 'headline',
+            'Score' => fn (string $v) => ['score' => is_numeric($v) ? max(0, min(100, (int) $v)) : null],
+            'Shortlist public' => fn (string $v) => ['shortlist_published' => SubmissionCsvImport::yes($v)],
+            'Winner public' => fn (string $v) => ['winner_published' => SubmissionCsvImport::yes($v)],
+        ];
+    }
+
+    public static function importDefaults(): array
+    {
+        return ['edition' => (string) config('summit.edition'), 'self_nominated' => true];
+    }
 
     protected static function statuses(): ?array
     {
@@ -77,8 +126,9 @@ class AwardNominationResource extends SubmissionResource
         return parent::table($table)
             ->filters([
                 static::statusFilter(),
-                SelectFilter::make('category')->relationship('category', 'name'),
-                SelectFilter::make('edition')->options(fn () => AwardApplication::query()->distinct()->orderByDesc('edition')->pluck('edition', 'edition')->all()),
+                SelectFilter::make('category')->relationship('category', 'name')->native(false)->selectablePlaceholder(),
+                SelectFilter::make('edition')->options(fn () => AwardApplication::query()->distinct()->orderByDesc('edition')->pluck('edition', 'edition')->all())->native(false)->selectablePlaceholder(),
+                static::receivedFilter(),
             ])
             ->recordActions([
                 // One click moves a nomination along the jury workflow and publishes it on the site.

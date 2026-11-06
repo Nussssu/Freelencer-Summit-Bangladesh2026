@@ -5,11 +5,13 @@ import Icon from '@/components/ui/Icon.vue';
 import type { LinkRow, Option } from '@/types/inner';
 import Field from './Field.vue';
 import { inputClass, stateClass } from './input';
+import { usePlaceholder } from '@/composables/usePlaceholder';
 
 // Repeatable links (portfolio, marketplace profiles). With `platforms`, each row gets a platform select.
 const props = withDefaults(defineProps<{ label: string; name: string; platforms?: Option[]; max?: number; required?: boolean; help?: string; errors?: Record<string, string> }>(), { max: 5, errors: () => ({}) });
 const model = defineModel<LinkRow[]>({ default: () => [{ url: '' }] });
 const { t } = useI18n();
+const ph = usePlaceholder();
 const list = ref<HTMLElement>();
 
 async function add() {
@@ -26,11 +28,11 @@ const err = (i: number, k: string) => props.errors[`${props.name}.${i}.${k}`];
         <ul ref="list" class="space-y-3" :aria-describedby="describedby">
             <li v-for="(row, i) in model" :key="i" class="flex flex-wrap items-start gap-2 sm:flex-nowrap">
                 <select v-if="platforms" v-model="row.platform" :aria-label="`${t('inner.form.platform')} ${i + 1}`" :aria-invalid="!!err(i, 'platform')" :class="[inputClass, stateClass(!!err(i, 'platform')), 'sm:w-48']">
-                    <option value="">{{ t('inner.form.platform') }}</option>
+                    <option value="">{{ ph('platform', t('inner.form.platform')) }}</option>
                     <option v-for="p in platforms" :key="p.value" :value="p.value">{{ p.label }}</option>
                 </select>
                 <div class="min-w-0 flex-1">
-                    <input :id="`${id}-${i}`" v-model.trim="row.url" type="url" inputmode="url" placeholder="https://" :aria-label="`${t('inner.form.url')} ${i + 1}`" :aria-invalid="!!err(i, 'url')" :class="[inputClass, stateClass(!!err(i, 'url'))]" />
+                    <input :id="`${id}-${i}`" v-model.trim="row.url" type="url" inputmode="url" :placeholder="ph(name, ph('link', 'https://'))" :aria-label="`${t('inner.form.url')} ${i + 1}`" :aria-invalid="!!err(i, 'url')" :class="[inputClass, stateClass(!!err(i, 'url'))]" />
                     <p v-if="err(i, 'url') || err(i, 'platform')" class="mt-1 text-sm font-medium text-red-ink">{{ err(i, 'url') ?? err(i, 'platform') }}</p>
                 </div>
                 <button v-if="model.length > 1" type="button" class="grid min-h-11 min-w-11 place-items-center rounded-md border border-night/15 text-ink-2 transition-colors hover:border-red hover:text-red-ink" :aria-label="t('inner.form.removeLink', { n: i + 1 })" @click="remove(i)"><Icon name="close" :size="16" /></button>

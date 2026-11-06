@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePlaceholder } from '@/composables/usePlaceholder';
 import { useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -32,6 +33,7 @@ const props = defineProps<{
     content: { districts: OptionGroup[]; experience: Option[]; availability: Option[]; skills: Option[]; platforms: Option[]; nationalities: Option[]; profileTypes: Option[]; consent: Consent; steps: string[] };
 }>();
 const { t } = useI18n();
+const ph = usePlaceholder();
 
 const step = ref(0);
 const form = useForm({
@@ -109,12 +111,12 @@ const district = computed(() => props.content.districts.flatMap((g) => g.options
                     <Field v-for="f in text.slice(0, 2)" :key="f.key" v-slot="{ id, describedby, invalid }" :label="f.label" :name="f.key" required :error="form.errors[f.key]">
                         <div class="relative">
                             <BdPrefix v-if="f.type === 'tel'" />
-                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
+                            <input :id="id" v-model.trim="form[f.key]" :type="f.type ?? 'text'" :name="f.key" :placeholder="ph(f.key)" :inputmode="f.type === 'tel' ? 'tel' : undefined" :autocomplete="f.autocomplete" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), f.type === 'tel' && 'pl-[6.75rem]!']" />
                         </div>
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" :label="text[2].label" name="email" required :error="form.errors.email">
                         <div class="relative">
-                            <input :id="id" v-model.trim="form.email" type="email" name="email" autocomplete="email" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                            <input :id="id" v-model.trim="form.email" type="email" name="email" :placeholder="ph('email')" autocomplete="email" required :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                         </div>
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" label="Nationality" name="nationality" required :error="form.errors.nationality">
@@ -128,7 +130,7 @@ const district = computed(() => props.content.districts.flatMap((g) => g.options
                     <Field v-slot="{ id, describedby, invalid }" label="Current City" name="district" required :error="form.errors.district">
                         <div class="relative">
                             <select :id="id" v-model="form.district" name="district" required :aria-invalid="invalid" :aria-describedby="describedby" :class="[iconInputClass(invalid), 'appearance-none pr-11', !form.district && 'text-ink-2/80']">
-                                <option value="">Select your city</option>
+                                <option value="">{{ ph('district') }}</option>
                                 <optgroup v-for="g in content.districts" :key="g.label" :label="g.label">
                                     <option v-for="o in g.options" :key="o.value" :value="o.value" class="text-night">{{ o.label }}</option>
                                 </optgroup>
@@ -138,7 +140,7 @@ const district = computed(() => props.content.districts.flatMap((g) => g.options
                     </Field>
                     <Field v-slot="{ id, describedby, invalid }" label="NID Number" name="nid" :error="form.errors.nid">
                         <div class="relative">
-                            <input :id="id" v-model.trim="form.nid" type="text" name="nid" inputmode="numeric" autocomplete="off" maxlength="17" :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
+                            <input :id="id" v-model.trim="form.nid" type="text" name="nid" :placeholder="ph('nid')" inputmode="numeric" autocomplete="off" maxlength="17" :aria-invalid="invalid" :aria-describedby="describedby" :class="iconInputClass(invalid)" />
                         </div>
                     </Field>
                 </div>

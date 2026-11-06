@@ -52,9 +52,25 @@ class LeadMail extends Mailable implements ShouldQueue
             '{reference}' => $e($this->lead->reference ?? '#'.$this->lead->id),
             '{site}' => $e(config('summit.name')),
             '{fields}' => $escape ? $this->fieldsTable() : '',
+            '{details}' => $escape ? $this->detailsTable() : '',
         ];
 
         return strtr($text, $values);
+    }
+
+    /** The visitor's own key details (for confirmations): name, contact, organisation, attendee type, reference. */
+    private function detailsTable(): string
+    {
+        $data = (array) $this->lead->data;
+        $labels = ['name' => 'Name', 'email' => 'Email', 'phone' => 'Mobile', 'organisation' => 'Organisation', 'institution' => 'Institution',
+            'designation' => 'Designation', 'attendee_type' => 'Attendee type', 'reference' => 'Reference'];
+        $rows = collect($labels)
+            ->map(fn ($label, $k) => [$label, $data[$k] ?? ($k === 'reference' ? $this->lead->reference : null)])
+            ->filter(fn ($r) => is_scalar($r[1]) && (string) $r[1] !== '')
+            ->map(fn ($r, $k) => '<tr><td style="padding:6px 12px 6px 0;color:#3f4b44;white-space:nowrap">'.e($r[0]).'</td><td style="padding:6px 0;font-weight:600">'.e($k === 'attendee_type' ? Str::headline((string) $r[1]) : (string) $r[1]).'</td></tr>')
+            ->implode('');
+
+        return '<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-top:1px solid rgba(7,20,17,.1);font-size:14px">'.$rows.'</table>';
     }
 
     private function fieldsTable(): string

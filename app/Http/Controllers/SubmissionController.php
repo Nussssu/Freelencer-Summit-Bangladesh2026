@@ -11,6 +11,7 @@ use App\Models\AmbassadorLead;
 use App\Models\AwardApplication;
 use App\Models\AwardCategory;
 use App\Models\ContactMessage;
+use App\Models\EmailTemplate;
 use App\Models\ExhibitionApplication;
 use App\Models\ForumApplication;
 use App\Models\JourneyProgram;
@@ -85,7 +86,7 @@ class SubmissionController extends Controller
             'interests' => $data['interests'] ?? [],
         ], $request);
 
-        return $this->done($data['email'], $row->reference, 'register', 'Summit registration received', [
+        return $this->done($data['email'], $row->reference, 'register', 'Summit registration received', receipt: ! self::confirmsRegistrations(), lines: [
             'Thank you for registering for Freelancer Summit Bangladesh. Keep this reference number for your records.',
             'We will email your e-ticket and venue details once the date and venue are confirmed.',
         ]);
@@ -266,7 +267,7 @@ class SubmissionController extends Controller
 
         $row = ProgramRegistration::submit(['journey_program_id' => $program->id, 'name' => $data['name'], 'email' => $data['email'], 'phone' => BdMobile::normalize($data['mobile']), 'institution' => $data['institution'] ?? null], $request);
 
-        return $this->done($data['email'], $row->reference, 'program', 'Programme registration received', [
+        return $this->done($data['email'], $row->reference, 'program', 'Programme registration received', receipt: ! self::confirmsRegistrations(), lines: [
             "You are registered for {$program->title}.",
             'We will email the final time and venue details before the programme.',
         ]);
@@ -321,11 +322,20 @@ class SubmissionController extends Controller
         ));
     }
 
-    private function done(string $email, string $reference, string $form, string $heading, array $lines): RedirectResponse
+    /** `receipt: false` when the admin "Registration confirmed" email already goes to this person (no duplicate). */
+    private function done(string $email, string $reference, string $form, string $heading, array $lines, bool $receipt = true): RedirectResponse
     {
-        Mail::to($email)->queue(new SubmissionReceived($heading, $reference, $lines));
+        if ($receipt) {
+            Mail::to($email)->queue(new SubmissionReceived($heading, $reference, $lines));
+        }
 
         return back()->with('submitted', ['form' => $form, 'reference' => $reference]);
+    }
+
+    /** The "Registration confirmed" template (Messages › Email templates) is switched on. */
+    private static function confirmsRegistrations(): bool
+    {
+        return EmailTemplate::query()->where('key', 'registration_confirmed')->where('enabled', true)->exists();
     }
 
     /** Human field names for the error summary. */

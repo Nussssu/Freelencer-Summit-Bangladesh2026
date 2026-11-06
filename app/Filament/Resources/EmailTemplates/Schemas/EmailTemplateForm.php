@@ -18,6 +18,7 @@ class EmailTemplateForm
                 Toggle::make('enabled')->label('Send this email')->helperText(fn (?EmailTemplate $record) => match ($record?->key) {
                     'admin_notification' => 'Goes to the admin addresses in Settings › Email.',
                     'registration_confirmed' => 'Goes to people who register (summit, programmes). Other forms get "Enquiry received".',
+                    'forum_approved' => 'Goes to a forum applicant when you click Approve in Registrations › Forum memberships.',
                     default => 'Goes to the person who submitted the form.',
                 }),
                 TextInput::make('subject')->required()->maxLength(255),

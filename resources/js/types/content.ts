@@ -52,6 +52,8 @@ export interface SharedProps {
     summit: Summit;
     site: SiteData;
     seo: { title?: string; description?: string; keywords?: string; image?: string } | null;
+    /** Form field name => placeholder, edited in Settings › Form placeholders. */
+    placeholders: Record<string, string>;
     flash: { success: string | null; submitted?: { form: string; reference: string } | null };
     errors: Record<string, string>;
     [key: string]: unknown;
@@ -219,7 +221,7 @@ export interface Heading {
     title: string;
     emphasis: string;
 }
-export type HeadingKey = 'why' | 'highlights' | 'speakers' | 'agenda' | 'exhibition' | 'sponsorship' | 'forum' | 'stories' | 'partners' | 'news' | 'media';
+export type HeadingKey = 'why' | 'speakers' | 'agenda' | 'exhibition' | 'sponsorship' | 'forum' | 'stories' | 'partners' | 'news' | 'media';
 
 export interface HomeContent {
     headings: Record<HeadingKey, Heading>;
@@ -228,7 +230,6 @@ export interface HomeContent {
     about: About;
     journey: Journey;
     audiences: Audience[];
-    highlights: Highlight[];
     speakers: Speaker[];
     agenda: Agenda;
     awards: Awards;
